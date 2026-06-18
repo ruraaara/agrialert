@@ -68,12 +68,24 @@ class TaniBotEngine:
         if db_path is None:
             db_path = os.path.join(os.path.dirname(__file__), "tanibot_offline.db")
         self.db_path = db_path
-        self.conn = sqlite3.connect(db_path, check_same_thread=False)
-        self.conn.row_factory = sqlite3.Row
+        self.conn = None
+        self._connect()
         self.current_node = "root"
 
+    def _connect(self):
+        self.conn = sqlite3.connect(self.db_path, check_same_thread=False)
+        self.conn.row_factory = sqlite3.Row
+
+    def _cursor(self):
+        try:
+            return self.conn.cursor()
+        except Exception:
+            self._connect()
+            return self.conn.cursor()
+
     def close(self):
-        self.conn.close()
+        if self.conn:
+            self.conn.close()
 
     # ----------------------------------------------------------------
     # Core navigation
@@ -85,7 +97,7 @@ class TaniBotEngine:
 
     def select(self, node_id):
         """User selects an option -> navigate to that node."""
-        c = self.conn.cursor()
+        c = self._cursor()
         node = c.execute("SELECT * FROM decision_tree WHERE node_id=?", (node_id,)).fetchone()
         if not node:
             return TaniBotResponse("❌ Pilihan tidak ditemukan. Silakan coba lagi.", 
@@ -101,7 +113,7 @@ class TaniBotEngine:
 
     def select_by_index(self, index):
         """Select by 1-based index from current options."""
-        c = self.conn.cursor()
+        c = self._cursor()
         children = c.execute(
             "SELECT node_id, teks FROM decision_tree WHERE parent_id=? ORDER BY rowid",
             (self.current_node,)
@@ -114,7 +126,7 @@ class TaniBotEngine:
 
     def _get_node_response(self, node_id):
         """Build response for a given node (show text + children as options)."""
-        c = self.conn.cursor()
+        c = self._cursor()
         node = c.execute("SELECT * FROM decision_tree WHERE node_id=?", (node_id,)).fetchone()
         if not node:
             return TaniBotResponse("Node not found.")
@@ -163,7 +175,7 @@ class TaniBotEngine:
         for a detected pest/disease at a given growth phase.
         Called directly after CNN detection or via decision tree.
         """
-        c = self.conn.cursor()
+        c = self._cursor()
 
         # Get OPT info
         opt = c.execute("SELECT * FROM opt WHERE id=?", (opt_id,)).fetchone()
@@ -246,7 +258,7 @@ class TaniBotEngine:
     # ----------------------------------------------------------------
     def _get_opt_info_card(self, opt_id):
         """Show full OPT info + all recs across all phases. For non-CNN OPT."""
-        c = self.conn.cursor()
+        c = self._cursor()
         opt = c.execute("SELECT * FROM opt WHERE id=?", (opt_id,)).fetchone()
         if not opt:
             return TaniBotResponse(f"OPT '{opt_id}' tidak ditemukan.",
@@ -310,7 +322,7 @@ class TaniBotEngine:
     # FAQ
     # ----------------------------------------------------------------
     def _get_faq_by_kategori(self, kategori):
-        c = self.conn.cursor()
+        c = self._cursor()
         faqs = c.execute(
             "SELECT * FROM faq WHERE kategori=? ORDER BY id", (kategori,)
         ).fetchall()
@@ -334,7 +346,7 @@ class TaniBotEngine:
 
     def search_faq(self, query):
         """Simple keyword search across all FAQ."""
-        c = self.conn.cursor()
+        c = self._cursor()
         results = c.execute("""
             SELECT * FROM faq 
             WHERE pertanyaan LIKE ? OR jawaban LIKE ? OR kategori LIKE ?
@@ -364,7 +376,7 @@ class TaniBotEngine:
     # Pemupukan
     # ----------------------------------------------------------------
     def _get_pemupukan(self):
-        c = self.conn.cursor()
+        c = self._cursor()
         rows = c.execute("SELECT * FROM pemupukan ORDER BY id").fetchall()
 
         text_parts = [
@@ -395,7 +407,7 @@ class TaniBotEngine:
     # Varietas
     # ----------------------------------------------------------------
     def _get_varietas(self, opt_id):
-        c = self.conn.cursor()
+        c = self._cursor()
         rows = c.execute(
             "SELECT v.*, o.nama_lokal FROM varietas_tahan v JOIN opt o ON v.opt_id=o.id WHERE v.opt_id=? ORDER BY v.id",
             (opt_id,)
@@ -423,7 +435,7 @@ class TaniBotEngine:
     # ----------------------------------------------------------------
     def get_opt_info(self, opt_id):
         """Get full OPT info by ID. For app integration."""
-        c = self.conn.cursor()
+        c = self._cursor()
         opt = c.execute("SELECT * FROM opt WHERE id=?", (opt_id,)).fetchone()
         if opt:
             return dict(opt)
@@ -431,12 +443,12 @@ class TaniBotEngine:
 
     def get_all_opt(self):
         """List all OPT entries."""
-        c = self.conn.cursor()
+        c = self._cursor()
         return [dict(r) for r in c.execute("SELECT id, nama_lokal, tipe FROM opt ORDER BY id").fetchall()]
 
     def get_agens_hayati(self, target_opt=None):
         """Get biological control agents, optionally filtered by target."""
-        c = self.conn.cursor()
+        c = self._cursor()
         if target_opt:
             rows = c.execute(
                 "SELECT * FROM agens_hayati WHERE target_opt LIKE ?", (f"%{target_opt}%",)
@@ -447,7 +459,7 @@ class TaniBotEngine:
 
     def get_db_stats(self):
         """Return database statistics for verification."""
-        c = self.conn.cursor()
+        c = self._cursor()
         stats = {}
         for table in ["opt", "rekomendasi", "varietas_tahan", "faq", "decision_tree", "agens_hayati", "pemupukan"]:
             stats[table] = c.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
