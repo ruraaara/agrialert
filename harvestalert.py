@@ -13,7 +13,7 @@ from streamlit_geolocation import streamlit_geolocation
 # ----------------------------------------------------------------
 #  KONFIGURASI
 # ----------------------------------------------------------------
-DATA_DIR      = Path(os.environ.get("DATA_DIR", "."))
+DATA_DIR      = Path(os.environ.get("DATA_DIR", str(Path(__file__).parent)))
 CSV_ENSO      = DATA_DIR / "el-nino-southern-oscillation-enso-el-nino-and-la-nina-events.csv"
 CSV_NDVI      = DATA_DIR / "Data_NDVI_Indonesia_2022_2026.csv"
 CSV_SENTINEL1 = DATA_DIR / "3_Data_Sentinel1_Indonesia.csv"
