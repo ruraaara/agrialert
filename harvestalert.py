@@ -17,7 +17,7 @@ DATA_DIR      = Path(os.environ.get("DATA_DIR", str(Path(__file__).parent)))
 CSV_ENSO      = DATA_DIR / "el-nino-southern-oscillation-enso-el-nino-and-la-nina-events.csv"
 CSV_NDVI      = DATA_DIR / "Data_NDVI_Indonesia_2022_2026.csv"
 CSV_SENTINEL1 = DATA_DIR / "3_Data_Sentinel1_Indonesia.csv"
-MODEL_PATH    = DATA_DIR / "model_agriwarn.tflite"
+MODEL_PATH    = DATA_DIR / "model_agriwarn.onnx"
 DB_TANIBOT    = DATA_DIR / "tanibot_offline.db"
 RADIUS_KM     = 300
 
@@ -253,16 +253,10 @@ def load_model_cnn():
     if not MODEL_PATH.exists():
         return None
     try:
-        from ai_edge_litert.interpreter import Interpreter
-    except ImportError:
-        try:
-            import tflite_runtime.interpreter as tfl
-            Interpreter = tfl.Interpreter
-        except ImportError:
-            return None
-    interp = Interpreter(model_path=str(MODEL_PATH))
-    interp.allocate_tensors()
-    return interp
+        import onnxruntime as ort
+        return ort.InferenceSession(str(MODEL_PATH))
+    except Exception:
+        return None
 
 model_cnn = load_model_cnn()
 
@@ -300,11 +294,8 @@ def prediksi_gambar(foto_bytes):
     img = cv2.resize(img, (128, 128))
     img_batch = np.expand_dims(img.astype(np.float32), axis=0)
 
-    inp = model_cnn.get_input_details()
-    out = model_cnn.get_output_details()
-    model_cnn.set_tensor(inp[0]['index'], img_batch)
-    model_cnn.invoke()
-    probs = model_cnn.get_tensor(out[0]['index'])[0]
+    input_name = model_cnn.get_inputs()[0].name
+    probs = model_cnn.run(None, {input_name: img_batch})[0][0]
 
     idx   = int(np.argmax(probs))
     kelas = NAMA_KELAS[idx]
