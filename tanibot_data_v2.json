@@ -1,0 +1,2029 @@
+{
+  "opt": [
+    {
+      "id": "pbp",
+      "nama_lokal": "Penggerek Batang Padi",
+      "nama_latin": "Scirpophaga spp., Chilo spp.",
+      "tipe": "hama",
+      "deskripsi": "Hama utama padi yang menyerang batang. Larva menggerek masuk ke dalam batang padi menyebabkan sundep (fase vegetatif) dan beluk (fase generatif).",
+      "gejala": "Fase vegetatif: pucuk layu dan mati (sundep), daun tengah mudah dicabut. Fase generatif: malai hampa berwarna putih (beluk), pangkal malai berwarna cokelat dan mudah dicabut.",
+      "ambang_pengendalian": "Kelompok telur melebihi ambang pengendalian pada areal pesemaian/pertanaman.",
+      "kehilangan_hasil": "Prakiraan MT 2023/2024 serangan seluas 60.295 ha, kejadian 29.552,96 ha (49%).",
+      "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+    },
+    {
+      "id": "wbc",
+      "nama_lokal": "Wereng Batang Cokelat",
+      "nama_latin": "Nilaparvata lugens Stål",
+      "tipe": "hama",
+      "deskripsi": "Hama penghisap cairan tanaman padi yang dapat menyebabkan hopperburn (puso). Juga merupakan vektor virus kerdil rumput dan kerdil hampa.",
+      "gejala": "Tanaman menguning dari bawah, batang bawah basah, tanaman rebah (hopperburn). Koloni terlihat di pangkal batang dekat permukaan air. Serangan berat: puso (gagal panen total).",
+      "ambang_pengendalian": "10 ekor/rumpun saat umur <40 HST, atau 1 ekor/tunas saat umur >40 HST.",
+      "kehilangan_hasil": "Prakiraan MT 2023/2024 seluas 35.766 ha, kejadian 4.182,72 ha (11,7%).",
+      "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+    },
+    {
+      "id": "tikus",
+      "nama_lokal": "Tikus Sawah",
+      "nama_latin": "Rattus argentiventer",
+      "tipe": "hama",
+      "deskripsi": "Hama vertebrata utama padi yang merusak tanaman dari fase pesemaian hingga panen. Aktif pada malam hari, hidup berkoloni di pematang sawah.",
+      "gejala": "Batang padi terpotong miring di bagian bawah, bekas gigitan pada malai dan bulir, jejak/lorong tikus di pematang. Serangan berat: petak sawah rusak merata dari pinggir.",
+      "ambang_pengendalian": "Pengendalian difokuskan pada awal tanam untuk menurunkan populasi tikus betina dewasa sebelum berkembangbiak.",
+      "kehilangan_hasil": "Prakiraan MT 2023/2024 seluas 47.807 ha, kejadian 18.998,73 ha (39,7%).",
+      "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+    },
+    {
+      "id": "blas",
+      "nama_lokal": "Blas (Blast)",
+      "nama_latin": "Pyricularia oryzae (Magnaporthe oryzae)",
+      "tipe": "penyakit",
+      "deskripsi": "Penyakit utama padi yang disebabkan jamur. Dapat menyerang daun, leher malai, dan buku batang. Berkembang pesat pada kondisi lembab dan suhu 25-28°C.",
+      "gejala": "Bercak berbentuk belah ketupat (diamond) pada daun, berwarna abu-abu di tengah dengan tepi cokelat. Pada leher malai: leher malai membusuk, malai patah (neck blast). Blas daun: bercak elips dengan ujung runcing.",
+      "ambang_pengendalian": "Penggunaan fungisida dianjurkan saat intensitas penyakit blas terus meningkat dan melebihi ambang ekonomi.",
+      "kehilangan_hasil": "Prakiraan MT 2023/2024 seluas 30.982 ha, kejadian 10.993,09 ha (35,5%).",
+      "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+    },
+    {
+      "id": "hdb",
+      "nama_lokal": "Hawar Daun Bakteri (HDB/Kresek)",
+      "nama_latin": "Xanthomonas oryzae pv. oryzae",
+      "tipe": "penyakit",
+      "deskripsi": "Penyakit bakteri utama padi. Bakteri masuk melalui luka atau lubang alami (hidatoda). Berkembang pada kondisi lembab tinggi, terutama setelah hujan lebat atau banjir.",
+      "gejala": "Fase kresek: daun muda layu tiba-tiba, menggulung, dan berubah abu-abu kehijauan. Fase hawar: tepi daun menguning lalu mengering dari ujung ke pangkal, daun seperti terbakar. Eksudat bakteri berupa tetesan kuning pada permukaan daun.",
+      "ambang_pengendalian": "Penggunaan bakterisida dianjurkan saat intensitas penyakit HDB terus meningkat dan melebihi ambang ekonomi.",
+      "kehilangan_hasil": "Prakiraan MT 2023/2024 seluas 39.423 ha, kejadian 10.928,90 ha (27,7%).",
+      "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+    },
+    {
+      "id": "tungro",
+      "nama_lokal": "Tungro",
+      "nama_latin": "Rice Tungro Bacilliform Virus (RTBV) & Rice Tungro Spherical Virus (RTSV)",
+      "tipe": "penyakit",
+      "deskripsi": "Penyakit virus yang ditularkan oleh wereng hijau (Nephotettix virescens). Disebabkan oleh dua jenis virus yang bekerja bersamaan. Menyerang sistem vaskuler tanaman.",
+      "gejala": "Daun menguning hingga jingga dari ujung, tanaman kerdil/kaku, anakan berkurang, malai tidak keluar sempurna atau hampa sebagian. Akar berubah cokelat kehitaman.",
+      "ambang_pengendalian": "Pengendalian kimiawi dilakukan saat pengamatan ditemukan populasi wereng daun hijau dan dinyatakan waspada.",
+      "kehilangan_hasil": "Prakiraan MT 2023/2024 seluas 5.050 ha, kejadian 265,54 ha (5,3%).",
+      "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+    },
+    {
+      "id": "brown_spot",
+      "nama_lokal": "Bercak Cokelat (Brown Spot)",
+      "nama_latin": "Bipolaris oryzae (syn. Helminthosporium oryzae)",
+      "tipe": "penyakit",
+      "deskripsi": "Penyakit jamur pada padi yang sering muncul di lahan kekurangan unsur hara, terutama di sawah tadah hujan. Menyerang daun, pelepah, dan bulir padi. Dapat menurunkan produktivitas hingga 50%.",
+      "gejala": "Bercak cokelat tua berbentuk oval atau memanjang pada daun, bagian tengah berwarna putih keabu-abuan dikelilingi tepi cokelat. Mirip blas tetapi bercak lebih bulat/oval (blas berbentuk belah ketupat). Pada serangan berat: daun mengering, bulir berubah warna dan matang sebelum waktunya.",
+      "ambang_pengendalian": "Aplikasi fungisida saat intensitas serangan meningkat dan kondisi lingkungan mendukung perkembangan patogen (kelembapan tinggi, suhu 25-30°C).",
+      "kehilangan_hasil": "Kehilangan hasil dapat mencapai 50-91% pada varietas rentan (Norjamilah et al., 2021).",
+      "sumber": "Dinas Pertanian Kab. Buleleng; Badan Litbang Pertanian (2020)"
+    },
+    {
+      "id": "narrow_brown_spot",
+      "nama_lokal": "Bercak Cokelat Sempit (Narrow Brown Spot)",
+      "nama_latin": "Cercospora oryzae",
+      "tipe": "penyakit",
+      "deskripsi": "Penyakit jamur pada daun padi yang menghasilkan bercak sempit memanjang sejajar tulang daun. Sering muncul pada pertanaman yang kurang terpelihara dengan pemupukan tidak berimbang.",
+      "gejala": "Bintik-bintik terbatas, memanjang sejajar tulang daun, berwarna cokelat kemerahan, panjang sekitar 5 mm dan lebar 1-1,5 mm. Pada serangan berat: bercak menyatu menyebabkan daun mengering.",
+      "ambang_pengendalian": "Pengendalian dilakukan saat intensitas serangan meningkat, terutama pada kondisi pemupukan tidak berimbang.",
+      "kehilangan_hasil": "Intensitas serangan dapat mencapai kategori sangat berat (>80%) di daerah endemik.",
+      "sumber": "Cybex Kementan RI (cybex.pertanian.go.id); Puslitbangtan & BB Padi Sukamandi"
+    },
+    {
+      "id": "sheath_blight",
+      "nama_lokal": "Hawar Pelepah Daun (Sheath Blight)",
+      "nama_latin": "Rhizoctonia solani Kühn",
+      "tipe": "penyakit",
+      "deskripsi": "Penyakit penting padi yang sulit dikendalikan karena patogen memiliki kisaran inang luas. Berkembang lebih parah pada varietas pendek beranakan banyak yang dipupuk urea dosis tinggi. Lebih parah di dataran rendah (0-200 mdpl).",
+      "gejala": "Bercak tidak beraturan berwarna abu-abu kehijauan pada pelepah daun dekat permukaan air, kemudian meluas ke atas. Bercak berbentuk lonjong dengan tepi gelap. Pada kondisi lembab terlihat miselium putih dan sklerosia (butiran cokelat). Serangan berat menyebabkan pelepah dan daun mengering.",
+      "ambang_pengendalian": "Pengendalian dimulai saat ditemukan gejala awal pada pelepah bawah. Lebih efektif jika dilakukan secara terpadu.",
+      "kehilangan_hasil": "Kehilangan hasil berkisar 20-50% pada kondisi yang mendukung perkembangan penyakit.",
+      "sumber": "Nuryanto (2017), Jurnal Perlindungan Tanaman Indonesia Vol.21 No.2, BB Padi Sukamandi"
+    },
+    {
+      "id": "rice_hispa",
+      "nama_lokal": "Hispa Padi (Rice Hispa)",
+      "nama_latin": "Dicladispa armigera",
+      "tipe": "hama",
+      "deskripsi": "Kumbang daun berduri yang merusak daun padi. Kumbang dewasa mengikis permukaan atas daun, sedangkan larva menambang di dalam jaringan daun. Serangan meningkat pada kondisi gulma banyak, pemupukan tinggi, dan kelembapan tinggi.",
+      "gejala": "Permukaan atas daun terkikis menjadi putih transparan (goresan memanjang oleh kumbang dewasa). Larva membuat terowongan/tambang di dalam daun (garis putih/kecokelatan di dalam helai daun). Daun mengering dan rusak pada serangan berat.",
+      "ambang_pengendalian": "Pengendalian saat ditemukan serangan pada fase vegetatif awal. Tidak ada varietas padi yang tahan terhadap hispa.",
+      "kehilangan_hasil": "Serangan berat menyebabkan pengurangan luas daun fotosintetik yang signifikan.",
+      "sumber": "IRRI Rice Knowledge Bank; BB Padi Sukamandi"
+    },
+    {
+      "id": "leaf_scald",
+      "nama_lokal": "Lepuh Daun (Leaf Scald)",
+      "nama_latin": "Microdochium oryzae (syn. Gerlachia oryzae)",
+      "tipe": "penyakit",
+      "deskripsi": "Penyakit jamur pada daun padi yang umumnya menyerang pada fase generatif. Berkembang pada kondisi kelembapan tinggi dan suhu 22-28°C. Sering ditemukan di daerah dataran tinggi.",
+      "gejala": "Bercak dimulai dari ujung daun atau tepi daun berupa zona berwarna cokelat muda keabuan (seperti terlecur/tersiram air panas), dengan garis cokelat tua di tepi bercak. Bercak meluas sepanjang daun membentuk pola bergaris-garis. Daun tampak seperti terlepuh atau terbakar matahari.",
+      "ambang_pengendalian": "Pengendalian saat gejala mulai muncul dan kondisi lingkungan mendukung (curah hujan tinggi, kelembapan >85%).",
+      "kehilangan_hasil": "Kehilangan hasil bervariasi tergantung varietas dan kondisi lingkungan.",
+      "sumber": "IRRI Rice Knowledge Bank; BB Padi Sukamandi"
+    }
+  ],
+  "tree": [
+    {
+      "id": "root",
+      "pid": null,
+      "txt": "🌾 Selamat datang di TaniBot!\nSaya siap membantu Anda menangani masalah tanaman padi.\nPilih topik yang ingin ditanyakan:",
+      "tp": "root",
+      "oid": null,
+      "meta": null
+    },
+    {
+      "id": "opt_faq",
+      "pid": "root",
+      "txt": "❓ Pertanyaan umum pertanian",
+      "tp": "option",
+      "oid": null,
+      "meta": null
+    },
+    {
+      "id": "opt_pupuk",
+      "pid": "root",
+      "txt": "🧪 Rekomendasi pemupukan",
+      "tp": "option",
+      "oid": null,
+      "meta": null
+    },
+    {
+      "id": "opt_varietas",
+      "pid": "root",
+      "txt": "🌱 Info varietas tahan",
+      "tp": "option",
+      "oid": null,
+      "meta": null
+    },
+    {
+      "id": "faq_q",
+      "pid": "opt_faq",
+      "txt": "Topik apa yang ingin ditanyakan?",
+      "tp": "question",
+      "oid": null,
+      "meta": null
+    },
+    {
+      "id": "faq_pengendalian",
+      "pid": "faq_q",
+      "txt": "🛡️ Pengendalian hama/penyakit",
+      "tp": "action",
+      "oid": null,
+      "meta": "{\"kategori\": \"pengendalian\"}"
+    },
+    {
+      "id": "faq_blas",
+      "pid": "faq_q",
+      "txt": "🍂 Tentang penyakit blas",
+      "tp": "action",
+      "oid": null,
+      "meta": "{\"kategori\": \"blas\"}"
+    },
+    {
+      "id": "faq_wereng",
+      "pid": "faq_q",
+      "txt": "🪲 Tentang wereng",
+      "tp": "action",
+      "oid": null,
+      "meta": "{\"kategori\": \"wereng\"}"
+    },
+    {
+      "id": "faq_tikus",
+      "pid": "faq_q",
+      "txt": "🐀 Tentang tikus",
+      "tp": "action",
+      "oid": null,
+      "meta": "{\"kategori\": \"tikus\"}"
+    },
+    {
+      "id": "faq_umum",
+      "pid": "faq_q",
+      "txt": "📋 Umum pertanian padi",
+      "tp": "action",
+      "oid": null,
+      "meta": "{\"kategori\": \"umum\"}"
+    },
+    {
+      "id": "pupuk_ans",
+      "pid": "opt_pupuk",
+      "txt": "📊 Rekomendasi dosis pemupukan padi sawah",
+      "tp": "action",
+      "oid": null,
+      "meta": "{\"tipe\": \"pemupukan\"}"
+    },
+    {
+      "id": "var_q",
+      "pid": "opt_varietas",
+      "txt": "Varietas tahan untuk OPT apa?",
+      "tp": "question",
+      "oid": null,
+      "meta": null
+    },
+    {
+      "id": "var_wbc",
+      "pid": "var_q",
+      "txt": "Tahan wereng batang cokelat",
+      "tp": "action",
+      "oid": null,
+      "meta": "{\"tipe\": \"varietas\", \"opt_id\": \"wbc\"}"
+    },
+    {
+      "id": "var_blas",
+      "pid": "var_q",
+      "txt": "Tahan blas",
+      "tp": "action",
+      "oid": null,
+      "meta": "{\"tipe\": \"varietas\", \"opt_id\": \"blas\"}"
+    },
+    {
+      "id": "var_tungro",
+      "pid": "var_q",
+      "txt": "Tahan tungro",
+      "tp": "action",
+      "oid": null,
+      "meta": "{\"tipe\": \"varietas\", \"opt_id\": \"tungro\"}"
+    },
+    {
+      "id": "opt_detection",
+      "pid": "root",
+      "txt": "📸 Hasil deteksi penyakit/hama (foto daun)",
+      "tp": "option",
+      "oid": null,
+      "meta": null
+    },
+    {
+      "id": "opt_info_hama",
+      "pid": "root",
+      "txt": "📖 Info hama lain (PBP, WBC, Tikus)",
+      "tp": "option",
+      "oid": null,
+      "meta": null
+    },
+    {
+      "id": "det_q",
+      "pid": "opt_detection",
+      "txt": "Penyakit/hama apa yang terdeteksi dari foto?",
+      "tp": "question",
+      "oid": null,
+      "meta": null
+    },
+    {
+      "id": "det_blas",
+      "pid": "det_q",
+      "txt": "🍂 Blas (Blast)",
+      "tp": "option",
+      "oid": "blas",
+      "meta": null
+    },
+    {
+      "id": "det_hdb",
+      "pid": "det_q",
+      "txt": "🔥 Hawar Daun Bakteri (HDB)",
+      "tp": "option",
+      "oid": "hdb",
+      "meta": null
+    },
+    {
+      "id": "det_tungro",
+      "pid": "det_q",
+      "txt": "💛 Tungro",
+      "tp": "option",
+      "oid": "tungro",
+      "meta": null
+    },
+    {
+      "id": "det_brown_spot",
+      "pid": "det_q",
+      "txt": "🟤 Bercak Cokelat (Brown Spot)",
+      "tp": "option",
+      "oid": "brown_spot",
+      "meta": null
+    },
+    {
+      "id": "det_narrow_brown",
+      "pid": "det_q",
+      "txt": "📏 Bercak Cokelat Sempit",
+      "tp": "option",
+      "oid": "narrow_brown_spot",
+      "meta": null
+    },
+    {
+      "id": "det_sheath",
+      "pid": "det_q",
+      "txt": "🌿 Hawar Pelepah (Sheath Blight)",
+      "tp": "option",
+      "oid": "sheath_blight",
+      "meta": null
+    },
+    {
+      "id": "det_hispa",
+      "pid": "det_q",
+      "txt": "🪲 Hispa Padi (Rice Hispa)",
+      "tp": "option",
+      "oid": "rice_hispa",
+      "meta": null
+    },
+    {
+      "id": "det_leaf_scald",
+      "pid": "det_q",
+      "txt": "☀️ Lepuh Daun (Leaf Scald)",
+      "tp": "option",
+      "oid": "leaf_scald",
+      "meta": null
+    },
+    {
+      "id": "fase_blas",
+      "pid": "det_blas",
+      "txt": "Tanaman Anda sedang di fase apa?",
+      "tp": "question",
+      "oid": "blas",
+      "meta": null
+    },
+    {
+      "id": "fase_hdb",
+      "pid": "det_hdb",
+      "txt": "Tanaman Anda sedang di fase apa?",
+      "tp": "question",
+      "oid": "hdb",
+      "meta": null
+    },
+    {
+      "id": "fase_tungro",
+      "pid": "det_tungro",
+      "txt": "Tanaman Anda sedang di fase apa?",
+      "tp": "question",
+      "oid": "tungro",
+      "meta": null
+    },
+    {
+      "id": "fase_brown_spot",
+      "pid": "det_brown_spot",
+      "txt": "Tanaman Anda sedang di fase apa?",
+      "tp": "question",
+      "oid": "brown_spot",
+      "meta": null
+    },
+    {
+      "id": "fase_narrow_brown",
+      "pid": "det_narrow_brown",
+      "txt": "Tanaman Anda sedang di fase apa?",
+      "tp": "question",
+      "oid": "narrow_brown_spot",
+      "meta": null
+    },
+    {
+      "id": "fase_sheath",
+      "pid": "det_sheath",
+      "txt": "Tanaman Anda sedang di fase apa?",
+      "tp": "question",
+      "oid": "sheath_blight",
+      "meta": null
+    },
+    {
+      "id": "fase_hispa",
+      "pid": "det_hispa",
+      "txt": "Tanaman Anda sedang di fase apa?",
+      "tp": "question",
+      "oid": "rice_hispa",
+      "meta": null
+    },
+    {
+      "id": "fase_leaf_scald",
+      "pid": "det_leaf_scald",
+      "txt": "Tanaman Anda sedang di fase apa?",
+      "tp": "question",
+      "oid": "leaf_scald",
+      "meta": null
+    },
+    {
+      "id": "ans_blas_pre",
+      "pid": "fase_blas",
+      "txt": "🔧 Pratanam",
+      "tp": "action",
+      "oid": "blas",
+      "meta": "{\"fase\": \"pratanam\"}"
+    },
+    {
+      "id": "ans_blas_seed",
+      "pid": "fase_blas",
+      "txt": "🌱 Pesemaian",
+      "tp": "action",
+      "oid": "blas",
+      "meta": "{\"fase\": \"pesemaian\"}"
+    },
+    {
+      "id": "ans_blas_grow",
+      "pid": "fase_blas",
+      "txt": "🌿 Pertanaman",
+      "tp": "action",
+      "oid": "blas",
+      "meta": "{\"fase\": \"pertanaman\"}"
+    },
+    {
+      "id": "ans_hdb_pre",
+      "pid": "fase_hdb",
+      "txt": "🔧 Pratanam",
+      "tp": "action",
+      "oid": "hdb",
+      "meta": "{\"fase\": \"pratanam\"}"
+    },
+    {
+      "id": "ans_hdb_seed",
+      "pid": "fase_hdb",
+      "txt": "🌱 Pesemaian",
+      "tp": "action",
+      "oid": "hdb",
+      "meta": "{\"fase\": \"pesemaian\"}"
+    },
+    {
+      "id": "ans_hdb_grow",
+      "pid": "fase_hdb",
+      "txt": "🌿 Pertanaman",
+      "tp": "action",
+      "oid": "hdb",
+      "meta": "{\"fase\": \"pertanaman\"}"
+    },
+    {
+      "id": "ans_tungro_pre",
+      "pid": "fase_tungro",
+      "txt": "🔧 Pratanam",
+      "tp": "action",
+      "oid": "tungro",
+      "meta": "{\"fase\": \"pratanam\"}"
+    },
+    {
+      "id": "ans_tungro_seed",
+      "pid": "fase_tungro",
+      "txt": "🌱 Pesemaian",
+      "tp": "action",
+      "oid": "tungro",
+      "meta": "{\"fase\": \"pesemaian\"}"
+    },
+    {
+      "id": "ans_tungro_grow",
+      "pid": "fase_tungro",
+      "txt": "🌿 Pertanaman",
+      "tp": "action",
+      "oid": "tungro",
+      "meta": "{\"fase\": \"pertanaman\"}"
+    },
+    {
+      "id": "ans_bs_pre",
+      "pid": "fase_brown_spot",
+      "txt": "🔧 Pratanam",
+      "tp": "action",
+      "oid": "brown_spot",
+      "meta": "{\"fase\": \"pratanam\"}"
+    },
+    {
+      "id": "ans_bs_seed",
+      "pid": "fase_brown_spot",
+      "txt": "🌱 Pesemaian",
+      "tp": "action",
+      "oid": "brown_spot",
+      "meta": "{\"fase\": \"pesemaian\"}"
+    },
+    {
+      "id": "ans_bs_grow",
+      "pid": "fase_brown_spot",
+      "txt": "🌿 Pertanaman",
+      "tp": "action",
+      "oid": "brown_spot",
+      "meta": "{\"fase\": \"pertanaman\"}"
+    },
+    {
+      "id": "ans_nbs_pre",
+      "pid": "fase_narrow_brown",
+      "txt": "🔧 Pratanam",
+      "tp": "action",
+      "oid": "narrow_brown_spot",
+      "meta": "{\"fase\": \"pratanam\"}"
+    },
+    {
+      "id": "ans_nbs_grow",
+      "pid": "fase_narrow_brown",
+      "txt": "🌿 Pertanaman",
+      "tp": "action",
+      "oid": "narrow_brown_spot",
+      "meta": "{\"fase\": \"pertanaman\"}"
+    },
+    {
+      "id": "ans_sb_pre",
+      "pid": "fase_sheath",
+      "txt": "🔧 Pratanam",
+      "tp": "action",
+      "oid": "sheath_blight",
+      "meta": "{\"fase\": \"pratanam\"}"
+    },
+    {
+      "id": "ans_sb_grow",
+      "pid": "fase_sheath",
+      "txt": "🌿 Pertanaman",
+      "tp": "action",
+      "oid": "sheath_blight",
+      "meta": "{\"fase\": \"pertanaman\"}"
+    },
+    {
+      "id": "ans_rh_pre",
+      "pid": "fase_hispa",
+      "txt": "🔧 Pratanam",
+      "tp": "action",
+      "oid": "rice_hispa",
+      "meta": "{\"fase\": \"pratanam\"}"
+    },
+    {
+      "id": "ans_rh_grow",
+      "pid": "fase_hispa",
+      "txt": "🌿 Pertanaman",
+      "tp": "action",
+      "oid": "rice_hispa",
+      "meta": "{\"fase\": \"pertanaman\"}"
+    },
+    {
+      "id": "ans_ls_pre",
+      "pid": "fase_leaf_scald",
+      "txt": "🔧 Pratanam",
+      "tp": "action",
+      "oid": "leaf_scald",
+      "meta": "{\"fase\": \"pratanam\"}"
+    },
+    {
+      "id": "ans_ls_grow",
+      "pid": "fase_leaf_scald",
+      "txt": "🌿 Pertanaman",
+      "tp": "action",
+      "oid": "leaf_scald",
+      "meta": "{\"fase\": \"pertanaman\"}"
+    },
+    {
+      "id": "info_hama_q",
+      "pid": "opt_info_hama",
+      "txt": "Hama apa yang ingin Anda ketahui?",
+      "tp": "question",
+      "oid": null,
+      "meta": null
+    },
+    {
+      "id": "info_pbp",
+      "pid": "info_hama_q",
+      "txt": "🐛 Penggerek Batang Padi (PBP)",
+      "tp": "action",
+      "oid": "pbp",
+      "meta": "{\"tipe\": \"info_opt\"}"
+    },
+    {
+      "id": "info_wbc",
+      "pid": "info_hama_q",
+      "txt": "🪲 Wereng Batang Cokelat (WBC)",
+      "tp": "action",
+      "oid": "wbc",
+      "meta": "{\"tipe\": \"info_opt\"}"
+    },
+    {
+      "id": "info_tikus",
+      "pid": "info_hama_q",
+      "txt": "🐀 Tikus Sawah",
+      "tp": "action",
+      "oid": "tikus",
+      "meta": "{\"tipe\": \"info_opt\"}"
+    },
+    {
+      "id": "faq_brown_spot",
+      "pid": "faq_q",
+      "txt": "🟤 Tentang bercak cokelat",
+      "tp": "action",
+      "oid": null,
+      "meta": "{\"kategori\": \"brown_spot\"}"
+    },
+    {
+      "id": "faq_sheath",
+      "pid": "faq_q",
+      "txt": "🌿 Tentang hawar pelepah",
+      "tp": "action",
+      "oid": null,
+      "meta": "{\"kategori\": \"sheath_blight\"}"
+    },
+    {
+      "id": "faq_hispa",
+      "pid": "faq_q",
+      "txt": "🪲 Tentang hispa padi",
+      "tp": "action",
+      "oid": null,
+      "meta": "{\"kategori\": \"rice_hispa\"}"
+    }
+  ],
+  "recs": {
+    "blas_pertanaman": [
+      {
+        "id": 31,
+        "opt_id": "blas",
+        "fase": "pertanaman",
+        "metode": "biologis",
+        "langkah": "Aplikasi Paenibacillus polymyxa",
+        "detail": "Aplikasi pada umur tanaman 14, 28, 42, dan 56 HST dengan volume semprot 500 liter/ha. Waktu efektif: sore hari.",
+        "dosis": "5 cc/liter, vol. semprot 500 l/ha",
+        "waktu_aplikasi": "14, 28, 42, 56 HST sore hari",
+        "prioritas": 1,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 32,
+        "opt_id": "blas",
+        "fase": "pertanaman",
+        "metode": "kimiawi",
+        "langkah": "Fungisida",
+        "detail": "Gunakan fungisida saat intensitas penyakit blas terus meningkat dan melebihi ambang ekonomi.",
+        "dosis": null,
+        "waktu_aplikasi": "Saat melebihi ambang ekonomi",
+        "prioritas": 2,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      }
+    ],
+    "blas_pesemaian": [
+      {
+        "id": 28,
+        "opt_id": "blas",
+        "fase": "pesemaian",
+        "metode": "kultur_teknis",
+        "langkah": "Seleksi benih",
+        "detail": "Seleksi benih dengan larutan air garam (50 gr/liter air) untuk memisahkan bulir bernas dan hampa. Bilas sebelum pemeraman.",
+        "dosis": "50 gr garam/liter air",
+        "waktu_aplikasi": "Sebelum semai",
+        "prioritas": 1,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 29,
+        "opt_id": "blas",
+        "fase": "pesemaian",
+        "metode": "biologis",
+        "langkah": "Perlakuan benih Paenibacillus polymyxa",
+        "detail": "Rendam benih yang sudah berkecambah dalam suspensi agens hayati Paenibacillus polymyxa selama 15-20 menit.",
+        "dosis": "5 cc/liter, rendam 15-20 menit",
+        "waktu_aplikasi": "Saat pemeraman",
+        "prioritas": 2,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 30,
+        "opt_id": "blas",
+        "fase": "pesemaian",
+        "metode": "biologis",
+        "langkah": "Aplikasi Paenibacillus polymyxa",
+        "detail": "Semprot pada pesemaian umur 10-15 HSS. Waktu paling efektif: sore hari.",
+        "dosis": "5 cc/liter",
+        "waktu_aplikasi": "Sore hari, 10-15 HSS",
+        "prioritas": 3,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      }
+    ],
+    "blas_pratanam": [
+      {
+        "id": 25,
+        "opt_id": "blas",
+        "fase": "pratanam",
+        "metode": "kultur_teknis",
+        "langkah": "Pengolahan tanah",
+        "detail": "Olah tanah dengan disingkal/dibalikkan dan dirotari untuk mematikan inokulum jamur blas.",
+        "dosis": null,
+        "waktu_aplikasi": "Sebelum tanam",
+        "prioritas": 1,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 26,
+        "opt_id": "blas",
+        "fase": "pratanam",
+        "metode": "sanitasi",
+        "langkah": "Sanitasi lingkungan",
+        "detail": "Bersihkan gulma-gulma di pematang atau sekitar persawahan.",
+        "dosis": null,
+        "waktu_aplikasi": "Sebelum tanam",
+        "prioritas": 2,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 27,
+        "opt_id": "blas",
+        "fase": "pratanam",
+        "metode": "kultur_teknis",
+        "langkah": "Kompos jerami",
+        "detail": "Berikan kompos jerami untuk menambah bahan organik tanah, membantu ketahanan tanaman.",
+        "dosis": null,
+        "waktu_aplikasi": "Saat pengolahan lahan",
+        "prioritas": 3,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      }
+    ],
+    "brown_spot_pertanaman": [
+      {
+        "id": 56,
+        "opt_id": "brown_spot",
+        "fase": "pertanaman",
+        "metode": "kultur_teknis",
+        "langkah": "Pemupukan berimbang",
+        "detail": "Lakukan pemupukan NPK berimbang (250 kg Urea + 100 kg SP-36 + 100 kg KCl per ha). Kekurangan unsur hara (terutama N, K, Si) memperparah serangan.",
+        "dosis": "250 kg Urea + 100 kg SP-36 + 100 kg KCl/ha",
+        "waktu_aplikasi": "Sesuai fase pertumbuhan",
+        "prioritas": 1,
+        "sumber": "Cybex Kementan RI (cybex.pertanian.go.id); Puslitbangtan & BB Padi Sukamandi"
+      },
+      {
+        "id": 57,
+        "opt_id": "brown_spot",
+        "fase": "pertanaman",
+        "metode": "kultur_teknis",
+        "langkah": "Jarak tanam dan jajar legowo",
+        "detail": "Atur jarak tanam tidak terlalu rapat, gunakan sistem jajar legowo untuk sirkulasi udara yang baik.",
+        "dosis": null,
+        "waktu_aplikasi": "Saat tanam",
+        "prioritas": 2,
+        "sumber": "Cybex Kementan RI (cybex.pertanian.go.id); Puslitbangtan & BB Padi Sukamandi"
+      },
+      {
+        "id": 58,
+        "opt_id": "brown_spot",
+        "fase": "pertanaman",
+        "metode": "kimiawi",
+        "langkah": "Fungisida",
+        "detail": "Gunakan fungisida kontak (antracol, dithane/mancozeb) sebagai pencegahan. Jika sudah terserang, gunakan fungisida sistemik (score, anvil, folicur). Prioritaskan metode kultur teknis terlebih dahulu.",
+        "dosis": "Sesuai dosis anjuran label",
+        "waktu_aplikasi": "Saat gejala muncul",
+        "prioritas": 3,
+        "sumber": "Cybex Kementan RI (cybex.pertanian.go.id); Puslitbangtan & BB Padi Sukamandi"
+      }
+    ],
+    "brown_spot_pesemaian": [
+      {
+        "id": 55,
+        "opt_id": "brown_spot",
+        "fase": "pesemaian",
+        "metode": "kultur_teknis",
+        "langkah": "Gunakan benih sehat bersertifikat",
+        "detail": "Gunakan benih padi sehat dan bersertifikat. Seleksi benih dengan larutan air garam (50 gr/liter) untuk memilih benih bernas.",
+        "dosis": "50 gr garam/liter air",
+        "waktu_aplikasi": "Sebelum semai",
+        "prioritas": 1,
+        "sumber": "Dinas Pertanian Kab. Buleleng; Badan Litbang Pertanian (2020)"
+      }
+    ],
+    "brown_spot_pratanam": [
+      {
+        "id": 53,
+        "opt_id": "brown_spot",
+        "fase": "pratanam",
+        "metode": "kultur_teknis",
+        "langkah": "Pengolahan tanah sempurna",
+        "detail": "Olah tanah dengan sempurna, bersihkan sisa tanaman terinfeksi dari musim sebelumnya untuk mengurangi sumber inokulum.",
+        "dosis": null,
+        "waktu_aplikasi": "Sebelum tanam",
+        "prioritas": 1,
+        "sumber": "Dinas Pertanian Kab. Buleleng; Badan Litbang Pertanian (2020)"
+      },
+      {
+        "id": 54,
+        "opt_id": "brown_spot",
+        "fase": "pratanam",
+        "metode": "sanitasi",
+        "langkah": "Sanitasi lahan",
+        "detail": "Bersihkan sisa tanaman terinfeksi dan gulma dari lahan. Sisa jerami yang terinfeksi harus dimusnahkan.",
+        "dosis": null,
+        "waktu_aplikasi": "Sebelum tanam",
+        "prioritas": 2,
+        "sumber": "Cybex Kementan RI (cybex.pertanian.go.id); Puslitbangtan & BB Padi Sukamandi"
+      }
+    ],
+    "hdb_pertanaman": [
+      {
+        "id": 40,
+        "opt_id": "hdb",
+        "fase": "pertanaman",
+        "metode": "kultur_teknis",
+        "langkah": "Jajar legowo",
+        "detail": "Untuk daerah endemis HDB, atur jarak tanam jajar legowo 2:1 atau 4:1.",
+        "dosis": null,
+        "waktu_aplikasi": "Saat tanam",
+        "prioritas": 1,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 41,
+        "opt_id": "hdb",
+        "fase": "pertanaman",
+        "metode": "biologis",
+        "langkah": "Aplikasi Paenibacillus polymyxa",
+        "detail": "Aplikasi pada umur 14, 28, 42, dan 56 HST. Volume semprot 500 liter/ha. Waktu efektif: sore hari.",
+        "dosis": "5 cc/liter, 500 l/ha",
+        "waktu_aplikasi": "14, 28, 42, 56 HST",
+        "prioritas": 2,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 42,
+        "opt_id": "hdb",
+        "fase": "pertanaman",
+        "metode": "kimiawi",
+        "langkah": "Bakterisida",
+        "detail": "Gunakan bakterisida saat intensitas HDB terus meningkat dan melebihi ambang ekonomi.",
+        "dosis": null,
+        "waktu_aplikasi": "Saat melebihi ambang",
+        "prioritas": 3,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      }
+    ],
+    "hdb_pesemaian": [
+      {
+        "id": 37,
+        "opt_id": "hdb",
+        "fase": "pesemaian",
+        "metode": "kultur_teknis",
+        "langkah": "Seleksi benih",
+        "detail": "Seleksi benih dengan larutan air garam (50 gr/liter air). Bilas sebelum pemeraman.",
+        "dosis": "50 gr garam/liter air",
+        "waktu_aplikasi": "Sebelum semai",
+        "prioritas": 1,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 38,
+        "opt_id": "hdb",
+        "fase": "pesemaian",
+        "metode": "biologis",
+        "langkah": "Perlakuan benih Paenibacillus polymyxa",
+        "detail": "Rendam benih berkecambah dalam suspensi Paenibacillus polymyxa 15-20 menit.",
+        "dosis": "5 cc/liter, 15-20 menit",
+        "waktu_aplikasi": "Saat pemeraman",
+        "prioritas": 2,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 39,
+        "opt_id": "hdb",
+        "fase": "pesemaian",
+        "metode": "biologis",
+        "langkah": "Aplikasi Paenibacillus polymyxa",
+        "detail": "Semprot pada pesemaian umur 10-15 HSS. Waktu efektif: sore hari.",
+        "dosis": "5 cc/liter",
+        "waktu_aplikasi": "Sore hari, 10-15 HSS",
+        "prioritas": 3,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      }
+    ],
+    "hdb_pratanam": [
+      {
+        "id": 33,
+        "opt_id": "hdb",
+        "fase": "pratanam",
+        "metode": "kultur_teknis",
+        "langkah": "Pengolahan tanah",
+        "detail": "Olah tanah dengan disingkal/dibalikkan dan dirotari untuk mematikan inokulum bakteri.",
+        "dosis": null,
+        "waktu_aplikasi": "Sebelum tanam",
+        "prioritas": 1,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 34,
+        "opt_id": "hdb",
+        "fase": "pratanam",
+        "metode": "sanitasi",
+        "langkah": "Sanitasi lingkungan",
+        "detail": "Bersihkan gulma di pematang dan sekitar persawahan.",
+        "dosis": null,
+        "waktu_aplikasi": "Sebelum tanam",
+        "prioritas": 2,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 35,
+        "opt_id": "hdb",
+        "fase": "pratanam",
+        "metode": "kultur_teknis",
+        "langkah": "Kompos jerami",
+        "detail": "Berikan kompos jerami untuk menambah bahan organik dan membantu ketahanan tanaman.",
+        "dosis": null,
+        "waktu_aplikasi": "Saat pengolahan lahan",
+        "prioritas": 3,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 36,
+        "opt_id": "hdb",
+        "fase": "pratanam",
+        "metode": "kultur_teknis",
+        "langkah": "Kurangi pupuk N",
+        "detail": "Kurangi penggunaan pupuk N dan lakukan pemupukan berimbang.",
+        "dosis": null,
+        "waktu_aplikasi": "Sepanjang musim",
+        "prioritas": 4,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      }
+    ],
+    "leaf_scald_pertanaman": [
+      {
+        "id": 74,
+        "opt_id": "leaf_scald",
+        "fase": "pertanaman",
+        "metode": "kultur_teknis",
+        "langkah": "Pemupukan berimbang",
+        "detail": "Lakukan pemupukan berimbang, hindari kelebihan N. Pengairan yang baik mengurangi stres tanaman.",
+        "dosis": null,
+        "waktu_aplikasi": "Sesuai fase",
+        "prioritas": 1,
+        "sumber": "IRRI Rice Knowledge Bank; BB Padi Sukamandi"
+      },
+      {
+        "id": 75,
+        "opt_id": "leaf_scald",
+        "fase": "pertanaman",
+        "metode": "kultur_teknis",
+        "langkah": "Drainase baik",
+        "detail": "Pastikan drainase lahan baik untuk mengurangi kelembapan mikro yang mendukung perkembangan penyakit.",
+        "dosis": null,
+        "waktu_aplikasi": "Sepanjang musim",
+        "prioritas": 2,
+        "sumber": "IRRI Rice Knowledge Bank; BB Padi Sukamandi"
+      },
+      {
+        "id": 76,
+        "opt_id": "leaf_scald",
+        "fase": "pertanaman",
+        "metode": "kimiawi",
+        "langkah": "Fungisida",
+        "detail": "Aplikasikan fungisida berbahan aktif mancozeb, difenokonazol, atau propikonazol jika gejala meluas.",
+        "dosis": "Sesuai dosis label",
+        "waktu_aplikasi": "Saat gejala muncul",
+        "prioritas": 3,
+        "sumber": "IRRI Rice Knowledge Bank; BB Padi Sukamandi"
+      }
+    ],
+    "leaf_scald_pratanam": [
+      {
+        "id": 73,
+        "opt_id": "leaf_scald",
+        "fase": "pratanam",
+        "metode": "sanitasi",
+        "langkah": "Sanitasi lahan",
+        "detail": "Bersihkan sisa tanaman terinfeksi dari musim sebelumnya. Patogen bertahan pada sisa jerami terinfeksi.",
+        "dosis": null,
+        "waktu_aplikasi": "Sebelum tanam",
+        "prioritas": 1,
+        "sumber": "IRRI Rice Knowledge Bank; BB Padi Sukamandi"
+      }
+    ],
+    "narrow_brown_spot_pertanaman": [
+      {
+        "id": 60,
+        "opt_id": "narrow_brown_spot",
+        "fase": "pertanaman",
+        "metode": "kultur_teknis",
+        "langkah": "Pemupukan N, P, K berimbang",
+        "detail": "Lakukan pemupukan berimbang. Kekurangan unsur hara membuat tanaman rentan. Jangan berlebihan dalam pemupukan N.",
+        "dosis": null,
+        "waktu_aplikasi": "Sesuai fase",
+        "prioritas": 1,
+        "sumber": "Cybex Kementan RI (cybex.pertanian.go.id); Puslitbangtan & BB Padi Sukamandi"
+      },
+      {
+        "id": 61,
+        "opt_id": "narrow_brown_spot",
+        "fase": "pertanaman",
+        "metode": "kultur_teknis",
+        "langkah": "Pengaturan jarak tanam",
+        "detail": "Atur jarak tanam agar tidak terlalu rapat untuk mengurangi kelembapan mikro yang mendukung perkembangan jamur.",
+        "dosis": null,
+        "waktu_aplikasi": "Saat tanam",
+        "prioritas": 2,
+        "sumber": "Cybex Kementan RI (cybex.pertanian.go.id); Puslitbangtan & BB Padi Sukamandi"
+      },
+      {
+        "id": 62,
+        "opt_id": "narrow_brown_spot",
+        "fase": "pertanaman",
+        "metode": "biologis",
+        "langkah": "Agens hayati",
+        "detail": "Gunakan agens hayati (Trichoderma sp. atau bakteri antagonis) untuk menekan perkembangan patogen.",
+        "dosis": null,
+        "waktu_aplikasi": "Sore hari",
+        "prioritas": 3,
+        "sumber": "Cybex Kementan RI (cybex.pertanian.go.id); Puslitbangtan & BB Padi Sukamandi"
+      },
+      {
+        "id": 63,
+        "opt_id": "narrow_brown_spot",
+        "fase": "pertanaman",
+        "metode": "kimiawi",
+        "langkah": "Fungisida",
+        "detail": "Penyemprotan fungisida sesuai anjuran jika intensitas serangan meningkat. Gunakan fungisida berbahan aktif mancozeb atau difenokonazol.",
+        "dosis": "Sesuai dosis label",
+        "waktu_aplikasi": "Saat intensitas meningkat",
+        "prioritas": 4,
+        "sumber": "Cybex Kementan RI (cybex.pertanian.go.id); Puslitbangtan & BB Padi Sukamandi"
+      }
+    ],
+    "narrow_brown_spot_pratanam": [
+      {
+        "id": 59,
+        "opt_id": "narrow_brown_spot",
+        "fase": "pratanam",
+        "metode": "sanitasi",
+        "langkah": "Sanitasi lingkungan",
+        "detail": "Bersihkan lingkungan sekitar lahan dari sisa tanaman sebelumnya dan gulma yang dapat menjadi sumber inokulum Cercospora oryzae.",
+        "dosis": null,
+        "waktu_aplikasi": "Sebelum tanam",
+        "prioritas": 1,
+        "sumber": "Cybex Kementan RI (cybex.pertanian.go.id); Puslitbangtan & BB Padi Sukamandi"
+      }
+    ],
+    "pbp_pertanaman": [
+      {
+        "id": 6,
+        "opt_id": "pbp",
+        "fase": "pertanaman",
+        "metode": "mekanis",
+        "langkah": "Kumpulkan kelompok telur",
+        "detail": "Lanjutkan pengambilan/pengumpulan kelompok telur dan masukkan ke dalam bumbung bambu.",
+        "dosis": null,
+        "waktu_aplikasi": "Rutin setiap minggu",
+        "prioritas": 1,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 7,
+        "opt_id": "pbp",
+        "fase": "pertanaman",
+        "metode": "biologis",
+        "langkah": "Pelepasan Trichogramma sp.",
+        "detail": "Pemasangan pias parasitoid setiap minggu: umur 2-4 MST (12 pias/ha), umur 5-8 MST (10 pias/ha). Dimulai saat ditemukan penerbangan ngengat.",
+        "dosis": "12 pias/ha (2-4 MST), 10 pias/ha (5-8 MST)",
+        "waktu_aplikasi": "Setiap minggu sejak 2 MST",
+        "prioritas": 2,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 8,
+        "opt_id": "pbp",
+        "fase": "pertanaman",
+        "metode": "kimiawi",
+        "langkah": "Insektisida sistemik",
+        "detail": "Gunakan bahan kimia bersifat sistemik saat populasi/intensitas serangan PBP melampaui ambang pengendalian. Aplikasi paling efektif saat larva stadia instar muda (instar 1, 2, 3).",
+        "dosis": null,
+        "waktu_aplikasi": "Saat instar muda (1-3)",
+        "prioritas": 3,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      }
+    ],
+    "pbp_pesemaian": [
+      {
+        "id": 3,
+        "opt_id": "pbp",
+        "fase": "pesemaian",
+        "metode": "mekanis",
+        "langkah": "Kumpulkan kelompok telur",
+        "detail": "Ambil/kumpulkan kelompok telur PBP yang ditemukan pada daun pesemaian, masukkan ke bumbung bambu agar parasitoid telur dapat berkembang.",
+        "dosis": null,
+        "waktu_aplikasi": "Rutin setiap minggu",
+        "prioritas": 1,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 4,
+        "opt_id": "pbp",
+        "fase": "pesemaian",
+        "metode": "biologis",
+        "langkah": "Pelepasan Trichogramma sp.",
+        "detail": "Pasang pias berisi telur parasitoid Trichogramma sp. dengan cara digantungkan pada areal pesemaian. Pelepasan dimulai saat ditemukan penerbangan ngengat.",
+        "dosis": null,
+        "waktu_aplikasi": "Saat ditemukan penerbangan ngengat",
+        "prioritas": 2,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 5,
+        "opt_id": "pbp",
+        "fase": "pesemaian",
+        "metode": "kimiawi",
+        "langkah": "Insektisida sistemik tabur",
+        "detail": "Gunakan insektisida bersifat sistemik dengan cara ditabur saat populasi kelompok telur melebihi ambang pengendalian.",
+        "dosis": "4-6 kg untuk pesemaian 300-500 m² (untuk 1 hektar)",
+        "waktu_aplikasi": "Saat melebihi ambang pengendalian",
+        "prioritas": 3,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      }
+    ],
+    "pbp_pratanam": [
+      {
+        "id": 1,
+        "opt_id": "pbp",
+        "fase": "pratanam",
+        "metode": "kultur_teknis",
+        "langkah": "Pengolahan tanah",
+        "detail": "Olah tanah dengan disingkal/dibalikkan dan dirotari agar telur/larva yang ada di sisa pertanaman tergilas dan mati.",
+        "dosis": null,
+        "waktu_aplikasi": "Sebelum tanam",
+        "prioritas": 1,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 2,
+        "opt_id": "pbp",
+        "fase": "pratanam",
+        "metode": "kultur_teknis",
+        "langkah": "Tanam serempak",
+        "detail": "Tanam padi secara serempak dalam satu hamparan untuk memutus siklus hidup penggerek batang.",
+        "dosis": null,
+        "waktu_aplikasi": "Awal musim tanam",
+        "prioritas": 2,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      }
+    ],
+    "rice_hispa_pertanaman": [
+      {
+        "id": 70,
+        "opt_id": "rice_hispa",
+        "fase": "pertanaman",
+        "metode": "kultur_teknis",
+        "langkah": "Jarak tanam rapat",
+        "detail": "Gunakan jarak tanam yang lebih rapat untuk meningkatkan kerapatan daun sehingga menekan hispa. Tanam lebih awal untuk menghindari puncak populasi.",
+        "dosis": null,
+        "waktu_aplikasi": "Saat tanam",
+        "prioritas": 1,
+        "sumber": "IRRI Rice Knowledge Bank; BB Padi Sukamandi"
+      },
+      {
+        "id": 71,
+        "opt_id": "rice_hispa",
+        "fase": "pertanaman",
+        "metode": "mekanis",
+        "langkah": "Potong ujung daun terserang",
+        "detail": "Potong ujung daun yang terserang (mengandung telur/larva) dan musnahkan. Kumpulkan kumbang dewasa secara manual di pagi hari saat kurang aktif.",
+        "dosis": null,
+        "waktu_aplikasi": "Saat ditemukan serangan",
+        "prioritas": 2,
+        "sumber": "IRRI Rice Knowledge Bank; BB Padi Sukamandi"
+      },
+      {
+        "id": 72,
+        "opt_id": "rice_hispa",
+        "fase": "pertanaman",
+        "metode": "kimiawi",
+        "langkah": "Insektisida",
+        "detail": "Gunakan insektisida kontak jika serangan meluas. Aplikasikan saat kumbang dewasa aktif (pagi/sore hari). Hindari pemupukan N berlebih yang menarik hispa.",
+        "dosis": "Sesuai dosis label",
+        "waktu_aplikasi": "Pagi atau sore hari",
+        "prioritas": 3,
+        "sumber": "IRRI Rice Knowledge Bank; BB Padi Sukamandi"
+      }
+    ],
+    "rice_hispa_pratanam": [
+      {
+        "id": 69,
+        "opt_id": "rice_hispa",
+        "fase": "pratanam",
+        "metode": "kultur_teknis",
+        "langkah": "Bersihkan gulma",
+        "detail": "Bersihkan gulma rumput-rumputan di sekitar sawah karena gulma menjadi inang hispa sebelum padi ditanam.",
+        "dosis": null,
+        "waktu_aplikasi": "Sebelum tanam",
+        "prioritas": 1,
+        "sumber": "IRRI Rice Knowledge Bank; BB Padi Sukamandi"
+      }
+    ],
+    "sheath_blight_pertanaman": [
+      {
+        "id": 66,
+        "opt_id": "sheath_blight",
+        "fase": "pertanaman",
+        "metode": "kultur_teknis",
+        "langkah": "Pengaturan pengairan",
+        "detail": "Atur pengairan berselang (intermittent irrigation). Kelembapan menurun 2,8% pada pengairan parit keliling, dan 4,4% pada penggenangan 1x/minggu. Ini menekan perkembangan penyakit.",
+        "dosis": null,
+        "waktu_aplikasi": "Sepanjang fase pertanaman",
+        "prioritas": 1,
+        "sumber": "Nuryanto (2017), Jurnal Perlindungan Tanaman Indonesia Vol.21 No.2, BB Padi Sukamandi"
+      },
+      {
+        "id": 67,
+        "opt_id": "sheath_blight",
+        "fase": "pertanaman",
+        "metode": "biologis",
+        "langkah": "Kompos + bakteri antagonis",
+        "detail": "Aplikasikan kompos matang yang diperkaya bakteri antagonis. Kompos matang menekan perkecambahan sklerosia 14%, kompos + bakteri antagonis menekan hingga 28%.",
+        "dosis": "5 ton kompos/ha",
+        "waktu_aplikasi": "Saat pengolahan lahan",
+        "prioritas": 2,
+        "sumber": "Nuryanto (2017), Jurnal Perlindungan Tanaman Indonesia Vol.21 No.2, BB Padi Sukamandi"
+      },
+      {
+        "id": 68,
+        "opt_id": "sheath_blight",
+        "fase": "pertanaman",
+        "metode": "kimiawi",
+        "langkah": "Fungisida",
+        "detail": "Gunakan fungisida berbahan aktif validamisin, heksakonazol, atau difenokonazol jika serangan meluas. Fungisida diarahkan ke pangkal tanaman (pelepah).",
+        "dosis": "Sesuai dosis label",
+        "waktu_aplikasi": "Saat gejala muncul di pelepah bawah",
+        "prioritas": 3,
+        "sumber": "Nuryanto (2017), Jurnal Perlindungan Tanaman Indonesia Vol.21 No.2, BB Padi Sukamandi"
+      }
+    ],
+    "sheath_blight_pratanam": [
+      {
+        "id": 64,
+        "opt_id": "sheath_blight",
+        "fase": "pratanam",
+        "metode": "kultur_teknis",
+        "langkah": "Pengolahan tanah dan bersihkan sklerosia",
+        "detail": "Olah tanah sempurna untuk membenamkan sklerosia R. solani. Bersihkan sisa tanaman terinfeksi. Sklerosia adalah sumber inokulum utama.",
+        "dosis": null,
+        "waktu_aplikasi": "Sebelum tanam",
+        "prioritas": 1,
+        "sumber": "Nuryanto (2017), Jurnal Perlindungan Tanaman Indonesia Vol.21 No.2, BB Padi Sukamandi"
+      },
+      {
+        "id": 65,
+        "opt_id": "sheath_blight",
+        "fase": "pratanam",
+        "metode": "kultur_teknis",
+        "langkah": "Kurangi dosis urea",
+        "detail": "Kurangi dosis urea berlebih. Varietas pendek beranakan banyak yang dipupuk urea tinggi sangat rentan hawar pelepah.",
+        "dosis": null,
+        "waktu_aplikasi": "Sepanjang musim",
+        "prioritas": 2,
+        "sumber": "Nuryanto (2017), Jurnal Perlindungan Tanaman Indonesia Vol.21 No.2, BB Padi Sukamandi"
+      }
+    ],
+    "tikus_pertanaman": [
+      {
+        "id": 22,
+        "opt_id": "tikus",
+        "fase": "pertanaman",
+        "metode": "mekanis",
+        "langkah": "LTBS (Linear Trap Barrier System)",
+        "detail": "Pagar plastik/terpal setinggi 50-60 cm, panjang minimal 100 m, kombinasi dengan bubu perangkap setiap 10 m.",
+        "dosis": null,
+        "waktu_aplikasi": "Fase pertanaman",
+        "prioritas": 1,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 23,
+        "opt_id": "tikus",
+        "fase": "pertanaman",
+        "metode": "mekanis",
+        "langkah": "Pengemposan",
+        "detail": "Lakukan pengemposan pada lubang aktif di pematang besar, tanggul saluran air, dan pematang sawah. Cocok saat tikus sudah bersarang (ada tumpukan tanah di lubang). Ikuti dengan empos gali.",
+        "dosis": null,
+        "waktu_aplikasi": "Stadia vegetatif-generatif",
+        "prioritas": 2,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 24,
+        "opt_id": "tikus",
+        "fase": "pertanaman",
+        "metode": "biologis",
+        "langkah": "Burung hantu Tyto alba",
+        "detail": "Manfaatkan burung hantu Tyto alba: mampu memakan 2-3 ekor tikus/malam, efektif, efisien, ramah lingkungan, cepat berkembangbiak.",
+        "dosis": null,
+        "waktu_aplikasi": "Sepanjang musim tanam",
+        "prioritas": 3,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      }
+    ],
+    "tikus_pratanam": [
+      {
+        "id": 18,
+        "opt_id": "tikus",
+        "fase": "pratanam",
+        "metode": "sanitasi",
+        "langkah": "Sanitasi lingkungan",
+        "detail": "Bersihkan lingkungan sekitar persawahan secara gotong royong.",
+        "dosis": null,
+        "waktu_aplikasi": "Sebelum tanam",
+        "prioritas": 1,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 19,
+        "opt_id": "tikus",
+        "fase": "pratanam",
+        "metode": "mekanis",
+        "langkah": "Gropyokan massal",
+        "detail": "Gerakan pengendalian massal (gropyokan) pada saat persiapan tanam untuk menangkap/membunuh tikus.",
+        "dosis": null,
+        "waktu_aplikasi": "Saat persiapan tanam",
+        "prioritas": 2,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 20,
+        "opt_id": "tikus",
+        "fase": "pratanam",
+        "metode": "mekanis",
+        "langkah": "TBS (Trap Barrier System)",
+        "detail": "Pasang pagar plastik bening/mulsa/terpal setinggi 60-70 cm dengan ajir setiap 1 m. Ujung bawah plastik harus terendam/terbenam di lumpur. Bubu perangkap minimal 2 buah.",
+        "dosis": null,
+        "waktu_aplikasi": "Fase pesemaian",
+        "prioritas": 3,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 21,
+        "opt_id": "tikus",
+        "fase": "pratanam",
+        "metode": "kimiawi",
+        "langkah": "Rodentisida antikoagulan",
+        "detail": "Pengumpanan rodentisida antikoagulan bekerja lambat (tikus mati 2-14 hari). Letakkan 3 butir di setiap titik di atas pematang, jarak 5-10 m.",
+        "dosis": "3 butir/titik, jarak 5-10 m",
+        "waktu_aplikasi": "Pesemaian hingga stadia bunting",
+        "prioritas": 4,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      }
+    ],
+    "tungro_pertanaman": [
+      {
+        "id": 48,
+        "opt_id": "tungro",
+        "fase": "pertanaman",
+        "metode": "kultur_teknis",
+        "langkah": "Jajar legowo",
+        "detail": "Terapkan pola tanam jajar legowo 2:1 atau 4:1 untuk menurunkan suhu dan kelembapan mikro, menekan populasi WDH.",
+        "dosis": null,
+        "waktu_aplikasi": "Saat tanam",
+        "prioritas": 1,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 49,
+        "opt_id": "tungro",
+        "fase": "pertanaman",
+        "metode": "biologis",
+        "langkah": "Agens hayati entomopatogen",
+        "detail": "Gunakan Beauveria bassiana, Metarhizium sp, Hirsutella citriformis. Waktu efektif: sore hari.",
+        "dosis": null,
+        "waktu_aplikasi": "Sore hari",
+        "prioritas": 2,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 50,
+        "opt_id": "tungro",
+        "fase": "pertanaman",
+        "metode": "kimiawi",
+        "langkah": "Insektisida",
+        "detail": "Gunakan BPMC, MIPC, Buprofezin, atau Imidakloprid saat populasi WDH waspada.",
+        "dosis": null,
+        "waktu_aplikasi": "Saat dinyatakan waspada",
+        "prioritas": 3,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 51,
+        "opt_id": "tungro",
+        "fase": "pertanaman",
+        "metode": "kultur_teknis",
+        "langkah": "Eradikasi tanaman terinfeksi",
+        "detail": "Cabut tanaman terinfeksi virus tungro dan benamkan ke dalam lumpur. Lakukan secara selektif.",
+        "dosis": null,
+        "waktu_aplikasi": "Segera saat ditemukan",
+        "prioritas": 4,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 52,
+        "opt_id": "tungro",
+        "fase": "pertanaman",
+        "metode": "kultur_teknis",
+        "langkah": "Putus siklus",
+        "detail": "Tanam palawija selama 1 musim tanam untuk memutus siklus penyakit.",
+        "dosis": null,
+        "waktu_aplikasi": "Musim tanam berikutnya",
+        "prioritas": 5,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      }
+    ],
+    "tungro_pesemaian": [
+      {
+        "id": 46,
+        "opt_id": "tungro",
+        "fase": "pesemaian",
+        "metode": "biologis",
+        "langkah": "Agens hayati entomopatogen",
+        "detail": "Aplikasikan Beauveria bassiana, Metarhizium sp, atau Hirsutella citriformis untuk mengendalikan vektor wereng daun hijau (Nephotettix virescens). Waktu efektif: sore hari.",
+        "dosis": null,
+        "waktu_aplikasi": "Sore hari",
+        "prioritas": 1,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 47,
+        "opt_id": "tungro",
+        "fase": "pesemaian",
+        "metode": "kimiawi",
+        "langkah": "Insektisida",
+        "detail": "Pengendalian kimiawi saat populasi wereng daun hijau (WDH) melampaui ambang pengendalian.",
+        "dosis": null,
+        "waktu_aplikasi": "Saat melebihi ambang",
+        "prioritas": 2,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      }
+    ],
+    "tungro_pratanam": [
+      {
+        "id": 43,
+        "opt_id": "tungro",
+        "fase": "pratanam",
+        "metode": "kultur_teknis",
+        "langkah": "Pengolahan tanah",
+        "detail": "Olah tanah dengan disingkal/dibalikkan dan dirotari untuk mematikan inokulum tungro.",
+        "dosis": null,
+        "waktu_aplikasi": "Sebelum tanam",
+        "prioritas": 1,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 44,
+        "opt_id": "tungro",
+        "fase": "pratanam",
+        "metode": "sanitasi",
+        "langkah": "Sanitasi lingkungan",
+        "detail": "Bersihkan gulma di pematang dan sekitar persawahan.",
+        "dosis": null,
+        "waktu_aplikasi": "Sebelum tanam",
+        "prioritas": 2,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 45,
+        "opt_id": "tungro",
+        "fase": "pratanam",
+        "metode": "kultur_teknis",
+        "langkah": "Tanam refugia",
+        "detail": "Tanam bunga matahari, kenikir, wijen, dan kacang-kacangan di pematang sawah sebagai tempat musuh alami.",
+        "dosis": null,
+        "waktu_aplikasi": "Bersamaan pengolahan lahan",
+        "prioritas": 3,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      }
+    ],
+    "wbc_pertanaman": [
+      {
+        "id": 14,
+        "opt_id": "wbc",
+        "fase": "pertanaman",
+        "metode": "biologis",
+        "langkah": "Agens hayati fase migrasi",
+        "detail": "Pengendalian awal menggunakan entomopatogen pada fase migrasi (G-0/umur 1-4 MST) dan generasi penetap (G-1/umur 5-9 MST).",
+        "dosis": null,
+        "waktu_aplikasi": "Sore hari",
+        "prioritas": 1,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 15,
+        "opt_id": "wbc",
+        "fase": "pertanaman",
+        "metode": "biologis",
+        "langkah": "Beauveria/Metarhizium",
+        "detail": "Aplikasikan Beauveria bassiana, Metarhizium anisopliae/rileyi, atau Hirsutella citriformis. Waktu aplikasi efektif: sore hari.",
+        "dosis": null,
+        "waktu_aplikasi": "Sore hari",
+        "prioritas": 2,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 16,
+        "opt_id": "wbc",
+        "fase": "pertanaman",
+        "metode": "kimiawi",
+        "langkah": "Insektisida kontak/statis",
+        "detail": "Populasi tinggi: gunakan racun kontak (BPMC, MIPC). Populasi sedikit & dominan nimfa: gunakan insektisida statis (buprofezin). Ambang: 10 ekor/rumpun (<40 HST) atau 1 ekor/tunas (>40 HST).",
+        "dosis": null,
+        "waktu_aplikasi": "Saat melebihi ambang",
+        "prioritas": 3,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 17,
+        "opt_id": "wbc",
+        "fase": "pertanaman",
+        "metode": "kultur_teknis",
+        "langkah": "Eradikasi tanaman terinfeksi virus",
+        "detail": "Jika ditemukan rumpun terinfeksi virus kerdil, cabut dan benamkan tanaman terinfeksi dalam tanah. Kendalikan WBC sebagai vektor.",
+        "dosis": null,
+        "waktu_aplikasi": "Segera setelah ditemukan",
+        "prioritas": 4,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      }
+    ],
+    "wbc_pesemaian": [
+      {
+        "id": 12,
+        "opt_id": "wbc",
+        "fase": "pesemaian",
+        "metode": "biologis",
+        "langkah": "Agens hayati entomopatogen",
+        "detail": "Aplikasikan Beauveria bassiana, Metarhizium anisopliae, Metarhizium rileyi, atau Hirsutella citriformis dengan cara disemprot pada pesemaian umur 10 HSS.",
+        "dosis": null,
+        "waktu_aplikasi": "Sore hari, 10 HSS",
+        "prioritas": 1,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 13,
+        "opt_id": "wbc",
+        "fase": "pesemaian",
+        "metode": "kimiawi",
+        "langkah": "Insektisida",
+        "detail": "Pengendalian kimiawi dianjurkan saat populasi WBC telah melebihi ambang pengendalian.",
+        "dosis": null,
+        "waktu_aplikasi": "Saat melebihi ambang",
+        "prioritas": 2,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      }
+    ],
+    "wbc_pratanam": [
+      {
+        "id": 9,
+        "opt_id": "wbc",
+        "fase": "pratanam",
+        "metode": "kultur_teknis",
+        "langkah": "Koordinasi petugas",
+        "detail": "Pertemuan petugas POPT, UPTD dan PPL setempat untuk merencanakan waktu tanam, varietas, agens hayati, dan pupuk.",
+        "dosis": null,
+        "waktu_aplikasi": "Sebelum musim tanam",
+        "prioritas": 1,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 10,
+        "opt_id": "wbc",
+        "fase": "pratanam",
+        "metode": "kultur_teknis",
+        "langkah": "Pengolahan tanah",
+        "detail": "Olah tanah dengan disingkal/dibalikkan dan dirotari sehingga telur WBC di sisa pertanaman tergilas dan mati.",
+        "dosis": null,
+        "waktu_aplikasi": "Sebelum tanam",
+        "prioritas": 2,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 11,
+        "opt_id": "wbc",
+        "fase": "pratanam",
+        "metode": "kultur_teknis",
+        "langkah": "Tanam refugia",
+        "detail": "Tanam tanaman refugia di pematang sawah: bunga matahari, kenikir, wijen, dan tanaman kacang-kacangan sebagai tempat musuh alami.",
+        "dosis": null,
+        "waktu_aplikasi": "Bersamaan pengolahan lahan",
+        "prioritas": 3,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      }
+    ]
+  },
+  "vars": {
+    "blas": [
+      {
+        "id": 5,
+        "opt_id": "blas",
+        "nama_varietas": "Inpari 21",
+        "ketahanan": "Tahan blas",
+        "keterangan": null,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 6,
+        "opt_id": "blas",
+        "nama_varietas": "Inpari 22",
+        "ketahanan": "Tahan blas",
+        "keterangan": null,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 7,
+        "opt_id": "blas",
+        "nama_varietas": "Inpari 26",
+        "ketahanan": "Tahan blas",
+        "keterangan": null,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 8,
+        "opt_id": "blas",
+        "nama_varietas": "Inpari 27",
+        "ketahanan": "Tahan blas",
+        "keterangan": null,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 9,
+        "opt_id": "blas",
+        "nama_varietas": "Inpago 4",
+        "ketahanan": "Tahan blas (padi gogo)",
+        "keterangan": null,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 10,
+        "opt_id": "blas",
+        "nama_varietas": "Inpago 5",
+        "ketahanan": "Tahan blas (padi gogo)",
+        "keterangan": null,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 11,
+        "opt_id": "blas",
+        "nama_varietas": "Inpago 6",
+        "ketahanan": "Tahan blas (padi gogo)",
+        "keterangan": null,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 12,
+        "opt_id": "blas",
+        "nama_varietas": "Inpago 7",
+        "ketahanan": "Tahan blas (padi gogo)",
+        "keterangan": null,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 13,
+        "opt_id": "blas",
+        "nama_varietas": "Inpago 8",
+        "ketahanan": "Tahan blas (padi gogo)",
+        "keterangan": null,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      }
+    ],
+    "brown_spot": [
+      {
+        "id": 21,
+        "opt_id": "brown_spot",
+        "nama_varietas": "Inpari 32",
+        "ketahanan": "Tahan bercak cokelat",
+        "keterangan": null,
+        "sumber": "Dinas Pertanian Kab. Buleleng; Badan Litbang Pertanian (2020)"
+      },
+      {
+        "id": 22,
+        "opt_id": "brown_spot",
+        "nama_varietas": "Inpari 42",
+        "ketahanan": "Tahan bercak cokelat",
+        "keterangan": null,
+        "sumber": "Dinas Pertanian Kab. Buleleng; Badan Litbang Pertanian (2020)"
+      },
+      {
+        "id": 23,
+        "opt_id": "brown_spot",
+        "nama_varietas": "Ciherang",
+        "ketahanan": "Toleran bercak cokelat",
+        "keterangan": null,
+        "sumber": "Cybex Kementan RI (cybex.pertanian.go.id); Puslitbangtan & BB Padi Sukamandi"
+      },
+      {
+        "id": 24,
+        "opt_id": "brown_spot",
+        "nama_varietas": "Membrano",
+        "ketahanan": "Toleran bercak cokelat",
+        "keterangan": null,
+        "sumber": "Cybex Kementan RI (cybex.pertanian.go.id); Puslitbangtan & BB Padi Sukamandi"
+      }
+    ],
+    "tungro": [
+      {
+        "id": 14,
+        "opt_id": "tungro",
+        "nama_varietas": "Tukad Patanu",
+        "ketahanan": "Tahan tungro",
+        "keterangan": null,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 15,
+        "opt_id": "tungro",
+        "nama_varietas": "Tukad Unda",
+        "ketahanan": "Tahan tungro",
+        "keterangan": null,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 16,
+        "opt_id": "tungro",
+        "nama_varietas": "Bondoyudo",
+        "ketahanan": "Tahan tungro",
+        "keterangan": null,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 17,
+        "opt_id": "tungro",
+        "nama_varietas": "Kalimas",
+        "ketahanan": "Tahan tungro",
+        "keterangan": null,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 18,
+        "opt_id": "tungro",
+        "nama_varietas": "IR-66",
+        "ketahanan": "Tahan tungro",
+        "keterangan": null,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 19,
+        "opt_id": "tungro",
+        "nama_varietas": "IR-72",
+        "ketahanan": "Tahan tungro",
+        "keterangan": null,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 20,
+        "opt_id": "tungro",
+        "nama_varietas": "IR-74",
+        "ketahanan": "Tahan tungro",
+        "keterangan": null,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      }
+    ],
+    "wbc": [
+      {
+        "id": 1,
+        "opt_id": "wbc",
+        "nama_varietas": "Inpari 13",
+        "ketahanan": "Tahan WBC biotipe 1, 2, 3",
+        "keterangan": null,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 2,
+        "opt_id": "wbc",
+        "nama_varietas": "Inpari 18",
+        "ketahanan": "Tahan WBC biotipe 1, 2; agak tahan biotipe 3",
+        "keterangan": null,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 3,
+        "opt_id": "wbc",
+        "nama_varietas": "Inpari 19",
+        "ketahanan": "Tahan WBC biotipe 1, 2; agak tahan biotipe 3",
+        "keterangan": null,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 4,
+        "opt_id": "wbc",
+        "nama_varietas": "Inpari 33",
+        "ketahanan": "Tahan WBC biotipe 1, 2, 3",
+        "keterangan": null,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      }
+    ]
+  },
+  "faq": {
+    "blas": [
+      {
+        "id": 4,
+        "kategori": "blas",
+        "pertanyaan": "Bagaimana cara membedakan blas daun dan blas leher?",
+        "jawaban": "Blas daun: bercak berbentuk belah ketupat (diamond) pada helai daun, bagian tengah abu-abu dengan tepi cokelat. Blas leher (neck blast): infeksi pada leher malai menyebabkan leher malai membusuk, malai patah, dan gabah hampa. Blas leher lebih berbahaya karena langsung menyebabkan kehilangan hasil.",
+        "opt_terkait": "blas",
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 5,
+        "kategori": "blas",
+        "pertanyaan": "Varietas padi apa yang tahan blas?",
+        "jawaban": "Varietas tahan blas menurut BBPOPT: Inpari 21, Inpari 22, Inpari 26, Inpari 27 (padi sawah), serta Inpago 4, Inpago 5, Inpago 6, Inpago 7, dan Inpago 8 (padi gogo). Gunakan varietas tahan sebagai bagian dari pengendalian terpadu.",
+        "opt_terkait": "blas",
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 6,
+        "kategori": "blas",
+        "pertanyaan": "Apa itu Paenibacillus polymyxa dan bagaimana cara pakainya?",
+        "jawaban": "Paenibacillus polymyxa adalah agens hayati (bakteri) yang efektif mengendalikan penyakit blas dan HDB. Cara pakai: (1) Perlakuan benih: rendam benih berkecambah dalam suspensi 5 cc/liter selama 15-20 menit, (2) Pesemaian: semprot umur 10-15 HSS dosis 5 cc/liter, (3) Pertanaman: semprot pada 14, 28, 42, 56 HST dosis 5 cc/liter, volume 500 l/ha. Aplikasi paling efektif: sore hari.",
+        "opt_terkait": "blas,hdb",
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      }
+    ],
+    "brown_spot": [
+      {
+        "id": 21,
+        "kategori": "brown_spot",
+        "pertanyaan": "Bagaimana membedakan bercak cokelat dengan blas?",
+        "jawaban": "Bercak cokelat: bercak oval/bulat, tengah abu-abu keputihan dikelilingi tepi cokelat. Blas: bercak belah ketupat (diamond) dengan ujung runcing. Bercak cokelat lebih bulat, blas lebih runcing. Bercak cokelat umumnya lebih parah di lahan yang kekurangan unsur hara, terutama K dan Si. Varietas tahan bercak cokelat: Inpari 32, Inpari 42.",
+        "opt_terkait": "brown_spot",
+        "sumber": "Dinas Pertanian Kab. Buleleng; Badan Litbang Pertanian (2020)"
+      }
+    ],
+    "hdb": [
+      {
+        "id": 11,
+        "kategori": "hdb",
+        "pertanyaan": "Mengapa padi saya daunnya seperti terbakar dari ujung?",
+        "jawaban": "Kemungkinan Hawar Daun Bakteri (HDB/kresek). Gejala: tepi daun menguning lalu mengering dari ujung ke pangkal, daun tampak seperti terbakar. Fase kresek: daun muda layu tiba-tiba. Penanganan: (1) Kurangi pupuk N (nitrogen berlebih memperparah HDB), (2) Aplikasi Paenibacillus polymyxa dosis 5 cc/liter, (3) Atur jarak tanam jajar legowo 2:1 atau 4:1, (4) Gunakan bakterisida jika intensitas terus meningkat.",
+        "opt_terkait": "hdb",
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      }
+    ],
+    "pemupukan": [
+      {
+        "id": 13,
+        "kategori": "pemupukan",
+        "pertanyaan": "Berapa dosis pupuk yang tepat untuk padi sawah?",
+        "jawaban": "Dosis pupuk berdasarkan uji tanah (rekomendasi Balai Penelitian Tanah): 240 kg NPK Phonska/ha + 172 kg Urea/ha + 40 kg KCl/ha per musim tanam. Untuk lahan 1800 m²: 43,2 kg NPK Phonska + 30,96 kg Urea + 7,2 kg KCl. Pupuk KCl dapat diganti kompos jerami padi karena kandungan K tinggi. Pemupukan berlebih menyebabkan pencucian unsur hara dan pemborosan biaya.",
+        "opt_terkait": null,
+        "sumber": "Supriatin et al. (2023), Jurnal Pengabdian FP Unila Vol.02 No.01"
+      },
+      {
+        "id": 14,
+        "kategori": "pemupukan",
+        "pertanyaan": "Apa manfaat mengembalikan jerami ke sawah?",
+        "jawaban": "Dalam 5 ton jerami padi per hektar terkandung: 30 kg N, 7 kg P, 7 kg S, 20 kg Ca, 5 kg Mg, 100 kg K, dan 80 kg Si. Manfaat kompos jerami: (1) Menggantikan pupuk KCl, (2) Mengembalikan unsur hara mikro (Fe, Mn, Cu, Zn), (3) Memperbaiki struktur tanah, (4) Meningkatkan kemampuan tanah menyimpan air, (5) Mengurangi pencucian unsur hara. Jangan bakar jerami, jadikan kompos!",
+        "opt_terkait": null,
+        "sumber": "Supriatin et al. (2023), Jurnal Pengabdian FP Unila Vol.02 No.01"
+      },
+      {
+        "id": 15,
+        "kategori": "pemupukan",
+        "pertanyaan": "Mengapa pupuk nitrogen berlebih berbahaya?",
+        "jawaban": "Pupuk N (Urea) berlebih menyebabkan: (1) Tanaman lebih rentan terhadap penyakit HDB (Hawar Daun Bakteri), (2) Unsur N mudah tercuci oleh air irigasi, (3) Pertumbuhan vegetatif berlebihan tapi produksi tidak meningkat, (4) Pemborosan biaya produksi. Lakukan uji tanah untuk menentukan dosis yang tepat.",
+        "opt_terkait": null,
+        "sumber": "Supriatin et al. (2023), Jurnal Pengabdian FP Unila Vol.02 No.01; Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      }
+    ],
+    "pengendalian": [
+      {
+        "id": 1,
+        "kategori": "pengendalian",
+        "pertanyaan": "Apa itu PHT (Pengendalian Hama Terpadu)?",
+        "jawaban": "PHT adalah pendekatan pengendalian OPT yang mengutamakan keterpaduan berbagai teknik: kultur teknis, mekanis, biologis, dan kimiawi sebagai pilihan terakhir. Prinsip utama PHT: (1) Budidaya tanaman sehat, (2) Pemanfaatan musuh alami, (3) Pengamatan rutin, (4) Petani sebagai ahli PHT. Penggunaan pestisida kimia hanya jika populasi OPT sudah melampaui ambang pengendalian.",
+        "opt_terkait": null,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 2,
+        "kategori": "pengendalian",
+        "pertanyaan": "Kapan sebaiknya menggunakan pestisida kimia?",
+        "jawaban": "Pestisida kimia adalah pilihan TERAKHIR dalam PHT. Gunakan hanya saat: (1) Populasi hama/intensitas penyakit sudah melampaui ambang pengendalian, (2) Metode kultur teknis, mekanis, dan biologis sudah diterapkan tapi belum efektif, (3) Pilih pestisida yang tepat sasaran dan ikuti dosis anjuran. Untuk WBC: ambang 10 ekor/rumpun (<40 HST) atau 1 ekor/tunas (>40 HST).",
+        "opt_terkait": null,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 3,
+        "kategori": "pengendalian",
+        "pertanyaan": "Apa itu tanaman refugia dan manfaatnya?",
+        "jawaban": "Tanaman refugia adalah tanaman yang ditanam di pematang sawah untuk menyediakan tempat bagi musuh alami (parasitoid, predator) berkembangbiak dan mencari makan. Tanaman refugia yang dianjurkan: bunga matahari, kenikir, wijen, dan tanaman kacang-kacangan. Refugia membantu menekan populasi hama secara alami tanpa pestisida.",
+        "opt_terkait": "wbc,tungro",
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      }
+    ],
+    "rice_hispa": [
+      {
+        "id": 23,
+        "kategori": "rice_hispa",
+        "pertanyaan": "Daun padi saya bergaris putih dan permukaan daun terkikis, apa penyebabnya?",
+        "jawaban": "Kemungkinan serangan hama hispa padi (Dicladispa armigera). Kumbang dewasa mengikis permukaan atas daun (goresan putih memanjang), sementara larva menambang di dalam daun (garis putih di dalam helai daun). Penanganan: (1) Bersihkan gulma di sekitar sawah, (2) Potong dan musnahkan ujung daun yang mengandung larva/telur, (3) Kumpulkan kumbang dewasa di pagi hari, (4) Insektisida kontak jika serangan meluas. Hindari pupuk N berlebih.",
+        "opt_terkait": "rice_hispa",
+        "sumber": "IRRI Rice Knowledge Bank; BB Padi Sukamandi"
+      }
+    ],
+    "sheath_blight": [
+      {
+        "id": 22,
+        "kategori": "sheath_blight",
+        "pertanyaan": "Kenapa pelepah padi saya ada bercak lonjong dan daun mengering dari bawah?",
+        "jawaban": "Kemungkinan hawar pelepah daun (sheath blight) oleh Rhizoctonia solani. Ciri khas: bercak lonjong abu-abu kehijauan pada pelepah dekat permukaan air, terlihat miselium putih dan butiran cokelat (sklerosia). Penanganan: (1) Atur pengairan berselang (jangan menggenang terus), (2) Kurangi urea berlebih, (3) Aplikasi kompos matang yang diperkaya bakteri antagonis, (4) Semprot fungisida ke pangkal tanaman jika serangan meluas.",
+        "opt_terkait": "sheath_blight",
+        "sumber": "Nuryanto (2017), Jurnal Perlindungan Tanaman Indonesia Vol.21 No.2, BB Padi Sukamandi"
+      }
+    ],
+    "tikus": [
+      {
+        "id": 9,
+        "kategori": "tikus",
+        "pertanyaan": "Bagaimana cara memasang TBS (Trap Barrier System)?",
+        "jawaban": "TBS/LTBS adalah teknik efektif mengendalikan tikus: (1) Pasang pagar plastik bening/mulsa/terpal setinggi 60-70 cm (pratanam) atau 50-60 cm (pertanaman), (2) Tegakkan dengan ajir setiap 1 m, (3) Ujung bawah plastik harus terendam/terbenam di lumpur tanpa celah, (4) Pasang bubu perangkap minimal 2 buah (pratanam) atau setiap 10 m (LTBS pertanaman, panjang min. 100 m), (5) Mulut perangkap menghadap keluar (dalam pagar) dan ke dalam (luar pagar).",
+        "opt_terkait": "tikus",
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 10,
+        "kategori": "tikus",
+        "pertanyaan": "Apa manfaat burung hantu untuk mengendalikan tikus?",
+        "jawaban": "Burung hantu Tyto alba adalah predator alami tikus yang sangat efektif. Keunggulan: (1) Makanan utama tikus, (2) Mampu makan 2-3 ekor tikus per malam, (3) Efisien dan hemat tenaga, (4) Penglihatan tajam, (5) Cepat beradaptasi, (6) Cepat berkembangbiak (bertelur 2x/tahun), (7) Ramah lingkungan. Sediakan rumah burung hantu (rubuha) di sekitar sawah.",
+        "opt_terkait": "tikus",
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      }
+    ],
+    "tungro": [
+      {
+        "id": 12,
+        "kategori": "tungro",
+        "pertanyaan": "Padi saya kerdil dan daun menguning/jingga, apa penyebabnya?",
+        "jawaban": "Kemungkinan penyakit tungro yang ditularkan wereng daun hijau (Nephotettix virescens). Gejala: daun menguning-jingga dari ujung, tanaman kerdil, anakan berkurang, malai hampa. Penanganan: (1) Segera cabut tanaman terinfeksi dan benamkan dalam lumpur (eradikasi selektif), (2) Kendalikan vektor WDH dengan agens hayati (Beauveria, Metarhizium) di sore hari, (3) Gunakan insektisida BPMC/MIPC/Buprofezin/Imidakloprid jika populasi WDH tinggi, (4) Musim tanam berikutnya: tanam varietas tahan (Tukad Patanu, Bondoyudo, Kalimas) dan gunakan pola jajar legowo.",
+        "opt_terkait": "tungro",
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      }
+    ],
+    "umum": [
+      {
+        "id": 16,
+        "kategori": "umum",
+        "pertanyaan": "Apa itu jajar legowo dan apa manfaatnya?",
+        "jawaban": "Jajar legowo adalah sistem tanam padi dengan pengaturan jarak tanam tertentu, menyisakan lorong kosong antar beberapa baris tanaman. Pola umum: 2:1 (2 baris tanam, 1 lorong kosong) atau 4:1 (4 baris tanam, 1 lorong kosong). Manfaat: (1) Menurunkan suhu dan kelembapan mikro sehingga menekan hama/penyakit, (2) Tanaman pinggir mendapat efek border (lebih subur), (3) Memudahkan perawatan dan pengamatan, (4) Meningkatkan produktivitas 10-20%.",
+        "opt_terkait": null,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 17,
+        "kategori": "umum",
+        "pertanyaan": "Bagaimana cara seleksi benih padi yang baik?",
+        "jawaban": "Seleksi benih menggunakan larutan air garam: (1) Larutkan 50 gram garam dalam 1 liter air, (2) Masukkan benih padi, (3) Buang benih yang mengapung (hampa/ringan), (4) Ambil benih yang tenggelam (bernas/berisi), (5) Bilas benih terpilih dengan air bersih sebelum pemeraman. Ini memastikan benih berkualitas dan vigor tinggi.",
+        "opt_terkait": null,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 18,
+        "kategori": "umum",
+        "pertanyaan": "Kapan waktu yang tepat untuk menyemprot agens hayati?",
+        "jawaban": "Waktu paling efektif untuk aplikasi agens hayati (Beauveria bassiana, Metarhizium, Paenibacillus polymyxa, dll) adalah pada SORE HARI. Alasan: (1) Sinar UV matahari dapat membunuh spora agens hayati, (2) Kelembapan sore lebih tinggi sehingga spora berkembang optimal, (3) Suhu lebih rendah dan stabil.",
+        "opt_terkait": null,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 19,
+        "kategori": "umum",
+        "pertanyaan": "Apa yang harus dilakukan setelah deteksi penyakit oleh aplikasi?",
+        "jawaban": "Setelah HarvestAlert mendeteksi hama/penyakit: (1) Konfirmasi visual di lapangan - cocokkan gejala dengan deskripsi, (2) Tentukan fase pertanaman Anda (pratanam/pesemaian/pertanaman), (3) Ikuti rekomendasi pengendalian sesuai fase, mulai dari metode kultur teknis dan biologis, (4) Gunakan pestisida kimia HANYA jika populasi sudah melebihi ambang pengendalian, (5) Laporkan ke petugas POPT/PPL setempat jika serangan meluas, (6) Evaluasi efektivitas pengendalian setelah 3-7 hari.",
+        "opt_terkait": null,
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI; Permentan No.39 Tahun 2018 tentang Sistem Peringatan Dini dan Penanganan DPI"
+      },
+      {
+        "id": 20,
+        "kategori": "umum",
+        "pertanyaan": "Ke mana saya harus melapor jika serangan OPT meluas?",
+        "jawaban": "Laporkan ke: (1) Petugas POPT (Pengamat Organisme Pengganggu Tumbuhan) terdekat, (2) UPTD (Unit Pelaksana Teknis Daerah) Pertanian setempat, (3) PPL (Penyuluh Pertanian Lapang) yang membina wilayah Anda, (4) Dinas Pertanian Kabupaten/Kota, (5) Melalui aplikasi SIPERDITAN atau SIMOTANDI milik Kementan. Pelaporan dini penting untuk penanganan cepat.",
+        "opt_terkait": null,
+        "sumber": "Permentan No.39 Tahun 2018 tentang Sistem Peringatan Dini dan Penanganan DPI"
+      }
+    ],
+    "wereng": [
+      {
+        "id": 7,
+        "kategori": "wereng",
+        "pertanyaan": "Kenapa tanaman padi saya tiba-tiba menguning dan rebah?",
+        "jawaban": "Kemungkinan besar serangan wereng batang cokelat (WBC) yang menyebabkan hopperburn. Ciri khas: tanaman menguning dari bawah, pangkal batang basah, terlihat koloni wereng di pangkal batang dekat permukaan air. Penanganan darurat: (1) Semprot agens hayati Beauveria bassiana/Metarhizium di sore hari, (2) Jika populasi sangat tinggi (>10 ekor/rumpun), gunakan insektisida kontak (BPMC/MIPC) dengan menyibak tanaman dulu, (3) Atur pengairan berselang (intermittent irrigation).",
+        "opt_terkait": "wbc",
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      },
+      {
+        "id": 8,
+        "kategori": "wereng",
+        "pertanyaan": "Varietas padi apa yang tahan wereng?",
+        "jawaban": "Varietas tahan WBC menurut BBPOPT: Inpari 13 (tahan biotipe 1, 2, 3), Inpari 33 (tahan biotipe 1, 2, 3), Inpari 18 (tahan biotipe 1, 2; agak tahan biotipe 3), Inpari 19 (tahan biotipe 1, 2; agak tahan biotipe 3). Rotasi varietas penting agar ketahanan tidak patah.",
+        "opt_terkait": "wbc",
+        "sumber": "Buku Prakiraan OPT Pangan MT 2024, BBPOPT Ditjen Tanaman Pangan Kementan RI"
+      }
+    ]
+  },
+  "pupuk": [
+    {
+      "id": 1,
+      "jenis_pupuk": "NPK Phonska",
+      "dosis_per_ha": "240 kg/ha",
+      "waktu_aplikasi": "Sesuai fase pertumbuhan",
+      "catatan": "Dosis berdasarkan uji tanah; kombinasi dengan Urea dan KCl",
+      "sumber": "Supriatin et al. (2023), Jurnal Pengabdian FP Unila Vol.02 No.01"
+    },
+    {
+      "id": 2,
+      "jenis_pupuk": "Urea",
+      "dosis_per_ha": "172 kg/ha",
+      "waktu_aplikasi": "Sesuai fase pertumbuhan",
+      "catatan": "Setara 79,12 kg N/ha; jangan berlebihan karena meningkatkan kerentanan HDB",
+      "sumber": "Supriatin et al. (2023), Jurnal Pengabdian FP Unila Vol.02 No.01"
+    },
+    {
+      "id": 3,
+      "jenis_pupuk": "KCl",
+      "dosis_per_ha": "40 kg/ha",
+      "waktu_aplikasi": "Sesuai fase pertumbuhan",
+      "catatan": "Dapat diganti dengan kompos jerami padi (K tinggi pada jerami)",
+      "sumber": "Supriatin et al. (2023), Jurnal Pengabdian FP Unila Vol.02 No.01"
+    },
+    {
+      "id": 4,
+      "jenis_pupuk": "Kompos Jerami Padi",
+      "dosis_per_ha": "5 ton/ha",
+      "waktu_aplikasi": "Saat pengolahan lahan",
+      "catatan": "Dalam 5 ton jerami: 30 kg N, 7 kg P, 7 kg S, 20 kg Ca, 5 kg Mg, 100 kg K, 80 kg Si. Menggantikan KCl.",
+      "sumber": "Supriatin et al. (2023), Jurnal Pengabdian FP Unila Vol.02 No.01"
+    }
+  ]
+}
