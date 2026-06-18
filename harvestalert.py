@@ -378,8 +378,8 @@ def cuaca_bmkg(lat, lon):
     try:
         r = requests.get(URL, timeout=8); r.raise_for_status()
         root = ET.fromstring(r.content)
-    except Exception as e:
-        FB["pesan"] = f"BMKG gagal: {str(e)[:50]}"; return FB
+    except Exception:
+        return FB
 
     now_utc = datetime.now(timezone.utc)
     jmin = float("inf"); hasil = {}
@@ -747,10 +747,7 @@ with tab3:
                 unsafe_allow_html=True)
 
     if model_cnn is None:
-        st.warning(
-            "⚠️ Model tidak ditemukan. Letakkan file "
-            "`model_agriwarn.tflite` di folder data."
-        )
+        st.warning(f"⚠️ Model belum dimuat. Path: `{MODEL_PATH}` | Ada: `{MODEL_PATH.exists()}`")
 
     st.markdown("""
     <div class="rekom biru">
