@@ -99,6 +99,8 @@ REKOMENDASI = {
 
 BERBAHAYA = {'bacterial_leaf_blight', 'leaf_blast', 'sheath_blight', 'tungro', 'rice_hispa'}
 
+DEEPSEEK_MODEL = "deepseek-v4-pro"
+
 
 # ----------------------------------------------------------------
 #  KONFIGURASI HALAMAN
@@ -275,6 +277,26 @@ def load_tanibot():
         return None
 
 tanibot = load_tanibot()
+
+
+# ================================================================
+#  DEEPSEEK AI CLIENT
+# ================================================================
+def get_deepseek_client():
+    try:
+        from openai import OpenAI
+        api_key = None
+        try:
+            api_key = st.secrets.get("DEEPSEEK_API_KEY")
+        except Exception:
+            pass
+        if not api_key:
+            api_key = os.environ.get("DEEPSEEK_API_KEY")
+        if not api_key:
+            return None
+        return OpenAI(api_key=api_key, base_url="https://api.deepseek.com")
+    except Exception:
+        return None
 
 
 # ================================================================
@@ -597,8 +619,8 @@ st.markdown(f"""
 
 
 # ── 4 TAB ────────────────────────────────────────────────────────
-tab1, tab2, tab3, tab4 = st.tabs([
-    "🏠  Beranda", "🌤️  Cuaca & Iklim", "🔬  Cek Hama Padi", "ℹ️  Informasi"
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    "🏠  Beranda", "🌤️  Cuaca & Iklim", "🔬  Cek Hama Padi", "ℹ️  Informasi", "🤖  Chat AI"
 ])
 
 
@@ -768,6 +790,8 @@ with tab3:
             else:
                 with st.spinner("Menganalisis foto..."):
                     hasil = prediksi_gambar(foto.getvalue())
+                    if hasil:
+                        st.session_state["ai_context"] = hasil
 
                 if hasil:
                     kls_card = "bahaya" if hasil["berbahaya"] else "waspada"
@@ -803,7 +827,6 @@ with tab3:
                                 }[x],
                                 key="fase_sel"
                             )
-                            recs_resp = tanibot.get_post_detection_recs(opt_id, fase)
                             WARNA_METODE = {
                                 "Kultur Teknis": "",
                                 "Biologis":      "biru",
@@ -811,21 +834,65 @@ with tab3:
                                 "Mekanis":       "kuning",
                                 "Sanitasi":      "",
                             }
-                            for rec in recs_resp.recs:
-                                warna  = WARNA_METODE.get(rec["metode"], "")
-                                extras = ""
-                                if rec.get("dosis"):
-                                    extras += f"<br>💊 <b>Dosis:</b> {rec['dosis']}"
-                                if rec.get("waktu_aplikasi"):
-                                    extras += f"<br>⏰ <b>Waktu:</b> {rec['waktu_aplikasi']}"
+
+                            # Cek apakah sedang di mode navigasi
+                            nav_key = f"tbot_nav_{opt_id}"
+                            if nav_key not in st.session_state:
+                                st.session_state[nav_key] = None
+
+                            if st.session_state[nav_key] is None:
+                                # Mode default: tampilkan rekomendasi per fase
+                                recs_resp = tanibot.get_post_detection_recs(opt_id, fase)
+                                for rec in recs_resp.recs:
+                                    warna  = WARNA_METODE.get(rec["metode"], "")
+                                    extras = ""
+                                    if rec.get("dosis"):
+                                        extras += f"<br>💊 <b>Dosis:</b> {rec['dosis']}"
+                                    if rec.get("waktu_aplikasi"):
+                                        extras += f"<br>⏰ <b>Waktu:</b> {rec['waktu_aplikasi']}"
+                                    st.markdown(f"""
+                                    <div class="rekom {warna}">
+                                      <div class="rk-title">#{rec['prioritas']} [{rec['metode']}] {rec['langkah']}</div>
+                                      <div class="rk-text">{rec['detail']}{extras}</div>
+                                    </div>
+                                    """, unsafe_allow_html=True)
+                                if recs_resp.sumber:
+                                    st.caption(f"📚 Sumber: {'; '.join(set(recs_resp.sumber))}")
+
+                                # Tampilkan tombol navigasi lanjutan
+                                nav_opts = [(nid, lbl) for nid, lbl in recs_resp.options if nid != "root"]
+                                if nav_opts:
+                                    st.markdown('<hr class="divider">', unsafe_allow_html=True)
+                                    st.markdown('<p class="sec-title">💬 Tanya TaniBot Lebih Lanjut</p>',
+                                                unsafe_allow_html=True)
+                                    cols = st.columns(len(nav_opts))
+                                    for i, (nid, lbl) in enumerate(nav_opts):
+                                        if cols[i].button(lbl, key=f"tbot_btn_{nid}_{opt_id}"):
+                                            st.session_state[nav_key] = nid
+                                            st.rerun()
+                            else:
+                                # Mode navigasi: tampilkan hasil pilihan
+                                nav_resp = tanibot.select(st.session_state[nav_key])
                                 st.markdown(f"""
-                                <div class="rekom {warna}">
-                                  <div class="rk-title">#{rec['prioritas']} [{rec['metode']}] {rec['langkah']}</div>
-                                  <div class="rk-text">{rec['detail']}{extras}</div>
+                                <div class="rekom biru">
+                                  <div class="rk-title">📄 Info Tambahan</div>
+                                  <div class="rk-text">{nav_resp.text.replace(chr(10), '<br>')}</div>
                                 </div>
                                 """, unsafe_allow_html=True)
-                            if recs_resp.sumber:
-                                st.caption(f"📚 Sumber: {'; '.join(set(recs_resp.sumber))}")
+
+                                # Tombol pilihan lanjutan
+                                if nav_resp.options:
+                                    st.markdown('<p class="sec-title" style="margin-top:12px;">Pilih selanjutnya:</p>',
+                                                unsafe_allow_html=True)
+                                    for nid, lbl in nav_resp.options:
+                                        if nid == "root":
+                                            if st.button("🔙 Kembali ke Rekomendasi", key=f"tbot_back_{opt_id}"):
+                                                st.session_state[nav_key] = None
+                                                st.rerun()
+                                        else:
+                                            if st.button(lbl, key=f"tbot_sub_{nid}_{opt_id}"):
+                                                st.session_state[nav_key] = nid
+                                                st.rerun()
                         elif tanibot is None:
                             st.info("TaniBot belum aktif — bangun database dulu dengan `tanibot_db_builder_v2.py`")
 
@@ -923,3 +990,108 @@ with tab4:
           <div class="rk-text"><b>{arti}</b> — {aksi}</div>
         </div>
         """, unsafe_allow_html=True)
+
+
+# ════════════════════════════════════════════════════
+#  TAB 5 — CHAT AI (DEEPSEEK)
+# ════════════════════════════════════════════════════
+with tab5:
+    st.markdown('<p class="sec-title">🤖 Chat dengan AgriWarn AI</p>', unsafe_allow_html=True)
+
+    ds_client = get_deepseek_client()
+
+    if ds_client is None:
+        st.markdown("""
+        <div class="rekom kuning">
+          <div class="rk-title">⚠️ API Key Belum Dikonfigurasi</div>
+          <div class="rk-text">
+            Untuk mengaktifkan Chat AI, tambahkan secret di Streamlit Cloud:<br>
+            <b>App Settings → Secrets → Edit Secrets</b>, lalu tambahkan baris:<br><br>
+            <code>DEEPSEEK_API_KEY = "sk-xxxxxxxxxxxx"</code>
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        # Konteks dari hasil deteksi Tab 3
+        ai_ctx = st.session_state.get("ai_context")
+
+        if ai_ctx:
+            nama_ctx  = ai_ctx.get("nama_indo", "")
+            conf_ctx  = round(ai_ctx.get("confidence", 0) * 100, 1)
+            kls_ctx   = ai_ctx.get("kelas", "")
+            ctx_color = "merah" if ai_ctx.get("berbahaya") else "kuning"
+            if kls_ctx == "healthy":
+                ctx_color = ""
+            st.markdown(f"""
+            <div class="rekom biru">
+              <div class="rk-title">📷 Konteks Deteksi Aktif</div>
+              <div class="rk-text">AI mengetahui hasil foto kamu: <b>{nama_ctx}</b>
+              ({conf_ctx}% keyakinan). Kamu bisa langsung bertanya soal penanganan,
+              gejala, dosis pestisida, atau pencegahan.</div>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.markdown("""
+            <div class="rekom">
+              <div class="rk-title">💡 Tips</div>
+              <div class="rk-text">Upload foto tanaman di tab <b>🔬 Cek Hama Padi</b> dulu,
+              lalu kembali ke sini — AI akan otomatis tahu hasil deteksinya dan bisa
+              memberi jawaban yang lebih spesifik.</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        # Susun system prompt
+        sys_prompt = (
+            "Kamu adalah AgriWarn AI, asisten pertanian padi Indonesia yang ahli dan ramah. "
+            "Bantu petani dengan pertanyaan seputar penyakit padi, hama, cara pemupukan, "
+            "irigasi, dan pengendalian OPT (Organisme Pengganggu Tumbuhan). "
+            "Jawab dalam Bahasa Indonesia yang mudah dipahami petani biasa. "
+            "Berikan saran praktis dan berbasis ilmu pertanian yang valid."
+        )
+        if ai_ctx and ai_ctx.get("kelas") != "healthy":
+            sys_prompt += (
+                f"\n\nKonteks aktif: tanaman padi pengguna terdeteksi mengidap "
+                f"{ai_ctx['nama_indo']} dengan keyakinan {round(ai_ctx['confidence']*100,1)}%. "
+                f"Rekomendasi sistem: {ai_ctx.get('rekomendasi', '')}. "
+                "Gunakan konteks ini untuk jawaban yang lebih relevan."
+            )
+
+        # Inisialisasi riwayat chat
+        if "chat_history" not in st.session_state:
+            st.session_state.chat_history = []
+
+        # Tampilkan riwayat
+        for msg in st.session_state.chat_history:
+            with st.chat_message(msg["role"]):
+                st.write(msg["content"])
+
+        # Input pengguna
+        if prompt := st.chat_input("Tanya soal penyakit padi, penanganan, dosis pestisida..."):
+            st.session_state.chat_history.append({"role": "user", "content": prompt})
+            with st.chat_message("user"):
+                st.write(prompt)
+
+            with st.chat_message("assistant"):
+                try:
+                    messages = [{"role": "system", "content": sys_prompt}] + [
+                        {"role": m["role"], "content": m["content"]}
+                        for m in st.session_state.chat_history
+                    ]
+                    stream = ds_client.chat.completions.create(
+                        model=DEEPSEEK_MODEL,
+                        messages=messages,
+                        stream=True,
+                    )
+                    full_reply = st.write_stream(stream)
+                    st.session_state.chat_history.append({
+                        "role": "assistant",
+                        "content": full_reply,
+                    })
+                except Exception as e:
+                    st.error(f"Gagal terhubung ke AI: {e}")
+
+        if st.session_state.get("chat_history"):
+            st.markdown('<hr class="divider">', unsafe_allow_html=True)
+            if st.button("🗑️ Hapus riwayat percakapan", type="secondary"):
+                st.session_state.chat_history = []
+                st.rerun()
