@@ -68,7 +68,7 @@ class TaniBotEngine:
         if db_path is None:
             db_path = os.path.join(os.path.dirname(__file__), "tanibot_offline.db")
         self.db_path = db_path
-        self.conn = sqlite3.connect(db_path)
+        self.conn = sqlite3.connect(db_path, check_same_thread=False)
         self.conn.row_factory = sqlite3.Row
         self.current_node = "root"
 
