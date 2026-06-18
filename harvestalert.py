@@ -17,7 +17,7 @@ DATA_DIR      = Path(os.environ.get("DATA_DIR", "."))
 CSV_ENSO      = DATA_DIR / "el-nino-southern-oscillation-enso-el-nino-and-la-nina-events.csv"
 CSV_NDVI      = DATA_DIR / "Data_NDVI_Indonesia_2022_2026.csv"
 CSV_SENTINEL1 = DATA_DIR / "3_Data_Sentinel1_Indonesia.csv"
-MODEL_PATH    = DATA_DIR / "Model_CNN_Agriwarn_Final.keras"
+MODEL_PATH    = DATA_DIR / "model_agriwarn.tflite"
 DB_TANIBOT    = DATA_DIR / "tanibot_offline.db"
 RADIUS_KM     = 300
 
@@ -252,8 +252,17 @@ df_sar  = load_sar()
 def load_model_cnn():
     if not MODEL_PATH.exists():
         return None
-    import tensorflow as tf
-    return tf.keras.models.load_model(str(MODEL_PATH))
+    try:
+        from ai_edge_litert.interpreter import Interpreter
+    except ImportError:
+        try:
+            import tflite_runtime.interpreter as tfl
+            Interpreter = tfl.Interpreter
+        except ImportError:
+            return None
+    interp = Interpreter(model_path=str(MODEL_PATH))
+    interp.allocate_tensors()
+    return interp
 
 model_cnn = load_model_cnn()
 
@@ -280,7 +289,6 @@ tanibot = load_tanibot()
 def prediksi_gambar(foto_bytes):
     if model_cnn is None:
         return None
-    import tensorflow as tf
     import cv2
 
     arr = np.frombuffer(foto_bytes, np.uint8)
@@ -292,7 +300,12 @@ def prediksi_gambar(foto_bytes):
     img = cv2.resize(img, (128, 128))
     img_batch = np.expand_dims(img.astype(np.float32), axis=0)
 
-    probs = model_cnn.predict(img_batch, verbose=0)[0]
+    inp = model_cnn.get_input_details()
+    out = model_cnn.get_output_details()
+    model_cnn.set_tensor(inp[0]['index'], img_batch)
+    model_cnn.invoke()
+    probs = model_cnn.get_tensor(out[0]['index'])[0]
+
     idx   = int(np.argmax(probs))
     kelas = NAMA_KELAS[idx]
 
@@ -563,6 +576,7 @@ with st.sidebar:
     st.write(f"NDVI  : {'✅' if df_ndvi is not None else '❌'}")
     st.write(f"SAR   : {'✅' if df_sar  is not None else '❌'}")
     st.write(f"Model : {'✅ Siap' if model_cnn is not None else '❌ Tidak ditemukan'}")
+    st.write(f"TaniBot: {'✅ Siap' if tanibot is not None else '❌ Bangun DB dulu'}")
     st.markdown("---")
     st.caption("Data: BMKG · NOAA · Sentinel-1/2\nHarvestAlert v1.0 · Satria Data 2026")
 
@@ -735,7 +749,7 @@ with tab3:
     if model_cnn is None:
         st.warning(
             "⚠️ Model tidak ditemukan. Letakkan file "
-            "`Model_CNN_Agriwarn_Final.keras` di folder yang sama dengan `harvestalert.py`."
+            "`model_agriwarn.tflite` di folder data."
         )
 
     st.markdown("""
@@ -783,6 +797,49 @@ with tab3:
                       <div class="rk-text">{hasil['rekomendasi']}</div>
                     </div>
                     """, unsafe_allow_html=True)
+
+                    # TaniBot rekomendasi penanganan
+                    if hasil["kelas"] != "healthy":
+                        opt_id = CLASS_TO_OPT.get(hasil["kelas"])
+                        if opt_id and tanibot:
+                            st.markdown('<hr class="divider">', unsafe_allow_html=True)
+                            st.markdown('<p class="sec-title">🌿 Rekomendasi Penanganan — TaniBot</p>',
+                                        unsafe_allow_html=True)
+                            fase = st.selectbox(
+                                "Fase tanaman saat ini:",
+                                ["pertanaman", "pesemaian", "pratanam"],
+                                format_func=lambda x: {
+                                    "pertanaman": "🌿 Pertanaman (sudah tanam)",
+                                    "pesemaian":  "🌱 Pesemaian",
+                                    "pratanam":   "🧺 Pratanam (belum tanam)",
+                                }[x],
+                                key="fase_sel"
+                            )
+                            recs_resp = tanibot.get_post_detection_recs(opt_id, fase)
+                            WARNA_METODE = {
+                                "Kultur Teknis": "",
+                                "Biologis":      "biru",
+                                "Kimiawi":       "merah",
+                                "Mekanis":       "kuning",
+                                "Sanitasi":      "",
+                            }
+                            for rec in recs_resp.recs:
+                                warna  = WARNA_METODE.get(rec["metode"], "")
+                                extras = ""
+                                if rec.get("dosis"):
+                                    extras += f"<br>💊 <b>Dosis:</b> {rec['dosis']}"
+                                if rec.get("waktu_aplikasi"):
+                                    extras += f"<br>⏰ <b>Waktu:</b> {rec['waktu_aplikasi']}"
+                                st.markdown(f"""
+                                <div class="rekom {warna}">
+                                  <div class="rk-title">#{rec['prioritas']} [{rec['metode']}] {rec['langkah']}</div>
+                                  <div class="rk-text">{rec['detail']}{extras}</div>
+                                </div>
+                                """, unsafe_allow_html=True)
+                            if recs_resp.sumber:
+                                st.caption(f"📚 Sumber: {'; '.join(set(recs_resp.sumber))}")
+                        elif tanibot is None:
+                            st.info("TaniBot belum aktif — bangun database dulu dengan `tanibot_db_builder_v2.py`")
 
                     # Bar probabilitas semua kelas
                     st.markdown('<p class="sec-title" style="margin-top:16px;">📊 Probabilitas Semua Kelas</p>',
