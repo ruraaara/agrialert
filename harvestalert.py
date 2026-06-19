@@ -606,27 +606,48 @@ def fetch_oni_noaa():
     return None, False, None
 
 
-def prediksi_oni_next(df, n=6):
+def prediksi_oni_ar(df, p=3):
     """
-    Prediksi ONI bulan depan via linear trend dari n bulan terakhir.
-    Metode: persistence + trend sederhana (bukan model iklim resmi NOAA).
+    AR(p) model fitted on full NOAA historical data.
+    y(t) = c + a1*y(t-1) + a2*y(t-2) + a3*y(t-3) + e
+    Memanfaatkan autocorrelation kuat ENSO (event bertahan berbulan-bulan).
     """
-    recent = df.tail(n)
-    x = np.arange(len(recent), dtype=float)
-    y = recent["ONI"].values.astype(float)
-    coeffs    = np.polyfit(x, y, 1)
-    next_oni  = float(np.polyval(coeffs, float(len(recent))))
-    residuals = y - np.polyval(coeffs, x)
-    std_err   = float(np.std(residuals)) * 1.5   # ±1.5σ ≈ 86% CI
-    last_date = pd.Timestamp(recent["date"].iloc[-1])
-    next_date = last_date + pd.DateOffset(months=1)
-    slope     = float(coeffs[0])
+    y = df["ONI"].values.astype(float)
+    n = len(y)
+    if n <= p:
+        # Fallback ke persistence jika data terlalu sedikit
+        last_date = pd.Timestamp(df["date"].iloc[-1])
+        return {"date": last_date + pd.DateOffset(months=1),
+                "oni": round(float(y[-1]), 2), "oni_low": round(float(y[-1]) - 0.3, 2),
+                "oni_high": round(float(y[-1]) + 0.3, 2), "tren": "stabil →"}
+
+    # Bangun lagged feature matrix dari seluruh data historis
+    X = np.column_stack([[1.0] * (n - p)] +
+                        [[y[i - j] for i in range(p, n)] for j in range(1, p + 1)])
+    Y = y[p:]
+
+    # OLS: koefisien AR belajar dari pola historis 75 tahun
+    coeffs, _, _, _ = np.linalg.lstsq(X, Y, rcond=None)
+    intercept = coeffs[0]
+    ar_coefs  = coeffs[1:]
+
+    # Prediksi: y(T+1) = c + a1*y(T) + a2*y(T-1) + a3*y(T-2)
+    last_vals = y[-p:][::-1]
+    next_oni  = intercept + float(np.dot(ar_coefs, last_vals))
+
+    # Ketidakpastian = std residual in-sample × 1.2
+    std_err   = float(np.std(Y - X @ coeffs)) * 1.2
+
+    last_date = pd.Timestamp(df["date"].iloc[-1])
+    cur_oni   = float(y[-1])
     return {
-        "date":     next_date,
+        "date":     last_date + pd.DateOffset(months=1),
         "oni":      round(next_oni, 2),
         "oni_low":  round(next_oni - std_err, 2),
         "oni_high": round(next_oni + std_err, 2),
-        "tren":     "naik ↑" if slope > 0.05 else "turun ↓" if slope < -0.05 else "stabil →",
+        "tren":     ("naik ↑"  if next_oni > cur_oni + 0.05
+                     else "turun ↓" if next_oni < cur_oni - 0.05
+                     else "stabil →"),
     }
 
 
@@ -874,7 +895,7 @@ with tab2:
     oni_cur   = float(df_for_enso.iloc[-1]["ONI"])
     date_cur  = pd.Timestamp(df_for_enso.iloc[-1]["date"])
     enso_cur  = info_enso(oni_cur)
-    pred      = prediksi_oni_next(df_for_enso, n=6)
+    pred      = prediksi_oni_ar(df_for_enso, p=3)
     enso_pred = info_enso(pred["oni"])
 
     st.markdown(f"""
@@ -906,7 +927,7 @@ with tab2:
       </div>
     </div>
     <p style="font-size:0.7rem;color:#64748b;margin:-2px 0 12px">
-      ⚠️ Prediksi menggunakan linear trend 6 bulan terakhir — indikasi awal, bukan model iklim resmi.
+      ⚠️ Prediksi menggunakan model AR(3) yang dilatih dari data historis NOAA 75 tahun — indikasi statistik, bukan model iklim resmi.
       Rujukan resmi: <b>bmkg.go.id</b> · <b>iri.columbia.edu</b>
     </p>
     """, unsafe_allow_html=True)
