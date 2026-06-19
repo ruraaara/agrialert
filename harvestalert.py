@@ -1,5 +1,7 @@
+import csv
 import math
 import os
+import uuid
 import requests
 import streamlit as st
 import pandas as pd
@@ -148,6 +150,10 @@ _ICON_PATHS = {
     "send":          '<path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7Z"/>',
     "lightbulb":     '<path d="M9 18h6M10 21h4"/><path d="M12 2a6 6 0 0 0-3.6 10.8c.4.3.6.8.6 1.3V15h6v-.9c0-.5.2-1 .6-1.3A6 6 0 0 0 12 2Z"/>',
     "camera":        '<rect x="2.5" y="6" width="19" height="14" rx="2.5"/><circle cx="12" cy="13" r="3.5"/><path d="M8.5 6 10 3.5h4L15.5 6"/>',
+    "wifi":          '<path d="M4 11.5a11.5 11.5 0 0 1 16 0"/><path d="M7.2 14.8a7 7 0 0 1 9.6 0"/><path d="M12 19.5h.01"/>',
+    "wifi-off":      '<path d="M2 2l20 20"/><path d="M4 11.5a11.5 11.5 0 0 1 12.4-2.5"/><path d="M20 9a11.5 11.5 0 0 0-2-1.6"/><path d="M7.2 14.8a7 7 0 0 1 6-1.9"/><path d="M12 19.5h.01"/>',
+    "flag":          '<path d="M5 21V4"/><path d="M5 4h13l-3 4 3 4H5"/>',
+    "shield-check":  '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6Z"/><path d="m8.5 12 2.5 2.5L15.5 9"/>',
 }
 
 
@@ -168,7 +174,7 @@ def ico(name, size="1.2em"):
 #  KONFIGURASI HALAMAN
 # ----------------------------------------------------------------
 st.set_page_config(
-    page_title="AgriWarn",
+    page_title="AgriAlert",
     page_icon="🌾",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -442,6 +448,41 @@ def get_ai_client():
         return OpenAI(api_key=api_key, base_url="https://api.groq.com/openai/v1")
     except Exception:
         return None
+
+
+# ================================================================
+#  PENGADUAN & CROWDSOURCING FOTO HAMA (consent-based)
+# ================================================================
+LAPORAN_CSV     = DATA_DIR / "laporan_pengaduan.csv"
+CROWDSOURCE_DIR = DATA_DIR / "crowdsource_foto"
+CROWDSOURCE_LOG = DATA_DIR / "crowdsource_log.csv"
+
+
+def simpan_pengaduan(jenis, deskripsi, kontak, kelas_terdeteksi=""):
+    baru = not LAPORAN_CSV.exists()
+    with open(LAPORAN_CSV, "a", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        if baru:
+            w.writerow(["waktu", "jenis_kesalahan", "kelas_terdeteksi", "deskripsi", "kontak"])
+        w.writerow([datetime.now().isoformat(timespec="seconds"), jenis, kelas_terdeteksi, deskripsi, kontak])
+
+
+def simpan_crowdsource_foto(file_bytes, ext, jenis_hama, lokasi, catatan):
+    folder = CROWDSOURCE_DIR / jenis_hama.split(" — ")[0].strip().replace(" ", "_").lower()
+    folder.mkdir(parents=True, exist_ok=True)
+    nama_file = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}.{ext}"
+    (folder / nama_file).write_bytes(file_bytes)
+
+    baru = not CROWDSOURCE_LOG.exists()
+    with open(CROWDSOURCE_LOG, "a", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        if baru:
+            w.writerow(["waktu", "jenis_hama", "lokasi", "catatan", "file"])
+        w.writerow([
+            datetime.now().isoformat(timespec="seconds"), jenis_hama, lokasi, catatan,
+            str((folder / nama_file).relative_to(DATA_DIR)),
+        ])
+    return nama_file
 
 
 # ================================================================
@@ -897,7 +938,7 @@ with st.sidebar:
     st.write(f"Model : {'Siap' if model_cnn is not None else 'Tidak ditemukan'}")
     st.write(f"TaniBot: {'Siap' if tanibot is not None else 'Bangun DB dulu'}")
     st.markdown("---")
-    st.caption("Data: BMKG · NOAA · Sentinel-1/2\nHarvestAlert v1.0 · Satria Data 2026")
+    st.caption("Data: BMKG · NOAA · Sentinel-1/2\nAgriAlert v1.0 · Satria Data 2026")
 
 
 # ── DATA REAL-TIME ────────────────────────────────────────────────
@@ -915,7 +956,7 @@ st.markdown(f"""
   <div class="ha-header-left">
     <span class="ha-logo">{ico('sprout', '2rem')}</span>
     <div>
-      <p class="ha-title">HarvestAlert</p>
+      <p class="ha-title">AgriAlert</p>
       <p class="ha-sub">Peringatan dini hama &amp; cuaca padi Indonesia</p>
     </div>
   </div>
@@ -925,8 +966,8 @@ st.markdown(f"""
 
 
 # ── 4 TAB ────────────────────────────────────────────────────────
-tab1, tab2, tab3, tab5, tab4 = st.tabs([
-    "Beranda", "Cuaca & Iklim", "Cek Hama Padi", "Chat AI", "Informasi"
+tab1, tab2, tab3, tab4 = st.tabs([
+    "Beranda", "Cuaca & Iklim", "Cek Hama Padi", "Informasi"
 ])
 
 
@@ -1243,13 +1284,43 @@ with tab3:
                     </div>
                     """, unsafe_allow_html=True)
 
-                    # TaniBot rekomendasi penanganan
-                    if hasil["kelas"] != "healthy":
-                        opt_id = CLASS_TO_OPT.get(hasil["kelas"])
-                        if opt_id and tanibot:
-                            st.markdown('<hr class="divider">', unsafe_allow_html=True)
-                            st.markdown(f'<p class="sec-title">{ico("bot")} TaniBot — Konsultasi Penanganan</p>',
-                                        unsafe_allow_html=True)
+                    # ── Konsultasi AI — gabungan Offline (TaniBot) & Online (AgriAlert AI) ──
+                    st.markdown('<hr class="divider">', unsafe_allow_html=True)
+                    st.markdown(f'<p class="sec-title">{ico("bot")} Konsultasi AI — Penanganan</p>',
+                                unsafe_allow_html=True)
+
+                    opt_id    = CLASS_TO_OPT.get(hasil["kelas"])
+                    ds_client = get_ai_client()
+                    mode_pilihan = []
+                    if opt_id and tanibot:
+                        mode_pilihan.append("offline")
+                    if ds_client is not None:
+                        mode_pilihan.append("online")
+
+                    if not mode_pilihan:
+                        st.info("Konsultasi AI belum aktif — bangun database TaniBot dengan "
+                                "`tanibot_db_builder_v2.py` atau atur `GROQ_API_KEY` di Secrets.")
+                    else:
+                        mode_key = f"ai_mode_{hasil['kelas']}"
+                        if st.session_state.get(mode_key) not in mode_pilihan:
+                            st.session_state[mode_key] = mode_pilihan[0]
+
+                        if len(mode_pilihan) > 1:
+                            mode = st.radio(
+                                "Pilih mode konsultasi:",
+                                mode_pilihan,
+                                format_func=lambda m: "Offline — TaniBot (tanpa internet)"
+                                    if m == "offline" else "Online — AgriAlert AI (lebih detail)",
+                                horizontal=True,
+                                index=mode_pilihan.index(st.session_state[mode_key]),
+                                key=f"{mode_key}_radio",
+                            )
+                            st.session_state[mode_key] = mode
+                        else:
+                            mode = mode_pilihan[0]
+
+                        # ---- MODE OFFLINE: TaniBot (pohon keputusan lokal) ----
+                        if mode == "offline" and opt_id and tanibot:
                             fase = st.selectbox(
                                 "Fase tanaman saat ini:",
                                 ["pertanaman", "pesemaian", "pratanam"],
@@ -1350,8 +1421,73 @@ with tab3:
                                          use_container_width=True):
                                 del st.session_state[chat_key]
                                 st.rerun()
-                        elif tanibot is None:
-                            st.info("TaniBot belum aktif — bangun database dulu dengan `tanibot_db_builder_v2.py`")
+
+                        # ---- MODE ONLINE: AgriAlert AI (Groq, butuh internet) ----
+                        elif mode == "online" and ds_client is not None:
+                            conf_ctx = round(hasil.get("confidence", 0) * 100, 1)
+                            kls_ctx  = hasil.get("kelas", "")
+                            st.markdown(f"""
+                            <div class="rekom biru">
+                              <div class="rk-title">{ico('camera')} Konteks Deteksi Aktif</div>
+                              <div class="rk-text">AI mengetahui hasil foto kamu: <b>{hasil['nama_indo']}</b>
+                              ({conf_ctx}% keyakinan). Kamu bisa langsung bertanya soal penanganan,
+                              gejala, dosis pestisida, atau pencegahan.</div>
+                            </div>
+                            """, unsafe_allow_html=True)
+
+                            sys_prompt = (
+                                "Kamu adalah AgriAlert AI, asisten pertanian padi Indonesia yang ahli dan ramah. "
+                                "Bantu petani dengan pertanyaan seputar penyakit padi, hama, cara pemupukan, "
+                                "irigasi, dan pengendalian OPT (Organisme Pengganggu Tumbuhan). "
+                                "Jawab dalam Bahasa Indonesia yang mudah dipahami petani biasa. "
+                                "Berikan saran praktis dan berbasis ilmu pertanian yang valid."
+                            )
+                            if kls_ctx != "healthy":
+                                sys_prompt += (
+                                    f"\n\nKonteks aktif: tanaman padi pengguna terdeteksi mengidap "
+                                    f"{hasil['nama_indo']} dengan keyakinan {conf_ctx}%. "
+                                    f"Rekomendasi sistem: {hasil.get('rekomendasi', '')}. "
+                                    "Gunakan konteks ini untuk jawaban yang lebih relevan."
+                                )
+
+                            if "chat_history" not in st.session_state:
+                                st.session_state.chat_history = []
+
+                            for msg in st.session_state.chat_history:
+                                with st.chat_message(msg["role"]):
+                                    st.write(msg["content"])
+
+                            if prompt := st.chat_input(
+                                "Tanya soal penyakit padi, penanganan, dosis pestisida...",
+                                key=f"chat_input_{opt_id or kls_ctx}",
+                            ):
+                                st.session_state.chat_history.append({"role": "user", "content": prompt})
+                                with st.chat_message("user"):
+                                    st.write(prompt)
+                                with st.chat_message("assistant"):
+                                    try:
+                                        messages = [{"role": "system", "content": sys_prompt}] + [
+                                            {"role": m["role"], "content": m["content"]}
+                                            for m in st.session_state.chat_history
+                                        ]
+                                        stream = ds_client.chat.completions.create(
+                                            model=AI_MODEL,
+                                            messages=messages,
+                                            stream=True,
+                                        )
+                                        full_reply = st.write_stream(stream)
+                                        st.session_state.chat_history.append({
+                                            "role": "assistant",
+                                            "content": full_reply,
+                                        })
+                                    except Exception as e:
+                                        st.error(f"Gagal terhubung ke AI: {e}")
+
+                            if st.session_state.get("chat_history"):
+                                if st.button("Hapus riwayat percakapan", type="secondary",
+                                             key=f"clear_chat_{opt_id or kls_ctx}"):
+                                    st.session_state.chat_history = []
+                                    st.rerun()
 
                     # Bar probabilitas semua kelas
                     st.markdown(f'<p class="sec-title" style="margin-top:16px;">{ico("chart")} Probabilitas Semua Kelas</p>',
@@ -1407,17 +1543,17 @@ with tab3:
 #  TAB 4 — INFORMASI
 # ════════════════════════════════════════════════════
 with tab4:
-    st.markdown(f'<p class="sec-title">{ico("info-circle")} Tentang HarvestAlert</p>', unsafe_allow_html=True)
+    st.markdown(f'<p class="sec-title">{ico("info-circle")} Tentang AgriAlert</p>', unsafe_allow_html=True)
 
     st.markdown(f"""
     <div class="rekom biru">
       <div class="rk-title">{ico('book')} Tentang Aplikasi</div>
       <div class="rk-text">
-        <b>HarvestAlert</b> adalah sistem peringatan dini pertanian padi Indonesia yang
+        <b>AgriAlert</b> adalah sistem peringatan dini pertanian padi Indonesia yang
         menggabungkan data cuaca real-time BMKG, kondisi iklim global (ENSO),
         data satelit Sentinel-1/2, dan kecerdasan buatan untuk deteksi penyakit.<br><br>
         <b>Sumber data:</b> BMKG · NOAA/CPC · Sentinel-1 SAR · Sentinel-2 NDVI · BBPOPT<br>
-        <b>Model AI:</b> CNN Agriwarn — 98% akurasi, 9 kelas penyakit daun padi<br>
+        <b>Model AI:</b> CNN AgriAlert — 98% akurasi, 9 kelas penyakit daun padi<br>
         <b>Regulasi:</b> Permentan No. 39/2018 · UU PDP No. 27/2022<br>
         <b>Versi:</b> 1.0 · Satria Data 2026
       </div>
@@ -1448,108 +1584,81 @@ with tab4:
         </div>
         """, unsafe_allow_html=True)
 
+    # ── Kotak Pengaduan — laporkan kesalahan deteksi AI ──
+    st.markdown('<hr class="divider">', unsafe_allow_html=True)
+    st.markdown(f'<p class="sec-title">{ico("flag")} Laporkan Kesalahan Deteksi</p>', unsafe_allow_html=True)
+    st.markdown(f"""
+    <div class="rekom kuning">
+      <div class="rk-title">{ico('alert-triangle')} Hasil Deteksi AI Tidak Sesuai?</div>
+      <div class="rk-text">
+        Kalau AI salah mengenali penyakit atau hama dari foto Anda, beri tahu kami di sini.
+        Laporan Anda dipakai untuk memperbaiki ketepatan model ke depannya.
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
 
-# ════════════════════════════════════════════════════
-#  TAB 5 — CHAT AI (DEEPSEEK)
-# ════════════════════════════════════════════════════
-with tab5:
-    st.markdown(f'<p class="sec-title">{ico("bot")} Chat dengan AgriWarn AI</p>', unsafe_allow_html=True)
-
-    ds_client = get_ai_client()
-
-    if ds_client is None:
-        st.markdown(f"""
-        <div class="rekom kuning">
-          <div class="rk-title">{ico('alert-triangle')} API Key Belum Dikonfigurasi</div>
-          <div class="rk-text">
-            Untuk mengaktifkan Chat AI, daftar gratis di <b>console.groq.com</b>
-            → buat API key → tambahkan di Streamlit Cloud:<br>
-            <b>App Settings → Secrets → Edit Secrets</b><br><br>
-            <code>GROQ_API_KEY = "gsk_xxxxxxxxxxxx"</code>
-          </div>
-        </div>
-        """, unsafe_allow_html=True)
-    else:
-        # Konteks dari hasil deteksi Tab 3
-        ai_ctx = st.session_state.get("ai_context")
-
-        if ai_ctx:
-            nama_ctx  = ai_ctx.get("nama_indo", "")
-            conf_ctx  = round(ai_ctx.get("confidence", 0) * 100, 1)
-            kls_ctx   = ai_ctx.get("kelas", "")
-            ctx_color = "merah" if ai_ctx.get("berbahaya") else "kuning"
-            if kls_ctx == "healthy":
-                ctx_color = ""
-            st.markdown(f"""
-            <div class="rekom biru">
-              <div class="rk-title">{ico('camera')} Konteks Deteksi Aktif</div>
-              <div class="rk-text">AI mengetahui hasil foto kamu: <b>{nama_ctx}</b>
-              ({conf_ctx}% keyakinan). Kamu bisa langsung bertanya soal penanganan,
-              gejala, dosis pestisida, atau pencegahan.</div>
-            </div>
-            """, unsafe_allow_html=True)
-        else:
-            st.markdown(f"""
-            <div class="rekom">
-              <div class="rk-title">{ico('lightbulb')} Tips</div>
-              <div class="rk-text">Upload foto tanaman di tab <b>Cek Hama Padi</b> dulu,
-              lalu kembali ke sini — AI akan otomatis tahu hasil deteksinya dan bisa
-              memberi jawaban yang lebih spesifik.</div>
-            </div>
-            """, unsafe_allow_html=True)
-
-        # Susun system prompt
-        sys_prompt = (
-            "Kamu adalah AgriWarn AI, asisten pertanian padi Indonesia yang ahli dan ramah. "
-            "Bantu petani dengan pertanyaan seputar penyakit padi, hama, cara pemupukan, "
-            "irigasi, dan pengendalian OPT (Organisme Pengganggu Tumbuhan). "
-            "Jawab dalam Bahasa Indonesia yang mudah dipahami petani biasa. "
-            "Berikan saran praktis dan berbasis ilmu pertanian yang valid."
+    ctx_lapor = st.session_state.get("ai_context", {})
+    with st.form("form_pengaduan", clear_on_submit=True):
+        jenis_lapor = st.selectbox(
+            "Jenis kesalahan:",
+            [
+                "Salah jenis penyakit/hama",
+                "Tanaman sehat terdeteksi sakit",
+                "Hasil tidak akurat / meragukan",
+                "Lainnya",
+            ],
         )
-        if ai_ctx and ai_ctx.get("kelas") != "healthy":
-            sys_prompt += (
-                f"\n\nKonteks aktif: tanaman padi pengguna terdeteksi mengidap "
-                f"{ai_ctx['nama_indo']} dengan keyakinan {round(ai_ctx['confidence']*100,1)}%. "
-                f"Rekomendasi sistem: {ai_ctx.get('rekomendasi', '')}. "
-                "Gunakan konteks ini untuk jawaban yang lebih relevan."
-            )
+        deskripsi_lapor = st.text_area(
+            "Ceritakan kesalahannya (opsional):",
+            placeholder="Contoh: Foto daun sehat tapi hasilnya terdeteksi Blas Daun...",
+        )
+        kontak_lapor = st.text_input("Nomor HP / Email (opsional, agar bisa kami tindak lanjuti):")
+        kirim_lapor  = st.form_submit_button("Kirim Laporan", use_container_width=True)
 
-        # Inisialisasi riwayat chat
-        if "chat_history" not in st.session_state:
-            st.session_state.chat_history = []
+    if kirim_lapor:
+        simpan_pengaduan(jenis_lapor, deskripsi_lapor, kontak_lapor, ctx_lapor.get("nama_indo", ""))
+        st.success("Terima kasih, laporan Anda sudah kami terima dan akan ditinjau tim AgriAlert.")
 
-        # Tampilkan riwayat
-        for msg in st.session_state.chat_history:
-            with st.chat_message(msg["role"]):
-                st.write(msg["content"])
+    # ── Crowdsourcing foto hama (consent-based) ──
+    st.markdown('<hr class="divider">', unsafe_allow_html=True)
+    st.markdown(f'<p class="sec-title">{ico("camera")} Bantu Kumpulkan Foto Hama</p>', unsafe_allow_html=True)
+    st.markdown(f"""
+    <div class="rekom biru">
+      <div class="rk-title">{ico('shield-check')} Kenapa Foto Anda Penting?</div>
+      <div class="rk-text">
+        Data foto untuk <b>penggerek batang</b> (gejala sundep dan beluk) dan <b>tikus</b>
+        masih sangat terbatas, padahal keduanya termasuk hama dengan prakiraan serangan
+        terluas di Indonesia. Kirim foto kondisi tanaman yang terserang agar AI AgriAlert
+        bisa belajar mengenali hama ini lebih baik untuk semua petani.
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
 
-        # Input pengguna
-        if prompt := st.chat_input("Tanya soal penyakit padi, penanganan, dosis pestisida..."):
-            st.session_state.chat_history.append({"role": "user", "content": prompt})
-            with st.chat_message("user"):
-                st.write(prompt)
+    with st.form("form_crowdsource", clear_on_submit=True):
+        jenis_hama_cs = st.selectbox(
+            "Jenis hama pada foto:",
+            [
+                "Penggerek Batang — Sundep (pucuk kering, fase vegetatif)",
+                "Penggerek Batang — Beluk (malai putih hampa, fase generatif)",
+                "Tikus — kerusakan tanaman",
+                "Lainnya",
+            ],
+        )
+        foto_cs    = st.file_uploader("Unggah foto kondisi tanaman:", type=["jpg", "jpeg", "png"])
+        catatan_cs = st.text_area("Catatan tambahan (umur tanaman, lokasi sawah, dll — opsional):")
+        setuju_cs  = st.checkbox(
+            "Saya setuju foto ini disimpan dan dipakai AgriAlert untuk melatih ulang model AI "
+            "agar lebih akurat mengenali hama ini. Foto tidak akan disebarluaskan untuk tujuan lain "
+            "di luar pengembangan sistem ini."
+        )
+        kirim_cs = st.form_submit_button("Kirim Foto", use_container_width=True)
 
-            with st.chat_message("assistant"):
-                try:
-                    messages = [{"role": "system", "content": sys_prompt}] + [
-                        {"role": m["role"], "content": m["content"]}
-                        for m in st.session_state.chat_history
-                    ]
-                    stream = ds_client.chat.completions.create(
-                        model=AI_MODEL,
-                        messages=messages,
-                        stream=True,
-                    )
-                    full_reply = st.write_stream(stream)
-                    st.session_state.chat_history.append({
-                        "role": "assistant",
-                        "content": full_reply,
-                    })
-                except Exception as e:
-                    st.error(f"Gagal terhubung ke AI: {e}")
-
-        if st.session_state.get("chat_history"):
-            st.markdown('<hr class="divider">', unsafe_allow_html=True)
-            if st.button("Hapus riwayat percakapan", type="secondary"):
-                st.session_state.chat_history = []
-                st.rerun()
+    if kirim_cs:
+        if not foto_cs:
+            st.warning("Pilih foto terlebih dahulu sebelum mengirim.")
+        elif not setuju_cs:
+            st.warning("Mohon centang persetujuan penggunaan foto sebelum mengirim.")
+        else:
+            ext = foto_cs.name.rsplit(".", 1)[-1].lower()
+            simpan_crowdsource_foto(foto_cs.getvalue(), ext, jenis_hama_cs, provinsi, catatan_cs)
+            st.success("Terima kasih! Foto Anda sudah tersimpan dan akan membantu melatih AI kami.")
