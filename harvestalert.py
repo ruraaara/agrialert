@@ -1,12 +1,11 @@
 import math
 import os
 import requests
-import xml.etree.ElementTree as ET
 import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from streamlit_geolocation import streamlit_geolocation
 
@@ -19,7 +18,6 @@ CSV_NDVI      = DATA_DIR / "Data_NDVI_Indonesia_2022_2026.csv"
 CSV_SENTINEL1 = DATA_DIR / "3_Data_Sentinel1_Indonesia.csv"
 MODEL_PATH    = DATA_DIR / "model_agriwarn.onnx"
 DB_TANIBOT    = DATA_DIR / "tanibot_offline.db"
-RADIUS_KM     = 300
 
 CLASS_TO_OPT = {
     'bacterial_leaf_blight': 'hdb',
@@ -192,6 +190,9 @@ st.markdown("""
     --c-border: #dfe6e0;
     --c-text: #1c2620;
     --c-text-muted: #57685d;
+    --c-text-on-light: #1c2620;
+    --c-muted-on-surface: #57685d;
+    --c-accent-text: #0f4429;
 
     --c-aman-bg: #eaf7ef;     --c-aman-border:#1f7a4d;   --c-aman-text:#14532d;
     --c-waspada-bg:#fef6e7;   --c-waspada-border:#d97706; --c-waspada-text:#92400e;
@@ -203,6 +204,19 @@ st.markdown("""
     --radius-lg: 16px;
     --shadow-sm: 0 1px 3px rgba(15,68,41,0.07);
     --shadow-md: 0 4px 14px rgba(15,68,41,0.10);
+}
+
+/* Mode gelap (mengikuti preferensi sistem/browser) — menjaga kontras teks tetap
+   tinggi karena widget asli Streamlit otomatis berganti ke teks terang saat gelap. */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --c-bg: #161b1f;
+        --c-surface: #20262b;
+        --c-border: #38423d;
+        --c-text: #e9ede9;
+        --c-muted-on-surface: #a3b3a8;
+        --c-accent-text: #5fd897;
+    }
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -234,10 +248,10 @@ html, body, [class*="css"] {
 }
 .gps-box {
     background: var(--c-surface); border: 1.5px solid var(--c-border); border-radius: var(--radius-md);
-    padding: 14px 18px; margin-bottom: 20px; font-size: 0.92rem; color: var(--c-text-muted);
+    padding: 14px 18px; margin-bottom: 20px; font-size: 0.92rem; color: var(--c-muted-on-surface);
     line-height: 1.9; display: flex; flex-wrap: wrap; gap: 6px 22px; box-shadow: var(--shadow-sm);
 }
-.gps-box b { color: var(--c-primary-dark); }
+.gps-box b { color: var(--c-accent-text); }
 .big-card { border-radius: var(--radius-lg); padding: 22px 26px; margin-bottom: 16px; border: 1.5px solid transparent; box-shadow: var(--shadow-sm); }
 .big-card.aman    { background: var(--c-aman-bg);    border-color: var(--c-aman-border); }
 .big-card.waspada { background: var(--c-waspada-bg); border-color: var(--c-waspada-border); }
@@ -280,14 +294,14 @@ html, body, [class*="css"] {
 .rekom.kuning .rk-title { color: var(--c-waspada-text); }
 .rekom.merah  .rk-title { color: var(--c-bahaya-text); }
 .rekom.biru   .rk-title { color: var(--c-info-text); }
-.rk-text { font-size: 0.98rem; color: var(--c-text); line-height: 1.7; }
+.rk-text { font-size: 0.98rem; color: var(--c-text-on-light); line-height: 1.7; }
 .hama-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
 @media (max-width: 500px) { .hama-grid { grid-template-columns: 1fr; } }
 .hama-card { background: var(--c-surface); border: 1.5px solid var(--c-border); border-radius: var(--radius-md); padding: 16px 18px; display: flex; align-items: flex-start; gap: 14px; box-shadow: var(--shadow-sm); }
 .hama-icon { font-size: 1.8rem; line-height: 1; flex-shrink: 0; margin-top: 2px; }
 .hama-nama { font-size: 0.98rem; font-weight: 700; color: var(--c-text); margin-bottom: 4px; }
-.hama-ciri { font-size: 0.85rem; color: var(--c-text-muted); line-height: 1.55; }
-.sec-title { font-size: 1.15rem; font-weight: 700; color: var(--c-primary-dark); margin: 24px 0 14px; display: flex; align-items: center; gap: 10px; }
+.hama-ciri { font-size: 0.85rem; color: var(--c-muted-on-surface); line-height: 1.55; }
+.sec-title { font-size: 1.15rem; font-weight: 700; color: var(--c-accent-text); margin: 24px 0 14px; display: flex; align-items: center; gap: 10px; }
 .divider { border: none; border-top: 1.5px solid var(--c-border); margin: 20px 0; }
 .status-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
 .chip { border-radius: 30px; padding: 8px 16px; font-size: 0.85rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; border: 1.5px solid transparent; }
@@ -296,7 +310,7 @@ html, body, [class*="css"] {
 .chip.bahaya  { background: var(--c-bahaya-bg);  border-color: var(--c-bahaya-border);  color: var(--c-bahaya-text); }
 .chip.info    { background: var(--c-info-bg);    border-color: var(--c-info-border);    color: var(--c-info-text); }
 div[data-baseweb="tab-list"] { background: var(--c-surface) !important; border: 1.5px solid var(--c-border) !important; border-radius: var(--radius-md) !important; padding: 6px !important; gap: 4px !important; margin-bottom: 22px; box-shadow: var(--shadow-sm); }
-button[data-baseweb="tab"] { font-family: 'Lexend', sans-serif !important; font-size: 0.98rem !important; font-weight: 700 !important; border-radius: var(--radius-sm) !important; padding: 12px 10px !important; color: var(--c-text-muted) !important; }
+button[data-baseweb="tab"] { font-family: 'Lexend', sans-serif !important; font-size: 0.98rem !important; font-weight: 700 !important; border-radius: var(--radius-sm) !important; padding: 12px 10px !important; color: var(--c-muted-on-surface) !important; }
 button[data-baseweb="tab"][aria-selected="true"] { background: var(--c-primary) !important; color: #ffffff !important; }
 [data-testid="stSidebar"] { background: var(--c-surface) !important; border-right: 1.5px solid var(--c-border) !important; }
 .stButton > button, div[data-testid="stFormSubmitButton"] button {
@@ -314,10 +328,10 @@ button[data-baseweb="tab"][aria-selected="true"] { background: var(--c-primary) 
     background: var(--c-primary-dark) !important;
     border-color: var(--c-primary-dark) !important;
 }
-[data-testid="stMetricValue"] { font-size: 1.6rem !important; font-weight: 800 !important; color: var(--c-primary-dark) !important; }
-[data-testid="stMetricLabel"] { font-size: 0.9rem !important; font-weight: 600 !important; color: var(--c-text-muted) !important; }
+[data-testid="stMetricValue"] { font-size: 1.6rem !important; font-weight: 800 !important; color: var(--c-accent-text) !important; }
+[data-testid="stMetricLabel"] { font-size: 0.9rem !important; font-weight: 600 !important; }
 .prob-bar-wrap { margin: 8px 0; }
-.prob-label { font-size: 0.85rem; color: var(--c-text-muted); margin-bottom: 4px; display: flex; justify-content: space-between; }
+.prob-label { font-size: 0.85rem; color: var(--c-muted-on-surface); margin-bottom: 4px; display: flex; justify-content: space-between; }
 .prob-bar-bg { background: var(--c-border); border-radius: 8px; height: 12px; overflow: hidden; }
 .prob-bar-fill { height: 100%; border-radius: 8px; background: var(--c-sage); transition: width 0.4s; }
 .prob-bar-fill.top { background: var(--c-primary); }
@@ -336,7 +350,7 @@ button[data-baseweb="tab"][aria-selected="true"] { background: var(--c-primary) 
 .tbot-bbl { padding: 11px 15px; font-size: 0.92rem; line-height: 1.7; max-width: 84%; word-break: break-word; }
 .tbot-bbl.bot  { background:var(--c-surface); border:1.5px solid var(--c-border); border-radius:4px 16px 16px 16px; color:var(--c-text); }
 .tbot-bbl.user { background:var(--c-aman-bg); border:1.5px solid var(--c-aman-border); border-radius:16px 4px 16px 16px; color:var(--c-aman-text); }
-.tbot-hint { font-size:0.82rem; color:var(--c-text-muted); margin:8px 0 6px; }
+.tbot-hint { font-size:0.82rem; color:var(--c-muted-on-surface); margin:8px 0 6px; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -495,6 +509,49 @@ PROVINSI = {
     "Papua Barat Daya":{"lat":-1.500,"lon":131.500},
 }
 
+# Kode wilayah adm4 (kelurahan/desa, Kepmendagri) di ibu kota tiap provinsi —
+# dipakai sebagai titik referensi prakiraan cuaca BMKG (API publik mewajibkan kode adm4).
+PROVINSI_ADM4 = {
+    "Aceh": "11.71.01.2001",
+    "Sumatera Utara": "12.71.01.1001",
+    "Sumatera Barat": "13.71.01.1001",
+    "Riau": "14.71.01.1002",
+    "Jambi": "15.71.01.1001",
+    "Sumatera Selatan": "16.71.01.1001",
+    "Bengkulu": "17.71.01.1001",
+    "Lampung": "18.71.01.1003",
+    "Kepulauan Bangka Belitung": "19.71.01.1004",
+    "Kepulauan Riau": "21.72.01.1001",
+    "DKI Jakarta": "31.71.01.1001",
+    "Jawa Barat": "32.73.01.1001",
+    "Jawa Tengah": "33.74.01.1001",
+    "DI Yogyakarta": "34.71.01.1001",
+    "Jawa Timur": "35.78.01.1001",
+    "Banten": "36.73.01.1001",
+    "Bali": "51.71.01.1001",
+    "Nusa Tenggara Barat": "52.71.01.1004",
+    "Nusa Tenggara Timur": "53.71.01.1001",
+    "Kalimantan Barat": "61.71.01.1002",
+    "Kalimantan Tengah": "62.71.01.1001",
+    "Kalimantan Selatan": "63.71.01.1001",
+    "Kalimantan Timur": "64.72.01.1001",
+    "Kalimantan Utara": "65.01.01.1001",
+    "Sulawesi Utara": "71.71.01.1001",
+    "Sulawesi Tengah": "72.71.01.1004",
+    "Sulawesi Selatan": "73.71.01.1001",
+    "Sulawesi Tenggara": "74.71.01.1005",
+    "Gorontalo": "75.71.01.1001",
+    "Sulawesi Barat": "76.02.01.1002",
+    "Maluku": "81.71.01.1006",
+    "Maluku Utara": "82.72.01.1001",
+    "Papua Barat": "92.02.03.2001",
+    "Papua": "91.71.01.1001",
+    "Papua Selatan": "93.01.01.1002",
+    "Papua Tengah": "94.01.01.1001",
+    "Papua Pegunungan": "95.01.01.1001",
+    "Papua Barat Daya": "96.71.01.1001",
+}
+
 
 # ================================================================
 #  GPS — HAVERSINE
@@ -512,66 +569,60 @@ def prov_terdekat(lat,lon):
 # ================================================================
 #  BMKG
 # ================================================================
+BMKG_API_URL = "https://api.bmkg.go.id/publik/prakiraan-cuaca"
+
 @st.cache_data(ttl=1800)
 def cuaca_bmkg(lat, lon):
-    URL = ("https://data.bmkg.go.id/DataMKG/MEWS/DigitalForecast/"
-           "DigitalForecast-Indonesia.xml")
     FB = {"nama":"Estimasi","jarak_km":0,"tmax":33.0,"tmin":24.0,
           "kelembapan":80,"curah_hujan":10.0,"waktu":"-","ok":False,
           "pesan":"Gagal terhubung ke BMKG. Menampilkan estimasi."}
+
+    provinsi_terdekat = prov_terdekat(lat, lon)
+    adm4 = PROVINSI_ADM4.get(provinsi_terdekat)
+    if not adm4:
+        return FB
+
     try:
-        r = requests.get(URL, timeout=8); r.raise_for_status()
-        root = ET.fromstring(r.content)
+        r = requests.get(BMKG_API_URL, params={"adm4": adm4}, timeout=8)
+        r.raise_for_status()
+        payload = r.json()
+        lokasi = payload["lokasi"]
+        flat = [e for hari in payload["data"][0]["cuaca"] for e in hari]
+        if not flat:
+            return FB
     except Exception:
         return FB
 
-    now_utc = datetime.now(timezone.utc)
-    jmin = float("inf"); hasil = {}
+    def parse_utc(e):
+        return datetime.strptime(e["utc_datetime"], "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)
 
-    for area in root.findall(".//area"):
+    try:
+        flat.sort(key=parse_utc)
+        now_utc = datetime.now(timezone.utc)
+        mendatang = [e for e in flat if parse_utc(e) >= now_utc - timedelta(hours=3)] or flat
+        jendela = mendatang[:8]
+        terdekat = mendatang[0]
+
         try:
-            alat = float(area.get("latitude","999"))
-            alon = float(area.get("longitude","999"))
-        except: continue
-        if alat == 999: continue
+            wlabel = datetime.strptime(terdekat["local_datetime"], "%Y-%m-%d %H:%M:%S").strftime("%d %b %Y %H:%M")
+        except Exception:
+            wlabel = terdekat.get("local_datetime", "-")
 
-        d = jarak_km(lat, lon, alat, alon)
-        if d >= jmin: continue
+        d = jarak_km(lat, lon, lokasi["lat"], lokasi["lon"])
+        hasil = {
+            "nama": f"{lokasi['kecamatan']}, {lokasi['kotkab']}",
+            "jarak_km": round(d, 1),
+            "tmax": float(max(e["t"] for e in jendela)),
+            "tmin": float(min(e["t"] for e in jendela)),
+            "kelembapan": float(terdekat["hu"]),
+            "curah_hujan": float(terdekat["tp"]),
+            "waktu": wlabel,
+            "ok": True,
+            "pesan": "",
+        }
+    except Exception:
+        return FB
 
-        tmax=tmin=kel=rr=None; wlabel="-"; dmin=float("inf")
-        for param in area.findall(".//parameter"):
-            pid = param.get("id","")
-            for tr in param.findall(".//timerange"):
-                ds = tr.get("datetime", tr.get("day",""))
-                try:
-                    if len(ds)==12:
-                        tdt = datetime(int(ds[:4]),int(ds[4:6]),int(ds[6:8]),
-                                       int(ds[8:10]),int(ds[10:12]),tzinfo=timezone.utc)
-                        dlt = abs((tdt-now_utc).total_seconds())
-                        if dlt < dmin:
-                            dmin=dlt; wlabel=tdt.strftime("%d %b %Y %H:%M")
-                except: pass
-                ve = tr.find("value")
-                if ve is None or not ve.text: continue
-                try:
-                    v=float(ve.text)
-                    if pid=="tmax": tmax=v
-                    elif pid=="tmin": tmin=v
-                    elif pid=="hu":   kel=v
-                    elif pid=="rr":   rr=v
-                except: pass
-
-        jmin=d
-        hasil={"nama":area.get("description",area.get("id","BMKG")),
-               "jarak_km":round(d,1),"tmax":tmax or 33.0,"tmin":tmin or 24.0,
-               "kelembapan":kel or 80,"curah_hujan":rr or 10.0,
-               "waktu":wlabel,"ok":True,"pesan":""}
-
-    if not hasil: return FB
-    if hasil["jarak_km"] > RADIUS_KM:
-        hasil["ok"]=False
-        hasil["pesan"]=(f"Stasiun terdekat {hasil['jarak_km']} km "
-                        f"(batas wajar {RADIUS_KM} km).")
     return hasil
 
 
@@ -816,9 +867,9 @@ def fig_oni_with_forecast(df, pred, n=24):
 
 # ── SIDEBAR ──────────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown(f'<h2 style="display:flex;align-items:center;gap:8px;">{ico("gear")} Pengaturan</h2>', unsafe_allow_html=True)
+    st.markdown(f'<h2 style="display:flex;align-items:center;gap:8px;color:var(--c-accent-text);">{ico("gear")} Pengaturan</h2>', unsafe_allow_html=True)
     st.markdown("---")
-    st.markdown(f'<h3 style="display:flex;align-items:center;gap:8px;">{ico("pin")} Lokasi Anda</h3>', unsafe_allow_html=True)
+    st.markdown(f'<h3 style="display:flex;align-items:center;gap:8px;color:var(--c-accent-text);">{ico("pin")} Lokasi Anda</h3>', unsafe_allow_html=True)
     st.caption("Tekan tombol di bawah untuk deteksi otomatis.")
     gps = streamlit_geolocation()
 
@@ -833,13 +884,13 @@ with st.sidebar:
         lon = st.number_input("Bujur:",   value=lon, format="%.4f")
 
     st.markdown("---")
-    st.markdown(f'<h3 style="display:flex;align-items:center;gap:8px;">{ico("map")} Provinsi</h3>', unsafe_allow_html=True)
+    st.markdown(f'<h3 style="display:flex;align-items:center;gap:8px;color:var(--c-accent-text);">{ico("map")} Provinsi</h3>', unsafe_allow_html=True)
     daftar   = list(PROVINSI.keys())
     default  = prov_terdekat(lat, lon)
     provinsi = st.selectbox("", daftar, index=daftar.index(default))
 
     st.markdown("---")
-    st.markdown(f'<h3 style="display:flex;align-items:center;gap:8px;">{ico("chart")} Status Data</h3>', unsafe_allow_html=True)
+    st.markdown(f'<h3 style="display:flex;align-items:center;gap:8px;color:var(--c-accent-text);">{ico("chart")} Status Data</h3>', unsafe_allow_html=True)
     st.write(f"ENSO  : {'Tersedia' if CSV_ENSO.exists() else 'Tidak ada'} ({len(df_enso)} baris)")
     st.write(f"NDVI  : {'Tersedia' if df_ndvi is not None else 'Tidak ada'}")
     st.write(f"SAR   : {'Tersedia' if df_sar  is not None else 'Tidak ada'}")
