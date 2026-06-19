@@ -1,3 +1,4 @@
+import base64
 import csv
 import math
 import os
@@ -154,6 +155,7 @@ _ICON_PATHS = {
     "wifi-off":      '<path d="M2 2l20 20"/><path d="M4 11.5a11.5 11.5 0 0 1 12.4-2.5"/><path d="M20 9a11.5 11.5 0 0 0-2-1.6"/><path d="M7.2 14.8a7 7 0 0 1 6-1.9"/><path d="M12 19.5h.01"/>',
     "flag":          '<path d="M5 21V4"/><path d="M5 4h13l-3 4 3 4H5"/>',
     "shield-check":  '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6Z"/><path d="m8.5 12 2.5 2.5L15.5 9"/>',
+    "image":         '<rect x="3" y="3" width="18" height="18" rx="2.5"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m3 16 5-5 4 4 3-3 6 6"/>',
 }
 
 
@@ -307,6 +309,12 @@ html, body, [class*="css"] {
 .hama-icon { font-size: 1.8rem; line-height: 1; flex-shrink: 0; margin-top: 2px; }
 .hama-nama { font-size: 0.98rem; font-weight: 700; color: var(--c-text); margin-bottom: 4px; }
 .hama-ciri { font-size: 0.85rem; color: var(--c-muted-on-surface); line-height: 1.55; }
+.hama-card-v { background: var(--c-surface); border: 1.5px solid var(--c-border); border-radius: var(--radius-md); padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 10px; box-shadow: var(--shadow-sm); }
+.hama-card-v .hama-nama { display: flex; align-items: center; gap: 8px; margin-bottom: 0; }
+.hama-img-wrap { width: 100%; aspect-ratio: 4/3; border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--c-border); }
+.hama-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.hama-img-ph { width: 100%; aspect-ratio: 4/3; border-radius: var(--radius-sm); border: 1.5px dashed var(--c-border); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: var(--c-muted-on-surface); text-align: center; padding: 10px; }
+.hama-img-ph-path { font-family: monospace; font-size: 0.68rem; opacity: 0.75; word-break: break-all; }
 .sec-title { font-size: 1.15rem; font-weight: 700; color: var(--c-accent-text); margin: 24px 0 14px; display: flex; align-items: center; gap: 10px; }
 .divider { border: none; border-top: 1.5px solid var(--c-border); margin: 20px 0; }
 .status-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
@@ -483,6 +491,69 @@ def simpan_crowdsource_foto(file_bytes, ext, jenis_hama, lokasi, catatan):
             str((folder / nama_file).relative_to(DATA_DIR)),
         ])
     return nama_file
+
+
+# ================================================================
+#  ENSIKLOPEDIA HAMA & PENYAKIT (kartu judul-gambar-keterangan)
+# ================================================================
+ASSET_HAMA_DIR = DATA_DIR / "assets" / "hama"
+ASSET_HAMA_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def gambar_hama_html(filename, alt=""):
+    """<img> data-URI jika file foto ada di assets/hama/, kalau tidak tampilkan placeholder."""
+    path = ASSET_HAMA_DIR / filename
+    if path.exists():
+        ext  = path.suffix.lstrip(".").lower()
+        mime = "jpeg" if ext == "jpg" else ext
+        b64  = base64.b64encode(path.read_bytes()).decode()
+        return f'<div class="hama-img-wrap"><img src="data:image/{mime};base64,{b64}" alt="{alt}"/></div>'
+    return (
+        f'<div class="hama-img-ph">{ico("image", "1.6rem")}'
+        f'<span>Foto referensi belum tersedia</span>'
+        f'<span class="hama-img-ph-path">assets/hama/{filename}</span></div>'
+    )
+
+
+def render_hama_grid(items):
+    st.markdown('<div class="hama-grid">', unsafe_allow_html=True)
+    for img_file, ikon, nama, ciri in items:
+        st.markdown(f"""
+        <div class="hama-card-v">
+          <div class="hama-nama">{ico(ikon, '1.3rem')} {nama}</div>
+          {gambar_hama_html(img_file, nama)}
+          <div class="hama-ciri">{ciri}</div>
+        </div>
+        """, unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+
+HAMA = [
+    ("hdb.jpg",                   "leaf",         "Hawar Daun Bakteri (HDB)", "Daun mengering dari tepi, seperti terbakar. Eksudat kuning di permukaan daun."),
+    ("bercak_cokelat.jpg",        "leaf",         "Bercak Cokelat",           "Bercak oval cokelat gelap di daun, sering di varietas kekurangan nutrisi."),
+    ("sehat.jpg",                 "check-circle", "Sehat",                    "Daun hijau segar, tidak ada bercak, tanaman tegak dan subur."),
+    ("blas_daun.jpg",             "leaf",         "Blas Daun",                "Bercak belah ketupat abu-abu dengan tepi cokelat, daun bisa mati."),
+    ("hawar_pelepah.jpg",         "leaf",         "Hawar Pelepah",            "Bercak cokelat terang di pelepah daun bawah, berkembang ke atas."),
+    ("bercak_cokelat_sempit.jpg", "leaf",         "Bercak Cokelat Sempit",    "Garis-garis sempit cokelat sejajar tulang daun."),
+    ("hispa.jpg",                 "bug",          "Hispa Padi",               "Permukaan daun bergaris putih/transparan, ada bekas goresan larva."),
+    ("busuk_pelepah.jpg",         "leaf",         "Busuk Pelepah",            "Bercak oval abu-abu di pelepah, meluas dan batang bisa roboh."),
+    ("tungro.jpg",                "bug",          "Tungro",                   "Daun kuning-oranye, tanaman kerdil, anakan berkurang."),
+]
+
+HAMA_CS = [
+    ("penggerek_batang_sundep.jpg", "bug", "Penggerek Batang — Sundep",
+     "Pucuk daun tengah (titik tumbuh) mengering, menguning, dan mudah tercabut pada fase vegetatif. "
+     "Disebabkan larva penggerek batang (Scirpophaga spp.) yang menggerek titik tumbuh dari dalam batang."),
+    ("penggerek_batang_beluk.jpg", "bug", "Penggerek Batang — Beluk",
+     "Malai berwarna putih dan hampa, mudah tercabut pada fase generatif (berbunga/bermalai). Disebabkan "
+     "larva penggerek batang yang merusak pangkal malai sehingga bulir tidak terbentuk."),
+    ("tikus_sawah.jpg", "bug", "Tikus Sawah",
+     "Batang padi terpotong atau roboh dekat permukaan tanah, anakan hilang, dan ditemukan lubang aktif di "
+     "pematang/galangan sawah. Populasi melonjak saat fase vegetatif-generatif dan musim kering panjang."),
+    ("wereng_batang_coklat.jpg", "bug", "Wereng Batang Coklat",
+     "Serangga kecil cokelat berkerumun di pangkal batang dekat permukaan air. Serangan berat membuat "
+     "tanaman mengering mendadak seperti terbakar (hopperburn), dan juga vektor virus kerdil rumput/kerdil hampa."),
+]
 
 
 # ================================================================
@@ -965,9 +1036,9 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 
-# ── 4 TAB ────────────────────────────────────────────────────────
-tab1, tab2, tab3, tab4 = st.tabs([
-    "Beranda", "Cuaca & Iklim", "Cek Hama Padi", "Informasi"
+# ── 5 TAB ────────────────────────────────────────────────────────
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    "Beranda", "Cuaca & Iklim", "Kenali Hama & Penyakit", "Cek Hama Padi", "Informasi"
 ])
 
 
@@ -1227,9 +1298,34 @@ with tab2:
 
 
 # ════════════════════════════════════════════════════
-#  TAB 3 — CEK HAMA
+#  TAB 3 — KENALI HAMA & PENYAKIT
 # ════════════════════════════════════════════════════
 with tab3:
+    st.markdown(f'<p class="sec-title">{ico("bug")} Kenali Penyakit Padi yang Umum</p>',
+                unsafe_allow_html=True)
+    render_hama_grid(HAMA)
+
+    st.markdown('<hr class="divider">', unsafe_allow_html=True)
+    st.markdown(f'<p class="sec-title">{ico("camera")} Hama yang Butuh Bantuan Foto Anda</p>',
+                unsafe_allow_html=True)
+    st.markdown(f"""
+    <div class="rekom biru">
+      <div class="rk-title">{ico('shield-check')} Kenapa Ini Penting?</div>
+      <div class="rk-text">
+        Data foto untuk hama-hama di bawah ini masih sangat terbatas di Indonesia, padahal
+        prakiraan serangannya termasuk yang terluas. Kenali ciri-cirinya, lalu kirim foto
+        kondisi tanaman Anda lewat tab <b>Informasi → Bantu Kumpulkan Foto Hama</b> untuk
+        membantu AI kami belajar mengenalinya.
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
+    render_hama_grid(HAMA_CS)
+
+
+# ════════════════════════════════════════════════════
+#  TAB 4 — CEK HAMA
+# ════════════════════════════════════════════════════
+with tab4:
     st.markdown(f'<p class="sec-title">{ico("microscope")} Cek Hama Padi — Foto Tanaman Anda</p>',
                 unsafe_allow_html=True)
 
@@ -1510,39 +1606,14 @@ with tab3:
                     st.markdown(bars_html, unsafe_allow_html=True)
 
     else:
-        st.markdown('<hr class="divider">', unsafe_allow_html=True)
-        st.markdown(f'<p class="sec-title">{ico("bug")} Kenali Penyakit Padi yang Umum</p>',
-                    unsafe_allow_html=True)
-
-        HAMA = [
-            ("leaf","Hawar Daun Bakteri (HDB)","Daun mengering dari tepi, seperti terbakar. Eksudat kuning di permukaan daun."),
-            ("leaf","Bercak Cokelat",           "Bercak oval cokelat gelap di daun, sering di varietas kekurangan nutrisi."),
-            ("check-circle","Sehat",            "Daun hijau segar, tidak ada bercak, tanaman tegak dan subur."),
-            ("leaf","Blas Daun",                "Bercak belah ketupat abu-abu dengan tepi cokelat, daun bisa mati."),
-            ("leaf","Hawar Pelepah",            "Bercak cokelat terang di pelepah daun bawah, berkembang ke atas."),
-            ("leaf","Bercak Cokelat Sempit",    "Garis-garis sempit cokelat sejajar tulang daun."),
-            ("bug","Hispa Padi",                "Permukaan daun bergaris putih/transparan, ada bekas goresan larva."),
-            ("leaf","Busuk Pelepah",            "Bercak oval abu-abu di pelepah, meluas dan batang bisa roboh."),
-            ("bug","Tungro",                    "Daun kuning-oranye, tanaman kerdil, anakan berkurang."),
-        ]
-        st.markdown('<div class="hama-grid">', unsafe_allow_html=True)
-        for ikon, nama, ciri in HAMA:
-            st.markdown(f"""
-            <div class="hama-card">
-              <span class="hama-icon">{ico(ikon, '1.6rem')}</span>
-              <div>
-                <div class="hama-nama">{nama}</div>
-                <div class="hama-ciri">{ciri}</div>
-              </div>
-            </div>
-            """, unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.info("Belum tahu ciri-ciri hama & penyakit padi? Lihat tab "
+                 "**Kenali Hama & Penyakit** untuk referensi lengkap sebelum mengunggah foto.")
 
 
 # ════════════════════════════════════════════════════
-#  TAB 4 — INFORMASI
+#  TAB 5 — INFORMASI
 # ════════════════════════════════════════════════════
-with tab4:
+with tab5:
     st.markdown(f'<p class="sec-title">{ico("info-circle")} Tentang AgriAlert</p>', unsafe_allow_html=True)
 
     st.markdown(f"""
@@ -1626,10 +1697,10 @@ with tab4:
     <div class="rekom biru">
       <div class="rk-title">{ico('shield-check')} Kenapa Foto Anda Penting?</div>
       <div class="rk-text">
-        Data foto untuk <b>penggerek batang</b> (gejala sundep dan beluk) dan <b>tikus</b>
-        masih sangat terbatas, padahal keduanya termasuk hama dengan prakiraan serangan
-        terluas di Indonesia. Kirim foto kondisi tanaman yang terserang agar AI AgriAlert
-        bisa belajar mengenali hama ini lebih baik untuk semua petani.
+        Data foto untuk <b>penggerek batang</b> (gejala sundep dan beluk), <b>tikus</b>, dan
+        <b>wereng batang coklat</b> masih sangat terbatas, padahal ketiganya termasuk hama
+        dengan prakiraan serangan terluas di Indonesia. Kirim foto kondisi tanaman yang
+        terserang agar AI AgriAlert bisa belajar mengenali hama ini lebih baik untuk semua petani.
       </div>
     </div>
     """, unsafe_allow_html=True)
@@ -1641,6 +1712,7 @@ with tab4:
                 "Penggerek Batang — Sundep (pucuk kering, fase vegetatif)",
                 "Penggerek Batang — Beluk (malai putih hampa, fase generatif)",
                 "Tikus — kerusakan tanaman",
+                "Wereng Batang Coklat — serangan pada batang/rumpun",
                 "Lainnya",
             ],
         )
