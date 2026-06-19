@@ -99,7 +99,7 @@ REKOMENDASI = {
 
 BERBAHAYA = {'bacterial_leaf_blight', 'leaf_blast', 'sheath_blight', 'tungro', 'rice_hispa'}
 
-DEEPSEEK_MODEL = "deepseek-v4-pro"
+AI_MODEL = "llama-3.3-70b-versatile"
 
 
 # ----------------------------------------------------------------
@@ -295,19 +295,19 @@ tanibot = load_tanibot()
 # ================================================================
 #  DEEPSEEK AI CLIENT
 # ================================================================
-def get_deepseek_client():
+def get_ai_client():
     try:
         from openai import OpenAI
         api_key = None
         try:
-            api_key = st.secrets.get("DEEPSEEK_API_KEY")
+            api_key = st.secrets.get("GROQ_API_KEY")
         except Exception:
             pass
         if not api_key:
-            api_key = os.environ.get("DEEPSEEK_API_KEY")
+            api_key = os.environ.get("GROQ_API_KEY")
         if not api_key:
             return None
-        return OpenAI(api_key=api_key, base_url="https://api.deepseek.com")
+        return OpenAI(api_key=api_key, base_url="https://api.groq.com/openai/v1")
     except Exception:
         return None
 
@@ -844,27 +844,24 @@ with tab3:
                             chat_key = f"tbot_chat_{opt_id}_{fase}"
                             if chat_key not in st.session_state:
                                 recs_resp = tanibot.get_post_detection_recs(opt_id, fase)
-                                parts = []
-                                for rec in recs_resp.recs:
-                                    baris = (f"<b>#{rec['prioritas']} [{rec['metode']}]</b> "
-                                             f"{rec['langkah']}<br>"
-                                             f"<span style='color:#9ca3af'>{rec['detail']}")
-                                    if rec.get("dosis"):
-                                        baris += f"<br>💊 {rec['dosis']}"
-                                    if rec.get("waktu_aplikasi"):
-                                        baris += f"<br>⏰ {rec['waktu_aplikasi']}"
-                                    baris += "</span>"
-                                    parts.append(baris)
-                                intro = "<br><br>".join(parts)
-                                if recs_resp.sumber:
-                                    intro += (f"<br><br><span style='font-size:0.7rem;color:#64748b'>"
-                                              f"📚 {'; '.join(set(recs_resp.sumber))}</span>")
-                                nav_opts = [(n, l) for n, l in recs_resp.options if n != "root"]
-                                if nav_opts:
-                                    intro += "<br><br>Ada yang ingin ditanyakan lebih lanjut?"
+                                nav_opts  = [(n, l) for n, l in recs_resp.options if n != "root"]
+                                # Kalau tidak ada nav_opts, jadikan tiap rec sebagai pilihan
+                                if not nav_opts:
+                                    nav_opts = [
+                                        (f"_rec_{i}", f"#{rec['prioritas']} {rec['langkah']}")
+                                        for i, rec in enumerate(recs_resp.recs)
+                                    ]
+                                greeting = (
+                                    f"Halo! 👋 Saya <b>TaniBot</b>.<br>"
+                                    f"Terdeteksi <b>{hasil['nama_indo']}</b> "
+                                    f"pada fase <b>{fase}</b>.<br><br>"
+                                    f"Pilih topik yang ingin kamu pelajari:"
+                                )
                                 st.session_state[chat_key] = {
-                                    "history": [{"role": "bot", "text": intro}],
+                                    "history": [{"role": "bot", "text": greeting}],
                                     "opts":    nav_opts,
+                                    "recs":    recs_resp.recs,
+                                    "sumber":  recs_resp.sumber,
                                 }
 
                             state = st.session_state[chat_key]
@@ -887,25 +884,48 @@ with tab3:
 
                             # Tombol pilihan
                             if state["opts"]:
-                                st.markdown('<p class="tbot-hint">Pilih pertanyaan:</p>',
+                                st.markdown('<p class="tbot-hint">Pilih topik:</p>',
                                             unsafe_allow_html=True)
                                 for nid, lbl in state["opts"]:
                                     if st.button(lbl,
                                                  key=f"tbot_{nid}_{len(state['history'])}_{opt_id}",
                                                  use_container_width=True):
                                         state["history"].append({"role": "user", "text": lbl})
-                                        resp = tanibot.select(nid)
-                                        state["history"].append({
-                                            "role": "bot",
-                                            "text": resp.text.replace("\n", "<br>"),
-                                        })
-                                        state["opts"] = [(n, l) for n, l in resp.options
-                                                         if n != "root"]
+                                        if nid.startswith("_rec_"):
+                                            # Tampilkan detail rec yang dipilih
+                                            rec = state["recs"][int(nid.split("_")[2])]
+                                            content = (f"<b>[{rec['metode']}]</b> "
+                                                       f"{rec['detail']}")
+                                            if rec.get("dosis"):
+                                                content += f"<br>💊 <b>Dosis:</b> {rec['dosis']}"
+                                            if rec.get("waktu_aplikasi"):
+                                                content += f"<br>⏰ <b>Waktu:</b> {rec['waktu_aplikasi']}"
+                                            if state.get("sumber"):
+                                                content += (
+                                                    f"<br><br><span style='font-size:0.7rem;"
+                                                    f"color:#64748b'>📚 "
+                                                    f"{'; '.join(set(state['sumber']))}</span>"
+                                                )
+                                            state["history"].append({"role": "bot", "text": content})
+                                            # Sisa rec yang belum dilihat
+                                            idx = int(nid.split("_")[2])
+                                            state["opts"] = [
+                                                (f"_rec_{i}", f"#{r['prioritas']} {r['langkah']}")
+                                                for i, r in enumerate(state["recs"]) if i != idx
+                                            ]
+                                        else:
+                                            resp = tanibot.select(nid)
+                                            state["history"].append({
+                                                "role": "bot",
+                                                "text": resp.text.replace("\n", "<br>"),
+                                            })
+                                            state["opts"] = [(n, l) for n, l in resp.options
+                                                             if n != "root"]
                                         st.rerun()
                             else:
                                 st.markdown('<p class="tbot-hint">Konsultasi selesai ✅</p>',
                                             unsafe_allow_html=True)
-                            if st.button("🔄 Tanya hal lain",
+                            if st.button("🔄 Mulai ulang",
                                          key=f"tbot_reset_{opt_id}",
                                          use_container_width=True):
                                 del st.session_state[chat_key]
@@ -1015,16 +1035,17 @@ with tab4:
 with tab5:
     st.markdown('<p class="sec-title">🤖 Chat dengan AgriWarn AI</p>', unsafe_allow_html=True)
 
-    ds_client = get_deepseek_client()
+    ds_client = get_ai_client()
 
     if ds_client is None:
         st.markdown("""
         <div class="rekom kuning">
           <div class="rk-title">⚠️ API Key Belum Dikonfigurasi</div>
           <div class="rk-text">
-            Untuk mengaktifkan Chat AI, tambahkan secret di Streamlit Cloud:<br>
-            <b>App Settings → Secrets → Edit Secrets</b>, lalu tambahkan baris:<br><br>
-            <code>DEEPSEEK_API_KEY = "sk-xxxxxxxxxxxx"</code>
+            Untuk mengaktifkan Chat AI, daftar gratis di <b>console.groq.com</b>
+            → buat API key → tambahkan di Streamlit Cloud:<br>
+            <b>App Settings → Secrets → Edit Secrets</b><br><br>
+            <code>GROQ_API_KEY = "gsk_xxxxxxxxxxxx"</code>
           </div>
         </div>
         """, unsafe_allow_html=True)
@@ -1095,7 +1116,7 @@ with tab5:
                         for m in st.session_state.chat_history
                     ]
                     stream = ds_client.chat.completions.create(
-                        model=DEEPSEEK_MODEL,
+                        model=AI_MODEL,
                         messages=messages,
                         stream=True,
                     )
