@@ -206,6 +206,19 @@ button[data-baseweb="tab"] { font-family: 'Lexend', sans-serif !important; font-
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-thumb { background: #1e3a5f; border-radius: 4px; }
 @media (max-width: 480px) { .ha-title { font-size: 1.3rem; } .bc-value { font-size: 1.25rem; } .sec-title { font-size: 0.92rem; } .rk-text { font-size: 0.83rem; } .gps-box { font-size: 0.76rem; } }
+.tbot-chat {
+    background: #060f1a; border: 1.5px solid #1e3a5f; border-radius: 14px;
+    padding: 14px 12px; max-height: 370px; overflow-y: auto;
+    margin: 10px 0; display: flex; flex-direction: column; gap: 10px;
+}
+.tbot-row { display: flex; align-items: flex-end; gap: 8px; }
+.tbot-row.bot  { flex-direction: row; }
+.tbot-row.user { flex-direction: row-reverse; }
+.tbot-av { font-size: 1.1rem; flex-shrink: 0; }
+.tbot-bbl { padding: 9px 13px; font-size: 0.81rem; line-height: 1.65; max-width: 84%; word-break: break-word; }
+.tbot-bbl.bot  { background:#0a1e38; border:1px solid #1e3a5f; border-radius:4px 14px 14px 14px; color:#d1d5db; }
+.tbot-bbl.user { background:#052e16; border:1px solid #15803d; border-radius:14px 4px 14px 14px; color:#86efac; }
+.tbot-hint { font-size:0.74rem; color:#64748b; margin:6px 0 4px; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -815,7 +828,7 @@ with tab3:
                         opt_id = CLASS_TO_OPT.get(hasil["kelas"])
                         if opt_id and tanibot:
                             st.markdown('<hr class="divider">', unsafe_allow_html=True)
-                            st.markdown('<p class="sec-title">🌿 Rekomendasi Penanganan — TaniBot</p>',
+                            st.markdown('<p class="sec-title">🌿 TaniBot — Konsultasi Penanganan</p>',
                                         unsafe_allow_html=True)
                             fase = st.selectbox(
                                 "Fase tanaman saat ini:",
@@ -827,70 +840,76 @@ with tab3:
                                 }[x],
                                 key="fase_sel"
                             )
-                            WARNA_METODE = {
-                                "Kultur Teknis": "",
-                                "Biologis":      "biru",
-                                "Kimiawi":       "merah",
-                                "Mekanis":       "kuning",
-                                "Sanitasi":      "",
-                            }
 
-                            recs_resp = tanibot.get_post_detection_recs(opt_id, fase)
-                            for rec in recs_resp.recs:
-                                warna  = WARNA_METODE.get(rec["metode"], "")
-                                extras = ""
-                                if rec.get("dosis"):
-                                    extras += f"<br>💊 <b>Dosis:</b> {rec['dosis']}"
-                                if rec.get("waktu_aplikasi"):
-                                    extras += f"<br>⏰ <b>Waktu:</b> {rec['waktu_aplikasi']}"
-                                st.markdown(f"""
-                                <div class="rekom {warna}">
-                                  <div class="rk-title">#{rec['prioritas']} [{rec['metode']}] {rec['langkah']}</div>
-                                  <div class="rk-text">{rec['detail']}{extras}</div>
-                                </div>
-                                """, unsafe_allow_html=True)
-                            if recs_resp.sumber:
-                                st.caption(f"📚 Sumber: {'; '.join(set(recs_resp.sumber))}")
+                            chat_key = f"tbot_chat_{opt_id}_{fase}"
+                            if chat_key not in st.session_state:
+                                recs_resp = tanibot.get_post_detection_recs(opt_id, fase)
+                                parts = []
+                                for rec in recs_resp.recs:
+                                    baris = (f"<b>#{rec['prioritas']} [{rec['metode']}]</b> "
+                                             f"{rec['langkah']}<br>"
+                                             f"<span style='color:#9ca3af'>{rec['detail']}")
+                                    if rec.get("dosis"):
+                                        baris += f"<br>💊 {rec['dosis']}"
+                                    if rec.get("waktu_aplikasi"):
+                                        baris += f"<br>⏰ {rec['waktu_aplikasi']}"
+                                    baris += "</span>"
+                                    parts.append(baris)
+                                intro = "<br><br>".join(parts)
+                                if recs_resp.sumber:
+                                    intro += (f"<br><br><span style='font-size:0.7rem;color:#64748b'>"
+                                              f"📚 {'; '.join(set(recs_resp.sumber))}</span>")
+                                nav_opts = [(n, l) for n, l in recs_resp.options if n != "root"]
+                                if nav_opts:
+                                    intro += "<br><br>Ada yang ingin ditanyakan lebih lanjut?"
+                                st.session_state[chat_key] = {
+                                    "history": [{"role": "bot", "text": intro}],
+                                    "opts":    nav_opts,
+                                }
 
-                            # Navigasi pilihan ganda — radio
-                            nav_opts = [(nid, lbl) for nid, lbl in recs_resp.options if nid != "root"]
-                            if nav_opts:
-                                st.markdown('<hr class="divider">', unsafe_allow_html=True)
-                                st.markdown('<p class="sec-title">💬 Tanya TaniBot Lebih Lanjut</p>',
+                            state = st.session_state[chat_key]
+
+                            # Render chat bubbles
+                            msgs_html = '<div class="tbot-chat">'
+                            for msg in state["history"]:
+                                if msg["role"] == "bot":
+                                    msgs_html += (f'<div class="tbot-row bot">'
+                                                  f'<span class="tbot-av">🌿</span>'
+                                                  f'<div class="tbot-bbl bot">{msg["text"]}</div>'
+                                                  f'</div>')
+                                else:
+                                    msgs_html += (f'<div class="tbot-row user">'
+                                                  f'<div class="tbot-bbl user">{msg["text"]}</div>'
+                                                  f'<span class="tbot-av">👤</span>'
+                                                  f'</div>')
+                            msgs_html += '</div>'
+                            st.markdown(msgs_html, unsafe_allow_html=True)
+
+                            # Tombol pilihan
+                            if state["opts"]:
+                                st.markdown('<p class="tbot-hint">Pilih pertanyaan:</p>',
                                             unsafe_allow_html=True)
-                                pilihan = st.radio(
-                                    "Pilih topik yang ingin kamu ketahui:",
-                                    [lbl for _, lbl in nav_opts],
-                                    index=None,
-                                    key=f"tbot_radio_{opt_id}_{fase}"
-                                )
-                                if pilihan is not None:
-                                    chosen_nid = next(nid for nid, lbl in nav_opts if lbl == pilihan)
-                                    nav_resp = tanibot.select(chosen_nid)
-                                    st.markdown(f"""
-                                    <div class="rekom biru">
-                                      <div class="rk-title">📄 {pilihan}</div>
-                                      <div class="rk-text">{nav_resp.text.replace(chr(10), '<br>')}</div>
-                                    </div>
-                                    """, unsafe_allow_html=True)
-
-                                    sub_opts = [(nid, lbl) for nid, lbl in nav_resp.options if nid != "root"]
-                                    if sub_opts:
-                                        sub_pilihan = st.radio(
-                                            "Topik lanjutan:",
-                                            [lbl for _, lbl in sub_opts],
-                                            index=None,
-                                            key=f"tbot_sub_{chosen_nid}_{opt_id}"
-                                        )
-                                        if sub_pilihan is not None:
-                                            sub_nid = next(nid for nid, lbl in sub_opts if lbl == sub_pilihan)
-                                            sub_resp = tanibot.select(sub_nid)
-                                            st.markdown(f"""
-                                            <div class="rekom">
-                                              <div class="rk-title">📄 {sub_pilihan}</div>
-                                              <div class="rk-text">{sub_resp.text.replace(chr(10), '<br>')}</div>
-                                            </div>
-                                            """, unsafe_allow_html=True)
+                                for nid, lbl in state["opts"]:
+                                    if st.button(lbl,
+                                                 key=f"tbot_{nid}_{len(state['history'])}_{opt_id}",
+                                                 use_container_width=True):
+                                        state["history"].append({"role": "user", "text": lbl})
+                                        resp = tanibot.select(nid)
+                                        state["history"].append({
+                                            "role": "bot",
+                                            "text": resp.text.replace("\n", "<br>"),
+                                        })
+                                        state["opts"] = [(n, l) for n, l in resp.options
+                                                         if n != "root"]
+                                        st.rerun()
+                            else:
+                                st.markdown('<p class="tbot-hint">Konsultasi selesai ✅</p>',
+                                            unsafe_allow_html=True)
+                            if st.button("🔄 Tanya hal lain",
+                                         key=f"tbot_reset_{opt_id}",
+                                         use_container_width=True):
+                                del st.session_state[chat_key]
+                                st.rerun()
                         elif tanibot is None:
                             st.info("TaniBot belum aktif — bangun database dulu dengan `tanibot_db_builder_v2.py`")
 
