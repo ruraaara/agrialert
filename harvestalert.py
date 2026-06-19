@@ -40,7 +40,7 @@ NAMA_KELAS = [
 NAMA_INDO = {
     'bacterial_leaf_blight': 'Hawar Daun Bakteri (HDB/Kresek)',
     'brown_spot':            'Bercak Cokelat',
-    'healthy':               'Sehat ✅',
+    'healthy':               'Sehat',
     'leaf_blast':            'Blas Daun',
     'leaf_scald':            'Hawar Pelepah (Leaf Scald)',
     'narrow_brown_spot':     'Bercak Cokelat Sempit',
@@ -110,10 +110,67 @@ _SEAS_MONTH  = {
 
 
 # ----------------------------------------------------------------
+#  IKON SVG (line-icon, profesional — pengganti emoji)
+# ----------------------------------------------------------------
+_ICON_PATHS = {
+    "sprout":        '<path d="M12 21v-7"/><path d="M12 14c-4.5 0-8-3.5-8-8 4.5 0 8 3.5 8 8Zm0 0c4.5 0 8-3.5 8-8-4.5 0-8 3.5-8 8Z"/>',
+    "pin":           '<path d="M12 22s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12Z"/><circle cx="12" cy="10" r="2.3"/>',
+    "antenna":       '<path d="M12 3v5"/><path d="M8.5 6.5a5 5 0 0 1 7 0"/><path d="M5.5 9.5a8.5 8.5 0 0 1 13 0"/><circle cx="12" cy="15" r="2"/><path d="M9.5 22h5M12 17v5"/>',
+    "ruler":         '<path d="M3 17 17 3l4 4-14 14-4-4Z"/><path d="m7.5 12.5 2 2M10.5 9.5l2 2M13.5 6.5l2 2"/>',
+    "clock":         '<circle cx="12" cy="12" r="9"/><path d="M12 7.5v5l3 2.5"/>',
+    "map":           '<path d="M9 4 4 6v14l5-2 6 2 5-2V4l-5 2-6-2Z"/><path d="M9 4v14M15 6v14"/>',
+    "calendar":      '<rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 3v4M16 3v4"/>',
+    "tag":           '<path d="M3 12 12 3h6a3 3 0 0 1 3 3v6l-9 9-9-9Z"/><circle cx="16" cy="8" r="1.3"/>',
+    "phone":         '<path d="M5 4h3l2 5-2.2 1.3a11 11 0 0 0 5.9 5.9L15 14l5 2v3a2 2 0 0 1-2 2A17 17 0 0 1 3 6a2 2 0 0 1 2-2Z"/>',
+    "sun":           '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v3M12 18.5v3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M2.5 12h3M18.5 12h3M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/>',
+    "cloud":         '<path d="M7 18a4 4 0 1 1 .6-7.96A5 5 0 0 1 17 11a3.5 3.5 0 0 1-.5 7H7Z"/>',
+    "cloud-sun":     '<circle cx="7.3" cy="7.3" r="2.1"/><path d="M7.3 3v1.6M3.9 4.9l1.1 1.1M3 8.3h1.6"/><path d="M9 19a4 4 0 1 1 .5-7.97A5 5 0 0 1 19 12a3.5 3.5 0 0 1-.5 7H9Z"/>',
+    "cloud-rain":    '<path d="M7 15.5a4 4 0 1 1 .6-7.96A5 5 0 0 1 17 8.5a3.5 3.5 0 0 1-.5 7H7Z"/><path d="M8.5 19l-1 2.2M12.5 19l-1 2.2M16.5 19l-1 2.2"/>',
+    "storm":         '<path d="M7 14a4 4 0 1 1 .6-7.96A5 5 0 0 1 17 7a3.5 3.5 0 0 1-.5 7H7Z"/><path d="M13.3 13.5 10.5 18h2l-1.8 3.7 4.6-5.2h-2l1.8-3Z"/>',
+    "wave":          '<path d="M2 14.5c1.5-2 3.5-2 5 0s3.5 2 5 0 3.5-2 5 0 3.5 2 5 0"/><path d="M2 19c1.5-2 3.5-2 5 0s3.5 2 5 0 3.5-2 5 0 3.5 2 5 0"/>',
+    "droplet":       '<path d="M12 2.5C9 7.2 5 11.3 5 15.3a7 7 0 0 0 14 0c0-4-4-8.1-7-12.8Z"/>',
+    "wind":          '<path d="M3 8h11a3 3 0 1 0-3-3"/><path d="M3 16h15a3 3 0 1 1-3 3"/><path d="M3 12h9"/>',
+    "thermometer":   '<path d="M12 14.2V4.5a2 2 0 1 0-4 0v9.7a4 4 0 1 0 4 0Z"/>',
+    "alert-triangle":'<path d="M12 3 2 21h20L12 3Z"/><path d="M12 10v4M12 16.9h.01"/>',
+    "alert-circle":  '<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 15.9h.01"/>',
+    "check-circle":  '<circle cx="12" cy="12" r="9"/><path d="m8 12.2 3 3 5-6"/>',
+    "info-circle":   '<circle cx="12" cy="12" r="9"/><path d="M12 8.3h.01M12 11v5"/>',
+    "bug":           '<rect x="8" y="9" width="8" height="9" rx="4"/><path d="M9 9V7a3 3 0 1 1 6 0v2M5 12h3M16 12h3M5.5 17l2.3-1.9M18.5 17l-2.3-1.9M5.5 7.2l2.8 1.9M18.5 7.2l-2.8 1.9M12 18v3"/>',
+    "leaf":          '<path d="M21 3C10 3 3 10 3 21c11 0 18-7 18-18Z"/><path d="M3.5 20.5 14 10"/>',
+    "microscope":    '<path d="M8.5 21h7M6.5 17h11M9.5 17v-3.3a3.3 3.3 0 1 1 4 0V17"/><circle cx="11.5" cy="7.6" r="2.8"/><path d="M9.4 5.7 7.8 4.1"/>',
+    "gear":          '<circle cx="12" cy="12" r="3"/><path d="M19.4 13a7.6 7.6 0 0 0 0-2l1.9-1.5-1.9-3.3-2.3 1a7.6 7.6 0 0 0-1.7-1L15 4h-4l-.3 2.4a7.6 7.6 0 0 0-1.7 1l-2.3-1L4.7 9.5l1.9 1.5a7.6 7.6 0 0 0 0 2l-1.9 1.5 1.9 3.3 2.3-1a7.6 7.6 0 0 0 1.7 1L11 20h4l.3-2.4a7.6 7.6 0 0 0 1.7-1l2.3 1 1.9-3.3-1.9-1.3Z"/>',
+    "chart":         '<path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/>',
+    "bot":           '<rect x="4" y="8" width="16" height="11" rx="3"/><path d="M12 4v4M9 13.5h.01M15 13.5h.01"/><path d="M2 13h2M20 13h2"/>',
+    "user":          '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/>',
+    "refresh":       '<path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 4v5h-5"/>',
+    "trash":         '<path d="M5 7h14M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2m-9 0 1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/>',
+    "book":          '<path d="M4 5a2 2 0 0 1 2-2h12v17H6a2 2 0 0 0-2 2V5Z"/><path d="M6 17h12"/>',
+    "pill":          '<rect x="2" y="9" width="20" height="6" rx="3"/><path d="M12 9v6"/>',
+    "satellite":     '<rect x="9" y="9" width="6" height="6" rx="1"/><path d="M9 9 4 4M15 9l5-5M9 15l-5 5M15 15l5 5"/>',
+    "send":          '<path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7Z"/>',
+    "lightbulb":     '<path d="M9 18h6M10 21h4"/><path d="M12 2a6 6 0 0 0-3.6 10.8c.4.3.6.8.6 1.3V15h6v-.9c0-.5.2-1 .6-1.3A6 6 0 0 0 12 2Z"/>',
+    "camera":        '<rect x="2.5" y="6" width="19" height="14" rx="2.5"/><circle cx="12" cy="13" r="3.5"/><path d="M8.5 6 10 3.5h4L15.5 6"/>',
+}
+
+
+def ico(name, size="1.2em"):
+    """Render ikon SVG line-style (pengganti emoji) sebagai string HTML inline."""
+    paths = _ICON_PATHS.get(name)
+    if not paths:
+        return ""
+    return (
+        f'<svg viewBox="0 0 24 24" width="{size}" height="{size}" fill="none" '
+        f'stroke="currentColor" stroke-width="1.8" stroke-linecap="round" '
+        f'stroke-linejoin="round" style="vertical-align:-0.22em;flex-shrink:0" '
+        f'aria-hidden="true">{paths}</svg>'
+    )
+
+
+# ----------------------------------------------------------------
 #  KONFIGURASI HALAMAN
 # ----------------------------------------------------------------
 st.set_page_config(
-    page_title="AgriWarn 🌾",
+    page_title="AgriWarn",
     page_icon="🌾",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -121,111 +178,165 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --c-primary: #1f7a4d;
+    --c-primary-dark: #0f4429;
+    --c-primary-darker: #0a331f;
+    --c-primary-light: #e8f5ee;
+    --c-sage: #6f8f78;
+
+    --c-bg: #f6f8f5;
+    --c-surface: #ffffff;
+    --c-border: #dfe6e0;
+    --c-text: #1c2620;
+    --c-text-muted: #57685d;
+
+    --c-aman-bg: #eaf7ef;     --c-aman-border:#1f7a4d;   --c-aman-text:#14532d;
+    --c-waspada-bg:#fef6e7;   --c-waspada-border:#d97706; --c-waspada-text:#92400e;
+    --c-bahaya-bg:#fdeceb;    --c-bahaya-border:#dc2626; --c-bahaya-text:#991b1b;
+    --c-info-bg:#eaf2fb;      --c-info-border:#2563eb;   --c-info-text:#1e40af;
+
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --shadow-sm: 0 1px 3px rgba(15,68,41,0.07);
+    --shadow-md: 0 4px 14px rgba(15,68,41,0.10);
+}
 
 *, *::before, *::after { box-sizing: border-box; }
 html, body, [class*="css"] {
     font-family: 'Lexend', sans-serif !important;
     -webkit-font-smoothing: antialiased;
+    font-size: 17px;
+    color: var(--c-text);
 }
+.stApp { background: var(--c-bg) !important; }
 .block-container {
     max-width: 1200px !important;
     padding: 1.25rem 1.5rem 4rem !important;
     margin: 0 auto !important;
 }
 .ha-header {
-    background: #0a3d1f; border-radius: 20px; padding: 22px 28px;
-    margin-bottom: 20px; border: 1.5px solid #1a6b38;
+    background: var(--c-primary-dark); border-radius: var(--radius-lg); padding: 24px 28px;
+    margin-bottom: 22px; border: none; box-shadow: var(--shadow-md);
     display: flex; align-items: center; justify-content: space-between;
     flex-wrap: wrap; gap: 12px;
 }
-.ha-header-left { display: flex; align-items: center; gap: 14px; }
-.ha-logo  { font-size: 2.4rem; line-height: 1; }
-.ha-title { font-size: 1.6rem; font-weight: 800; color: #4ade80; margin: 0; letter-spacing: -0.5px; }
-.ha-sub   { font-size: 0.85rem; color: #86efac; margin: 3px 0 0; }
+.ha-header-left { display: flex; align-items: center; gap: 16px; }
+.ha-logo  { font-size: 2.6rem; line-height: 1; }
+.ha-title { font-size: 1.75rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.3px; }
+.ha-sub   { font-size: 0.95rem; color: #cdeedb; margin: 4px 0 0; }
 .ha-badge {
-    background: #052e16; border: 1px solid #16a34a; border-radius: 30px;
-    padding: 6px 16px; font-size: 0.78rem; font-weight: 700; color: #4ade80; white-space: nowrap;
+    background: rgba(255,255,255,0.14); border: 1.5px solid rgba(255,255,255,0.3); border-radius: 30px;
+    padding: 8px 18px; font-size: 0.9rem; font-weight: 700; color: #ffffff; white-space: nowrap;
 }
 .gps-box {
-    background: #0a1628; border: 1px solid #1e3a5f; border-radius: 14px;
-    padding: 12px 18px; margin-bottom: 18px; font-size: 0.83rem; color: #94a3b8;
-    line-height: 1.8; display: flex; flex-wrap: wrap; gap: 4px 20px;
+    background: var(--c-surface); border: 1.5px solid var(--c-border); border-radius: var(--radius-md);
+    padding: 14px 18px; margin-bottom: 20px; font-size: 0.92rem; color: var(--c-text-muted);
+    line-height: 1.9; display: flex; flex-wrap: wrap; gap: 6px 22px; box-shadow: var(--shadow-sm);
 }
-.gps-box b { color: #60a5fa; }
-.big-card { border-radius: 18px; padding: 20px 24px; margin-bottom: 14px; border: 2px solid transparent; }
-.big-card.aman    { background: #052e16; border-color: #16a34a; }
-.big-card.waspada { background: #431407; border-color: #ea580c; }
-.big-card.bahaya  { background: #450a0a; border-color: #dc2626; }
-.big-card.info    { background: #0c1a3a; border-color: #2563eb; }
-.bc-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: rgba(255,255,255,0.5); margin-bottom: 8px; }
-.bc-row   { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
-.bc-icon  { font-size: 2rem; line-height: 1; flex-shrink: 0; }
-.bc-value { font-size: 1.5rem; font-weight: 800; color: #fff; line-height: 1.1; }
-.bc-sub   { font-size: 0.82rem; color: rgba(255,255,255,0.65); margin-top: 4px; line-height: 1.5; }
+.gps-box b { color: var(--c-primary-dark); }
+.big-card { border-radius: var(--radius-lg); padding: 22px 26px; margin-bottom: 16px; border: 1.5px solid transparent; box-shadow: var(--shadow-sm); }
+.big-card.aman    { background: var(--c-aman-bg);    border-color: var(--c-aman-border); }
+.big-card.waspada { background: var(--c-waspada-bg); border-color: var(--c-waspada-border); }
+.big-card.bahaya  { background: var(--c-bahaya-bg);  border-color: var(--c-bahaya-border); }
+.big-card.info    { background: var(--c-info-bg);    border-color: var(--c-info-border); }
+.bc-label { font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--c-text-muted); margin-bottom: 10px; }
+.bc-row   { display: flex; align-items: center; gap: 14px; margin-bottom: 6px; }
+.bc-icon  { font-size: 2.2rem; line-height: 1; flex-shrink: 0; }
+.bc-value { font-size: 1.65rem; font-weight: 800; color: var(--c-text); line-height: 1.15; }
+.bc-sub   { font-size: 0.92rem; color: var(--c-text-muted); margin-top: 6px; line-height: 1.6; }
+.big-card.aman    .bc-value, .big-card.aman    .bc-label { color: var(--c-aman-text); }
+.big-card.waspada .bc-value, .big-card.waspada .bc-label { color: var(--c-waspada-text); }
+.big-card.bahaya  .bc-value, .big-card.bahaya  .bc-label { color: var(--c-bahaya-text); }
+.big-card.info    .bc-value, .big-card.info    .bc-label { color: var(--c-info-text); }
 .metric-grid {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 14px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 16px;
 }
 @media (max-width: 900px) { .metric-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 480px) { .metric-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; } }
-.metric-card { border-radius: 14px; padding: 16px 18px; border: 1.5px solid transparent; min-width: 0; }
-.metric-card.aman    { background: #052e16; border-color: #15803d; }
-.metric-card.waspada { background: #431407; border-color: #c2410c; }
-.metric-card.bahaya  { background: #450a0a; border-color: #b91c1c; }
-.metric-card.info    { background: #0c1a3a; border-color: #1d4ed8; }
-.mc-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.45); margin-bottom: 6px; }
-.mc-val   { font-size: 1.3rem; font-weight: 800; color: #fff; line-height: 1.1; }
-.mc-sub   { font-size: 0.7rem; color: rgba(255,255,255,0.55); margin-top: 4px; }
-@media (max-width: 480px) { .metric-card { padding: 12px 14px; } .mc-val { font-size: 1.1rem; } }
-.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+@media (max-width: 480px) { .metric-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
+.metric-card { border-radius: var(--radius-md); padding: 18px 20px; border: 1.5px solid var(--c-border); background: var(--c-surface); box-shadow: var(--shadow-sm); min-width: 0; }
+.metric-card.aman    { background: var(--c-aman-bg);    border-color: var(--c-aman-border); }
+.metric-card.waspada { background: var(--c-waspada-bg); border-color: var(--c-waspada-border); }
+.metric-card.bahaya  { background: var(--c-bahaya-bg);  border-color: var(--c-bahaya-border); }
+.metric-card.info    { background: var(--c-info-bg);    border-color: var(--c-info-border); }
+.mc-label { font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--c-text-muted); margin-bottom: 8px; }
+.mc-val   { font-size: 1.5rem; font-weight: 800; color: var(--c-text); line-height: 1.15; }
+.mc-sub   { font-size: 0.8rem; color: var(--c-text-muted); margin-top: 6px; }
+.metric-card.aman    .mc-val { color: var(--c-aman-text); }
+.metric-card.waspada .mc-val { color: var(--c-waspada-text); }
+.metric-card.bahaya  .mc-val { color: var(--c-bahaya-text); }
+.metric-card.info    .mc-val { color: var(--c-info-text); }
+@media (max-width: 480px) { .metric-card { padding: 14px 16px; } .mc-val { font-size: 1.3rem; } }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
 @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
-.rekom { background: #0a1628; border-radius: 0 14px 14px 0; border-left: 4px solid #22c55e; padding: 16px 18px; margin-bottom: 10px; }
-.rekom.kuning { border-left-color: #f59e0b; }
-.rekom.merah  { border-left-color: #ef4444; }
-.rekom.biru   { border-left-color: #3b82f6; }
-.rk-title { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.9px; color: #22c55e; margin-bottom: 8px; }
-.rekom.kuning .rk-title { color: #f59e0b; }
-.rekom.merah  .rk-title { color: #f87171; }
-.rekom.biru   .rk-title { color: #60a5fa; }
-.rk-text { font-size: 0.88rem; color: #d1d5db; line-height: 1.65; }
-.hama-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.rekom { background: var(--c-aman-bg); border-radius: 0 var(--radius-md) var(--radius-md) 0; border-left: 5px solid var(--c-primary); padding: 18px 20px; margin-bottom: 12px; box-shadow: var(--shadow-sm); }
+.rekom.kuning { background: var(--c-waspada-bg); border-left-color: var(--c-waspada-border); }
+.rekom.merah  { background: var(--c-bahaya-bg);  border-left-color: var(--c-bahaya-border); }
+.rekom.biru   { background: var(--c-info-bg);    border-left-color: var(--c-info-border); }
+.rk-title { font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--c-primary-dark); margin-bottom: 10px; }
+.rekom.kuning .rk-title { color: var(--c-waspada-text); }
+.rekom.merah  .rk-title { color: var(--c-bahaya-text); }
+.rekom.biru   .rk-title { color: var(--c-info-text); }
+.rk-text { font-size: 0.98rem; color: var(--c-text); line-height: 1.7; }
+.hama-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
 @media (max-width: 500px) { .hama-grid { grid-template-columns: 1fr; } }
-.hama-card { background: #0a1628; border: 1.5px solid #1e3a5f; border-radius: 14px; padding: 14px 16px; display: flex; align-items: flex-start; gap: 12px; }
-.hama-icon { font-size: 1.6rem; line-height: 1; flex-shrink: 0; margin-top: 2px; }
-.hama-nama { font-size: 0.88rem; font-weight: 700; color: #f1f5f9; margin-bottom: 3px; }
-.hama-ciri { font-size: 0.75rem; color: #94a3b8; line-height: 1.5; }
-.sec-title { font-size: 1rem; font-weight: 700; color: #f1f5f9; margin: 20px 0 12px; display: flex; align-items: center; gap: 8px; }
-.divider { border: none; border-top: 1px solid #1e293b; margin: 18px 0; }
-.status-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
-.chip { border-radius: 30px; padding: 5px 14px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; }
-.chip.aman    { background: #052e16; border: 1px solid #16a34a; color: #4ade80; }
-.chip.waspada { background: #431407; border: 1px solid #ea580c; color: #fb923c; }
-.chip.bahaya  { background: #450a0a; border: 1px solid #dc2626; color: #f87171; }
-.chip.info    { background: #0c1a3a; border: 1px solid #1d4ed8; color: #60a5fa; }
-div[data-baseweb="tab-list"] { background: #0a1628 !important; border-radius: 14px !important; padding: 4px !important; gap: 4px !important; margin-bottom: 20px; }
-button[data-baseweb="tab"] { font-family: 'Lexend', sans-serif !important; font-size: 0.85rem !important; font-weight: 700 !important; border-radius: 10px !important; }
-[data-testid="stSidebar"] { background: #060f1a !important; border-right: 1px solid #1e3a5f !important; }
-.prob-bar-wrap { margin: 6px 0; }
-.prob-label { font-size: 0.75rem; color: #94a3b8; margin-bottom: 3px; display: flex; justify-content: space-between; }
-.prob-bar-bg { background: #1e3a5f; border-radius: 6px; height: 10px; overflow: hidden; }
-.prob-bar-fill { height: 100%; border-radius: 6px; background: #22c55e; transition: width 0.4s; }
-.prob-bar-fill.top { background: #4ade80; }
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-thumb { background: #1e3a5f; border-radius: 4px; }
-@media (max-width: 480px) { .ha-title { font-size: 1.3rem; } .bc-value { font-size: 1.25rem; } .sec-title { font-size: 0.92rem; } .rk-text { font-size: 0.83rem; } .gps-box { font-size: 0.76rem; } }
-.tbot-chat {
-    background: #060f1a; border: 1.5px solid #1e3a5f; border-radius: 14px;
-    padding: 14px 12px; max-height: 370px; overflow-y: auto;
-    margin: 10px 0; display: flex; flex-direction: column; gap: 10px;
+.hama-card { background: var(--c-surface); border: 1.5px solid var(--c-border); border-radius: var(--radius-md); padding: 16px 18px; display: flex; align-items: flex-start; gap: 14px; box-shadow: var(--shadow-sm); }
+.hama-icon { font-size: 1.8rem; line-height: 1; flex-shrink: 0; margin-top: 2px; }
+.hama-nama { font-size: 0.98rem; font-weight: 700; color: var(--c-text); margin-bottom: 4px; }
+.hama-ciri { font-size: 0.85rem; color: var(--c-text-muted); line-height: 1.55; }
+.sec-title { font-size: 1.15rem; font-weight: 700; color: var(--c-primary-dark); margin: 24px 0 14px; display: flex; align-items: center; gap: 10px; }
+.divider { border: none; border-top: 1.5px solid var(--c-border); margin: 20px 0; }
+.status-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+.chip { border-radius: 30px; padding: 8px 16px; font-size: 0.85rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; border: 1.5px solid transparent; }
+.chip.aman    { background: var(--c-aman-bg);    border-color: var(--c-aman-border);    color: var(--c-aman-text); }
+.chip.waspada { background: var(--c-waspada-bg); border-color: var(--c-waspada-border); color: var(--c-waspada-text); }
+.chip.bahaya  { background: var(--c-bahaya-bg);  border-color: var(--c-bahaya-border);  color: var(--c-bahaya-text); }
+.chip.info    { background: var(--c-info-bg);    border-color: var(--c-info-border);    color: var(--c-info-text); }
+div[data-baseweb="tab-list"] { background: var(--c-surface) !important; border: 1.5px solid var(--c-border) !important; border-radius: var(--radius-md) !important; padding: 6px !important; gap: 4px !important; margin-bottom: 22px; box-shadow: var(--shadow-sm); }
+button[data-baseweb="tab"] { font-family: 'Lexend', sans-serif !important; font-size: 0.98rem !important; font-weight: 700 !important; border-radius: var(--radius-sm) !important; padding: 12px 10px !important; color: var(--c-text-muted) !important; }
+button[data-baseweb="tab"][aria-selected="true"] { background: var(--c-primary) !important; color: #ffffff !important; }
+[data-testid="stSidebar"] { background: var(--c-surface) !important; border-right: 1.5px solid var(--c-border) !important; }
+.stButton > button, div[data-testid="stFormSubmitButton"] button {
+    font-family: 'Lexend', sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 1rem !important;
+    border-radius: var(--radius-md) !important;
+    padding: 0.7rem 1.3rem !important;
+    min-height: 48px !important;
+    border: 1.5px solid var(--c-primary) !important;
+    background: var(--c-primary) !important;
+    color: #ffffff !important;
 }
-.tbot-row { display: flex; align-items: flex-end; gap: 8px; }
+.stButton > button:hover {
+    background: var(--c-primary-dark) !important;
+    border-color: var(--c-primary-dark) !important;
+}
+[data-testid="stMetricValue"] { font-size: 1.6rem !important; font-weight: 800 !important; color: var(--c-primary-dark) !important; }
+[data-testid="stMetricLabel"] { font-size: 0.9rem !important; font-weight: 600 !important; color: var(--c-text-muted) !important; }
+.prob-bar-wrap { margin: 8px 0; }
+.prob-label { font-size: 0.85rem; color: var(--c-text-muted); margin-bottom: 4px; display: flex; justify-content: space-between; }
+.prob-bar-bg { background: var(--c-border); border-radius: 8px; height: 12px; overflow: hidden; }
+.prob-bar-fill { height: 100%; border-radius: 8px; background: var(--c-sage); transition: width 0.4s; }
+.prob-bar-fill.top { background: var(--c-primary); }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-thumb { background: var(--c-border); border-radius: 6px; }
+@media (max-width: 480px) { .ha-title { font-size: 1.4rem; } .bc-value { font-size: 1.35rem; } .sec-title { font-size: 1.02rem; } .rk-text { font-size: 0.92rem; } .gps-box { font-size: 0.85rem; } }
+.tbot-chat {
+    background: var(--c-bg); border: 1.5px solid var(--c-border); border-radius: var(--radius-md);
+    padding: 16px 14px; max-height: 400px; overflow-y: auto;
+    margin: 12px 0; display: flex; flex-direction: column; gap: 12px;
+}
+.tbot-row { display: flex; align-items: flex-end; gap: 10px; }
 .tbot-row.bot  { flex-direction: row; }
 .tbot-row.user { flex-direction: row-reverse; }
-.tbot-av { font-size: 1.1rem; flex-shrink: 0; }
-.tbot-bbl { padding: 9px 13px; font-size: 0.81rem; line-height: 1.65; max-width: 84%; word-break: break-word; }
-.tbot-bbl.bot  { background:#0a1e38; border:1px solid #1e3a5f; border-radius:4px 14px 14px 14px; color:#d1d5db; }
-.tbot-bbl.user { background:#052e16; border:1px solid #15803d; border-radius:14px 4px 14px 14px; color:#86efac; }
-.tbot-hint { font-size:0.74rem; color:#64748b; margin:6px 0 4px; }
+.tbot-av { font-size: 1.3rem; flex-shrink: 0; }
+.tbot-bbl { padding: 11px 15px; font-size: 0.92rem; line-height: 1.7; max-width: 84%; word-break: break-word; }
+.tbot-bbl.bot  { background:var(--c-surface); border:1.5px solid var(--c-border); border-radius:4px 16px 16px 16px; color:var(--c-text); }
+.tbot-bbl.user { background:var(--c-aman-bg); border:1.5px solid var(--c-aman-border); border-radius:16px 4px 16px 16px; color:var(--c-aman-text); }
+.tbot-hint { font-size:0.82rem; color:var(--c-text-muted); margin:8px 0 6px; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -459,7 +570,7 @@ def cuaca_bmkg(lat, lon):
     if not hasil: return FB
     if hasil["jarak_km"] > RADIUS_KM:
         hasil["ok"]=False
-        hasil["pesan"]=(f"⚠️ Stasiun terdekat {hasil['jarak_km']} km "
+        hasil["pesan"]=(f"Stasiun terdekat {hasil['jarak_km']} km "
                         f"(batas wajar {RADIUS_KM} km).")
     return hasil
 
@@ -473,48 +584,48 @@ def oni_now():
 
 def info_enso(oni):
     if oni >= 1.5:
-        return {"fase":"El Niño Kuat","level":"🔴 AWAS KEKERINGAN","kelas":"bahaya","ikon":"☀️",
+        return {"fase":"El Niño Kuat","level":"AWAS KEKERINGAN","kelas":"bahaya","ikon":"sun",
                 "pesan":"Hujan sangat berkurang 40–60%. Siapkan irigasi cadangan. Pilih bibit tahan kering seperti Inpari 32."}
     elif oni >= 0.5:
-        return {"fase":"El Niño","level":"🟡 WASPADA KERING","kelas":"waspada","ikon":"🌤️",
+        return {"fase":"El Niño","level":"WASPADA KERING","kelas":"waspada","ikon":"cloud-sun",
                 "pesan":"Kemarau lebih lama dari biasanya. Hemat air irigasi dan pantau kondisi lahan."}
     elif oni >= -0.5:
-        return {"fase":"Normal","level":"🟢 IKLIM NORMAL","kelas":"aman","ikon":"⛅",
+        return {"fase":"Normal","level":"IKLIM NORMAL","kelas":"aman","ikon":"cloud",
                 "pesan":"Pola hujan dan kemarau berjalan normal. Ikuti kalender tanam biasa."}
     elif oni >= -1.5:
-        return {"fase":"La Niña","level":"🟡 WASPADA BANJIR","kelas":"waspada","ikon":"🌧️",
+        return {"fase":"La Niña","level":"WASPADA BANJIR","kelas":"waspada","ikon":"cloud-rain",
                 "pesan":"Hujan lebih sering dan lebih deras. Periksa saluran air agar sawah tidak tergenang."}
     else:
-        return {"fase":"La Niña Kuat","level":"🔴 AWAS BANJIR","kelas":"bahaya","ikon":"⛈️",
+        return {"fase":"La Niña Kuat","level":"AWAS BANJIR","kelas":"bahaya","ikon":"storm",
                 "pesan":"Curah hujan sangat tinggi. Risiko banjir besar. Waspada serangan wereng dan tungro."}
 
 def info_cuaca(tmax, ch):
     if tmax > 34.0 or ch > 50.0:
-        return {"level":"🔴 CUACA EKSTREM","kelas":"bahaya",
-                "ikon":"🌡️" if tmax>34 else "🌊",
+        return {"level":"CUACA EKSTREM","kelas":"bahaya",
+                "ikon":"thermometer" if tmax>34 else "wave",
                 "pesan":"Cuaca sangat berbahaya! Segera panen jika sudah waktunya. Aktifkan pompa drainase."}
     elif tmax > 32.0 or ch > 30.0 or ch < 2.0:
-        return {"level":"🟡 PERLU PERHATIAN","kelas":"waspada","ikon":"⚠️",
+        return {"level":"PERLU PERHATIAN","kelas":"waspada","ikon":"alert-triangle",
                 "pesan":"Cek saluran air dan kondisi tanaman. Tambah pengairan jika hujan sangat sedikit."}
-    return {"level":"🟢 CUACA BAIK","kelas":"aman","ikon":"🌤️",
+    return {"level":"CUACA BAIK","kelas":"aman","ikon":"cloud-sun",
             "pesan":"Cuaca hari ini bagus untuk padi. Waktu yang tepat untuk pemupukan NPK."}
 
 def musim_bln(b):
-    if b in [11,12,1,2,3]: return "🌧️ Musim Hujan"
-    elif b in [6,7,8,9]:   return "☀️ Musim Kemarau"
-    return "⛅ Musim Peralihan"
+    if b in [11,12,1,2,3]: return "cloud-rain", "Musim Hujan"
+    elif b in [6,7,8,9]:   return "sun", "Musim Kemarau"
+    return "cloud-sun", "Musim Peralihan"
 
 def saran_tanam(kelas_cuaca, kelas_enso):
     if kelas_cuaca=="bahaya" or kelas_enso=="bahaya":
-        return ("merah",
-                "🔴 <b>Tunda penanaman</b> sampai kondisi membaik. "
+        return ("merah", "alert-triangle",
+                "<b>Tunda penanaman</b> sampai kondisi membaik. "
                 "Kalau sudah tanam, pantau padi setiap hari dan pastikan saluran air tidak tersumbat.")
     elif kelas_cuaca=="waspada" or kelas_enso=="waspada":
-        return ("kuning",
-                "🟡 <b>Lanjut tanam tapi waspada.</b> Cek irigasi rutin. "
+        return ("kuning", "alert-circle",
+                "<b>Lanjut tanam tapi waspada.</b> Cek irigasi rutin. "
                 "Kalau kering, tambah pengairan. Kalau terlalu basah, buka saluran drainase.")
-    return ("",
-            "🟢 <b>Kondisi bagus untuk bertanam!</b> Waktu tepat untuk pemupukan NPK. "
+    return ("", "check-circle",
+            "<b>Kondisi bagus untuk bertanam!</b> Waktu tepat untuk pemupukan NPK. "
             "Ikuti jadwal tanam seperti biasa.")
 
 
@@ -522,11 +633,11 @@ def saran_tanam(kelas_cuaca, kelas_enso):
 #  HELPER GRAFIK
 # ================================================================
 PLOT_STYLE = dict(
-    template="plotly_dark",
+    template="plotly_white",
     paper_bgcolor="rgba(0,0,0,0)",
-    plot_bgcolor="rgba(10,22,40,1)",
+    plot_bgcolor="rgba(246,248,245,1)",
     margin=dict(t=16,b=36,l=44,r=20),
-    font=dict(family="Lexend, sans-serif", size=12),
+    font=dict(family="Lexend, sans-serif", size=13, color="#1c2620"),
 )
 
 def fig_oni(df, n=24):
@@ -705,35 +816,35 @@ def fig_oni_with_forecast(df, pred, n=24):
 
 # ── SIDEBAR ──────────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("## ⚙️ Pengaturan")
+    st.markdown(f'<h2 style="display:flex;align-items:center;gap:8px;">{ico("gear")} Pengaturan</h2>', unsafe_allow_html=True)
     st.markdown("---")
-    st.markdown("### 📍 Lokasi Anda")
+    st.markdown(f'<h3 style="display:flex;align-items:center;gap:8px;">{ico("pin")} Lokasi Anda</h3>', unsafe_allow_html=True)
     st.caption("Tekan tombol di bawah untuk deteksi otomatis.")
     gps = streamlit_geolocation()
 
     lat, lon, aktif = -7.8754, 110.4262, False
     if gps and gps.get("latitude") and gps.get("longitude"):
         lat, lon, aktif = float(gps["latitude"]), float(gps["longitude"]), True
-        st.success(f"✅ GPS aktif\n📌 {round(lat,4)}°, {round(lon,4)}°\n"
-                   f"🗺️ {prov_terdekat(lat,lon)}")
+        st.success(f"GPS aktif\n{round(lat,4)}°, {round(lon,4)}°\n"
+                   f"{prov_terdekat(lat,lon)}")
     else:
         st.warning("GPS belum aktif. Pilih manual.")
         lat = st.number_input("Lintang:", value=lat, format="%.4f")
         lon = st.number_input("Bujur:",   value=lon, format="%.4f")
 
     st.markdown("---")
-    st.markdown("### 🗺️ Provinsi")
+    st.markdown(f'<h3 style="display:flex;align-items:center;gap:8px;">{ico("map")} Provinsi</h3>', unsafe_allow_html=True)
     daftar   = list(PROVINSI.keys())
     default  = prov_terdekat(lat, lon)
     provinsi = st.selectbox("", daftar, index=daftar.index(default))
 
     st.markdown("---")
-    st.markdown("### 📊 Status Data")
-    st.write(f"ENSO  : {'✅' if CSV_ENSO.exists() else '❌'} ({len(df_enso)} baris)")
-    st.write(f"NDVI  : {'✅' if df_ndvi is not None else '❌'}")
-    st.write(f"SAR   : {'✅' if df_sar  is not None else '❌'}")
-    st.write(f"Model : {'✅ Siap' if model_cnn is not None else '❌ Tidak ditemukan'}")
-    st.write(f"TaniBot: {'✅ Siap' if tanibot is not None else '❌ Bangun DB dulu'}")
+    st.markdown(f'<h3 style="display:flex;align-items:center;gap:8px;">{ico("chart")} Status Data</h3>', unsafe_allow_html=True)
+    st.write(f"ENSO  : {'Tersedia' if CSV_ENSO.exists() else 'Tidak ada'} ({len(df_enso)} baris)")
+    st.write(f"NDVI  : {'Tersedia' if df_ndvi is not None else 'Tidak ada'}")
+    st.write(f"SAR   : {'Tersedia' if df_sar  is not None else 'Tidak ada'}")
+    st.write(f"Model : {'Siap' if model_cnn is not None else 'Tidak ditemukan'}")
+    st.write(f"TaniBot: {'Siap' if tanibot is not None else 'Bangun DB dulu'}")
     st.markdown("---")
     st.caption("Data: BMKG · NOAA · Sentinel-1/2\nHarvestAlert v1.0 · Satria Data 2026")
 
@@ -743,28 +854,28 @@ cuaca  = cuaca_bmkg(lat, lon)
 oni    = oni_now()
 enso   = info_enso(oni)
 status = info_cuaca(cuaca["tmax"], cuaca["curah_hujan"])
-msmn   = musim_bln(datetime.now().month)
-warna_rk, teks_rk = saran_tanam(status["kelas"], enso["kelas"])
+musim_ikon, msmn = musim_bln(datetime.now().month)
+warna_rk, ikon_rk, teks_rk = saran_tanam(status["kelas"], enso["kelas"])
 
 
 # ── HEADER ───────────────────────────────────────────────────────
 st.markdown(f"""
 <div class="ha-header">
   <div class="ha-header-left">
-    <span class="ha-logo">🌾</span>
+    <span class="ha-logo">{ico('sprout', '2rem')}</span>
     <div>
       <p class="ha-title">HarvestAlert</p>
       <p class="ha-sub">Peringatan dini hama &amp; cuaca padi Indonesia</p>
     </div>
   </div>
-  <span class="ha-badge">📍 {provinsi}</span>
+  <span class="ha-badge">{ico('pin')} {provinsi}</span>
 </div>
 """, unsafe_allow_html=True)
 
 
 # ── 4 TAB ────────────────────────────────────────────────────────
 tab1, tab2, tab3, tab5, tab4 = st.tabs([
-    "🏠  Beranda", "🌤️  Cuaca & Iklim", "🔬  Cek Hama Padi", "🤖  Chat AI", "ℹ️  Informasi"
+    "Beranda", "Cuaca & Iklim", "Cek Hama Padi", "Chat AI", "Informasi"
 ])
 
 
@@ -777,19 +888,19 @@ with tab1:
 
     st.markdown(f"""
     <div class="gps-box">
-      <span>📡 <b>Stasiun BMKG:</b> {cuaca['nama']}</span>
-      <span>📏 <b>Jarak:</b> {cuaca['jarak_km']} km</span>
-      <span>🕐 <b>Data per:</b> {cuaca['waktu']}</span>
-      <span>📌 <b>Koordinat:</b> {round(lat,4)}°, {round(lon,4)}°</span>
-      <span>🗺️ <b>Provinsi:</b> {provinsi}</span>
+      <span>{ico('antenna')} <b>Stasiun BMKG:</b> {cuaca['nama']}</span>
+      <span>{ico('ruler')} <b>Jarak:</b> {cuaca['jarak_km']} km</span>
+      <span>{ico('clock')} <b>Data per:</b> {cuaca['waktu']}</span>
+      <span>{ico('pin')} <b>Koordinat:</b> {round(lat,4)}°, {round(lon,4)}°</span>
+      <span>{ico('map')} <b>Provinsi:</b> {provinsi}</span>
     </div>
     """, unsafe_allow_html=True)
 
     st.markdown(f"""
     <div class="status-row">
-      <span class="chip {status['kelas']}">{status['ikon']} {status['level']}</span>
-      <span class="chip {enso['kelas']}">{enso['ikon']} {enso['level']}</span>
-      <span class="chip info">📅 {msmn}</span>
+      <span class="chip {status['kelas']}">{ico(status['ikon'])} {status['level']}</span>
+      <span class="chip {enso['kelas']}">{ico(enso['ikon'])} {enso['level']}</span>
+      <span class="chip info">{ico(musim_ikon)} {msmn}</span>
     </div>
     """, unsafe_allow_html=True)
 
@@ -797,7 +908,7 @@ with tab1:
     <div class="big-card {status['kelas']}">
       <div class="bc-label">Kondisi Cuaca Hari Ini — {provinsi}</div>
       <div class="bc-row">
-        <span class="bc-icon">{status['ikon']}</span>
+        <span class="bc-icon">{ico(status['ikon'], '2.2rem')}</span>
         <span class="bc-value">{status['level']}</span>
       </div>
       <div class="bc-sub">{status['pesan']}</div>
@@ -812,22 +923,22 @@ with tab1:
     st.markdown(f"""
     <div class="metric-grid">
       <div class="metric-card {kls_suhu}">
-        <div class="mc-label">🌡️ Suhu Maksimum</div>
+        <div class="mc-label">{ico('thermometer')} Suhu Maksimum</div>
         <div class="mc-val">{cuaca['tmax']}°C</div>
         <div class="mc-sub">Min: {cuaca['tmin']}°C &nbsp;|&nbsp; Ideal padi: 24–30°C</div>
       </div>
       <div class="metric-card {kls_kel}">
-        <div class="mc-label">💧 Kelembapan Udara</div>
+        <div class="mc-label">{ico('droplet')} Kelembapan Udara</div>
         <div class="mc-val">{kel_int}%</div>
-        <div class="mc-sub">{'⚠️ Waspadai serangan wereng' if kel_int>85 else '✅ Dalam batas normal'}</div>
+        <div class="mc-sub">{'Waspadai serangan wereng' if kel_int>85 else 'Dalam batas normal'}</div>
       </div>
       <div class="metric-card {kls_ch}">
-        <div class="mc-label">🌧️ Curah Hujan</div>
+        <div class="mc-label">{ico('cloud-rain')} Curah Hujan</div>
         <div class="mc-val">{cuaca['curah_hujan']} mm</div>
-        <div class="mc-sub">per jam &nbsp;|&nbsp; {'⚠️ Terlalu lebat' if cuaca['curah_hujan']>30 else '✅ Normal'}</div>
+        <div class="mc-sub">per jam &nbsp;|&nbsp; {'Terlalu lebat' if cuaca['curah_hujan']>30 else 'Normal'}</div>
       </div>
       <div class="metric-card {enso['kelas']}">
-        <div class="mc-label">{enso['ikon']} Kondisi Iklim</div>
+        <div class="mc-label">{ico(enso['ikon'])} Kondisi Iklim</div>
         <div class="mc-val" style="font-size:1rem;">{enso['level']}</div>
         <div class="mc-sub">ONI: {oni:+.1f}°C &nbsp;|&nbsp; {enso['fase']}</div>
       </div>
@@ -835,16 +946,16 @@ with tab1:
     """, unsafe_allow_html=True)
 
     st.markdown('<hr class="divider">', unsafe_allow_html=True)
-    st.markdown('<p class="sec-title">💡 Yang Harus Dilakukan</p>', unsafe_allow_html=True)
+    st.markdown(f'<p class="sec-title">{ico("lightbulb")} Yang Harus Dilakukan</p>', unsafe_allow_html=True)
 
     st.markdown(f"""
     <div class="two-col">
       <div class="rekom {warna_rk}">
-        <div class="rk-title">🌱 Saran Tanam</div>
-        <div class="rk-text">{teks_rk}</div>
+        <div class="rk-title">{ico('sprout')} Saran Tanam</div>
+        <div class="rk-text">{ico(ikon_rk)} {teks_rk}</div>
       </div>
       <div class="rekom biru">
-        <div class="rk-title">🌏 Kondisi Iklim — {enso['fase']}</div>
+        <div class="rk-title">{ico('map')} Kondisi Iklim — {enso['fase']}</div>
         <div class="rk-text">{enso['pesan']}</div>
       </div>
     </div>
@@ -859,7 +970,7 @@ with tab1:
     )
     st.markdown(f"""
     <div class="rekom">
-      <div class="rk-title">📅 {msmn}</div>
+      <div class="rk-title">{ico(musim_ikon)} {msmn}</div>
       <div class="rk-text">{musim_tips}</div>
     </div>
     """, unsafe_allow_html=True)
@@ -869,26 +980,26 @@ with tab1:
 #  TAB 2 — CUACA & IKLIM
 # ════════════════════════════════════════════════════
 with tab2:
-    st.markdown(f'<p class="sec-title">🌤️ Cuaca Detail — {provinsi}</p>', unsafe_allow_html=True)
+    st.markdown(f'<p class="sec-title">{ico("cloud-sun")} Cuaca Detail — {provinsi}</p>', unsafe_allow_html=True)
 
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("🌡️ Suhu Maks",   f"{cuaca['tmax']} °C",
+    c1.metric("Suhu Maks",   f"{cuaca['tmax']} °C",
               delta=f"{round(cuaca['tmax']-30,1)} dari ideal 30°C", delta_color="inverse")
-    c2.metric("🌡️ Suhu Min",    f"{cuaca['tmin']} °C")
-    c3.metric("💧 Kelembapan",  f"{int(cuaca['kelembapan'])} %")
-    c4.metric("🌧️ Curah Hujan", f"{cuaca['curah_hujan']} mm/hr")
+    c2.metric("Suhu Min",    f"{cuaca['tmin']} °C")
+    c3.metric("Kelembapan",  f"{int(cuaca['kelembapan'])} %")
+    c4.metric("Curah Hujan", f"{cuaca['curah_hujan']} mm/hr")
 
     st.markdown('<hr class="divider">', unsafe_allow_html=True)
-    st.markdown('<p class="sec-title">🌊 Kondisi ENSO — NOAA CPC Live</p>', unsafe_allow_html=True)
+    st.markdown(f'<p class="sec-title">{ico("wave")} Kondisi ENSO — NOAA CPC Live</p>', unsafe_allow_html=True)
 
     # ── Fetch live NOAA ONI ──────────────────────────────────────
     df_oni_live, oni_ok, oni_time = fetch_oni_noaa()
     df_for_enso = (df_oni_live
                    if df_oni_live is not None and len(df_oni_live) >= 6
                    else df_enso)
-    src_txt = (f"🟢 NOAA CPC · Diperbarui: {oni_time} · {len(df_for_enso)} data poin"
+    src_txt = (f"NOAA CPC · Diperbarui: {oni_time} · {len(df_for_enso)} data poin"
                if oni_ok
-               else "🟡 Data lokal (NOAA tidak tersedia saat ini)")
+               else "Data lokal (NOAA tidak tersedia saat ini)")
     st.caption(src_txt)
 
     # ── Current & predicted ENSO ─────────────────────────────────
@@ -901,9 +1012,9 @@ with tab2:
     st.markdown(f"""
     <div class="two-col">
       <div class="big-card {enso_cur['kelas']}">
-        <div class="bc-label">🌊 ENSO Terkini — {date_cur.strftime('%B %Y')}</div>
+        <div class="bc-label">{ico('wave')} ENSO Terkini — {date_cur.strftime('%B %Y')}</div>
         <div class="bc-row">
-          <span class="bc-icon">{enso_cur['ikon']}</span>
+          <span class="bc-icon">{ico(enso_cur['ikon'], '2.2rem')}</span>
           <div>
             <span class="bc-value" style="font-size:1.15rem">{enso_cur['fase']}</span>
             <div class="bc-sub">ONI: <b>{oni_cur:+.2f}°C</b></div>
@@ -912,9 +1023,9 @@ with tab2:
         <div class="bc-sub" style="margin-top:8px">{enso_cur['pesan']}</div>
       </div>
       <div class="big-card {enso_pred['kelas']}">
-        <div class="bc-label">🔮 Prediksi — {pred['date'].strftime('%B %Y')} (bulan depan)</div>
+        <div class="bc-label">{ico('chart')} Prediksi — {pred['date'].strftime('%B %Y')} (bulan depan)</div>
         <div class="bc-row">
-          <span class="bc-icon">{enso_pred['ikon']}</span>
+          <span class="bc-icon">{ico(enso_pred['ikon'], '2.2rem')}</span>
           <div>
             <span class="bc-value" style="font-size:1.15rem">{enso_pred['fase']}</span>
             <div class="bc-sub">ONI ≈ <b>{pred['oni']:+.2f}°C</b>
@@ -927,60 +1038,60 @@ with tab2:
       </div>
     </div>
     <p style="font-size:0.7rem;color:#64748b;margin:-2px 0 12px">
-      ⚠️ Prediksi menggunakan model AR(3) yang dilatih dari data historis NOAA 75 tahun — indikasi statistik, bukan model iklim resmi.
+      {ico('alert-triangle')} Prediksi menggunakan model AR(3) yang dilatih dari data historis NOAA 75 tahun — indikasi statistik, bukan model iklim resmi.
       Rujukan resmi: <b>bmkg.go.id</b> · <b>iri.columbia.edu</b>
     </p>
     """, unsafe_allow_html=True)
 
-    st.caption("🔴 El Niño (ONI ≥ +0.5) · 🔵 La Niña (ONI ≤ −0.5) · 🟢 Normal · ◆ Prediksi bulan depan")
+    st.caption("El Niño (ONI ≥ +0.5) · La Niña (ONI ≤ −0.5) · Normal · ◆ Prediksi bulan depan")
     st.plotly_chart(fig_oni_with_forecast(df_for_enso, pred), use_container_width=True)
 
     # ── Farming impact section ───────────────────────────────────
     st.markdown('<hr class="divider">', unsafe_allow_html=True)
-    st.markdown('<p class="sec-title">🌾 Implikasi untuk Pertanian Padi Indonesia</p>',
+    st.markdown(f'<p class="sec-title">{ico("sprout")} Implikasi untuk Pertanian Padi Indonesia</p>',
                 unsafe_allow_html=True)
 
     _DAMPAK = {
         "El Niño Kuat": [
-            ("merah", "☀️ Kekeringan Ekstrem",
+            ("merah", "sun", "Kekeringan Ekstrem",
              "Produksi padi di Jawa, NTB, dan Sulawesi bisa turun 20–40%. "
              "Hentikan penanaman varietas sensitif kering. Prioritaskan lahan dekat irigasi teknis."),
-            ("merah", "💧 Krisis Air Irigasi",
+            ("merah", "droplet", "Krisis Air Irigasi",
              "Terapkan AWD (Alternate Wetting & Drying): basah 2 hari → kering 3 hari → basah lagi. "
              "Tutup permukaan tanah dengan jerami untuk kurangi evaporasi."),
-            ("merah", "🐛 Hama Tikus & Wereng",
+            ("merah", "bug", "Hama Tikus & Wereng",
              "Populasi tikus melonjak saat kemarau panjang. Koordinasi gropyokan bersama petani sekitar. "
              "Pasang bubu perangkap dan karet di pematang sawah."),
         ],
         "El Niño": [
-            ("kuning", "💧 Hemat Air Irigasi",
+            ("kuning", "droplet", "Hemat Air Irigasi",
              "Terapkan irigasi berselang. Tanam varietas toleran kering: "
              "Inpari 32, Inpago, atau Inpara 3. Jadwal tanam lebih awal dari biasanya."),
-            ("kuning", "📅 Sesuaikan Kalender Tanam",
+            ("kuning", "calendar", "Sesuaikan Kalender Tanam",
              "Maju jadwal tanam agar panen selesai sebelum puncak kemarau. "
              "Koordinasikan dengan kelompok tani dan penyuluh PPL."),
         ],
         "Normal": [
-            ("", "✅ Kondisi Iklim Ideal",
+            ("", "check-circle", "Kondisi Iklim Ideal",
              "Ikuti kalender tanam yang sudah ditetapkan BPP. "
              "Waktu tepat untuk pemupukan NPK dan pengamatan rutin OPT."),
         ],
         "La Niña": [
-            ("kuning", "🌧️ Pantau Drainase",
+            ("kuning", "cloud-rain", "Pantau Drainase",
              "Bersihkan saluran got sebelum hujan puncak. Perkuat pematang sawah untuk cegah jebol. "
              "Hindari genangan lebih dari 3 hari pada fase anakan."),
-            ("kuning", "🍄 Waspadai Penyakit Jamur",
+            ("kuning", "leaf", "Waspadai Penyakit Jamur",
              "Risiko blas dan busuk pelepah meningkat. Aplikasi fungisida profilaksis "
              "(mankozeb/validamycin) dianjurkan pada fase anakan aktif."),
         ],
         "La Niña Kuat": [
-            ("merah", "⛈️ Risiko Banjir Tinggi",
+            ("merah", "storm", "Risiko Banjir Tinggi",
              "Di Kalimantan, Sumatera, dan pantai utara Jawa, bersiap untuk genangan panjang. "
              "Pindah ke varietas tahan banjir: Inpara 3, Ciherang Sub-1."),
-            ("merah", "🌿 Ledakan Penyakit",
+            ("merah", "leaf", "Ledakan Penyakit",
              "Blas daun dan tungro melonjak drastis. Kendalikan wereng hijau (vektor tungro) "
              "dengan imidakloprid. Cabut dan bakar tanaman terinfeksi segera."),
-            ("merah", "🐛 Wereng Cokelat Meledak",
+            ("merah", "bug", "Wereng Cokelat Meledak",
              "Populasi wereng meledak di kondisi lembab berkepanjangan. "
              "Gunakan varietas tahan wereng (VUB BPT) dan hindari pemupukan N berlebih."),
         ],
@@ -988,10 +1099,10 @@ with tab2:
 
     fase_cur  = enso_cur["fase"]
     items_cur = _DAMPAK.get(fase_cur, _DAMPAK["Normal"])
-    for warna, judul, teks in items_cur:
+    for warna, ikon_key, judul, teks in items_cur:
         st.markdown(f"""
         <div class="rekom {warna}">
-          <div class="rk-title">{judul}</div>
+          <div class="rk-title">{ico(ikon_key)} {judul}</div>
           <div class="rk-text">{teks}</div>
         </div>
         """, unsafe_allow_html=True)
@@ -1000,7 +1111,7 @@ with tab2:
     if enso_pred["fase"] != enso_cur["fase"]:
         st.markdown(f"""
         <div class="rekom biru" style="margin-top:10px">
-          <div class="rk-title">📡 Potensi Transisi ENSO Bulan Depan</div>
+          <div class="rk-title">{ico('satellite')} Potensi Transisi ENSO Bulan Depan</div>
           <div class="rk-text">
             Tren 6 bulan terakhir menunjukkan kemungkinan pergeseran dari
             <b>{enso_cur['fase']}</b> → <b>{enso_pred['fase']}</b>
@@ -1012,13 +1123,13 @@ with tab2:
 
     if df_ndvi is not None:
         st.markdown('<hr class="divider">', unsafe_allow_html=True)
-        st.markdown('<p class="sec-title">🌿 Kondisi Tanaman — NDVI Sentinel-2</p>', unsafe_allow_html=True)
+        st.markdown(f'<p class="sec-title">{ico("leaf")} Kondisi Tanaman — NDVI Sentinel-2</p>', unsafe_allow_html=True)
         st.caption("Nilai 0.6–0.8 = tanaman sehat dan subur")
         st.plotly_chart(fig_ndvi(df_ndvi), use_container_width=True)
 
     if df_sar is not None:
         st.markdown('<hr class="divider">', unsafe_allow_html=True)
-        st.markdown('<p class="sec-title">📡 Radar Satelit — SAR Sentinel-1 (VH)</p>', unsafe_allow_html=True)
+        st.markdown(f'<p class="sec-title">{ico("satellite")} Radar Satelit — SAR Sentinel-1 (VH)</p>', unsafe_allow_html=True)
         st.caption("Deteksi kelembapan tanah dan genangan air di lahan sawah")
         st.plotly_chart(fig_sar(df_sar), use_container_width=True)
 
@@ -1027,15 +1138,15 @@ with tab2:
 #  TAB 3 — CEK HAMA
 # ════════════════════════════════════════════════════
 with tab3:
-    st.markdown('<p class="sec-title">🔬 Cek Hama Padi — Foto Tanaman Anda</p>',
+    st.markdown(f'<p class="sec-title">{ico("microscope")} Cek Hama Padi — Foto Tanaman Anda</p>',
                 unsafe_allow_html=True)
 
     if model_cnn is None:
-        st.warning(f"⚠️ Model belum dimuat. Path: `{MODEL_PATH}` | Ada: `{MODEL_PATH.exists()}`")
+        st.warning(f"Model belum dimuat. Path: `{MODEL_PATH}` | Ada: `{MODEL_PATH.exists()}`")
 
-    st.markdown("""
+    st.markdown(f"""
     <div class="rekom biru">
-      <div class="rk-title">📷 Cara Menggunakan</div>
+      <div class="rk-title">{ico('camera')} Cara Menggunakan</div>
       <div class="rk-text">
         Ambil foto daun, batang, atau akar padi yang terlihat sakit, lalu unggah di sini.
         Sistem akan mendeteksi jenis penyakit secara otomatis dalam beberapa detik.
@@ -1054,7 +1165,7 @@ with tab3:
             st.image(img, use_column_width=True, caption="Foto yang diunggah")
 
         with col_h:
-            st.markdown('<p class="sec-title">🤖 Hasil Deteksi</p>', unsafe_allow_html=True)
+            st.markdown(f'<p class="sec-title">{ico("bot")} Hasil Deteksi</p>', unsafe_allow_html=True)
 
             if model_cnn is None:
                 st.error("Model belum tersedia.")
@@ -1076,7 +1187,7 @@ with tab3:
                       <div class="bc-sub">Keyakinan model: <b>{conf_pct}%</b></div>
                     </div>
                     <div class="rekom {kls_rk}">
-                      <div class="rk-title">💊 Cara Penanganan</div>
+                      <div class="rk-title">{ico('pill')} Cara Penanganan</div>
                       <div class="rk-text">{hasil['rekomendasi']}</div>
                     </div>
                     """, unsafe_allow_html=True)
@@ -1086,15 +1197,15 @@ with tab3:
                         opt_id = CLASS_TO_OPT.get(hasil["kelas"])
                         if opt_id and tanibot:
                             st.markdown('<hr class="divider">', unsafe_allow_html=True)
-                            st.markdown('<p class="sec-title">🌿 TaniBot — Konsultasi Penanganan</p>',
+                            st.markdown(f'<p class="sec-title">{ico("bot")} TaniBot — Konsultasi Penanganan</p>',
                                         unsafe_allow_html=True)
                             fase = st.selectbox(
                                 "Fase tanaman saat ini:",
                                 ["pertanaman", "pesemaian", "pratanam"],
                                 format_func=lambda x: {
-                                    "pertanaman": "🌿 Pertanaman (sudah tanam)",
-                                    "pesemaian":  "🌱 Pesemaian",
-                                    "pratanam":   "🧺 Pratanam (belum tanam)",
+                                    "pertanaman": "Pertanaman (sudah tanam)",
+                                    "pesemaian":  "Pesemaian",
+                                    "pratanam":   "Pratanam (belum tanam)",
                                 }[x],
                                 key="fase_sel"
                             )
@@ -1110,7 +1221,7 @@ with tab3:
                                         for i, rec in enumerate(recs_resp.recs)
                                     ]
                                 greeting = (
-                                    f"Halo! 👋 Saya <b>TaniBot</b>.<br>"
+                                    f"Halo! Saya <b>TaniBot</b>.<br>"
                                     f"Terdeteksi <b>{hasil['nama_indo']}</b> "
                                     f"pada fase <b>{fase}</b>.<br><br>"
                                     f"Pilih topik yang ingin kamu pelajari:"
@@ -1129,13 +1240,13 @@ with tab3:
                             for msg in state["history"]:
                                 if msg["role"] == "bot":
                                     msgs_html += (f'<div class="tbot-row bot">'
-                                                  f'<span class="tbot-av">🌿</span>'
+                                                  f'<span class="tbot-av">{ico("bot")}</span>'
                                                   f'<div class="tbot-bbl bot">{msg["text"]}</div>'
                                                   f'</div>')
                                 else:
                                     msgs_html += (f'<div class="tbot-row user">'
                                                   f'<div class="tbot-bbl user">{msg["text"]}</div>'
-                                                  f'<span class="tbot-av">👤</span>'
+                                                  f'<span class="tbot-av">{ico("user")}</span>'
                                                   f'</div>')
                             msgs_html += '</div>'
                             st.markdown(msgs_html, unsafe_allow_html=True)
@@ -1155,13 +1266,13 @@ with tab3:
                                             content = (f"<b>[{rec['metode']}]</b> "
                                                        f"{rec['detail']}")
                                             if rec.get("dosis"):
-                                                content += f"<br>💊 <b>Dosis:</b> {rec['dosis']}"
+                                                content += f"<br>{ico('pill')} <b>Dosis:</b> {rec['dosis']}"
                                             if rec.get("waktu_aplikasi"):
-                                                content += f"<br>⏰ <b>Waktu:</b> {rec['waktu_aplikasi']}"
+                                                content += f"<br>{ico('clock')} <b>Waktu:</b> {rec['waktu_aplikasi']}"
                                             if state.get("sumber"):
                                                 content += (
                                                     f"<br><br><span style='font-size:0.7rem;"
-                                                    f"color:#64748b'>📚 "
+                                                    f"color:#64748b'>{ico('book')} "
                                                     f"{'; '.join(set(state['sumber']))}</span>"
                                                 )
                                             state["history"].append({"role": "bot", "text": content})
@@ -1181,9 +1292,9 @@ with tab3:
                                                              if n != "root"]
                                         st.rerun()
                             else:
-                                st.markdown('<p class="tbot-hint">Konsultasi selesai ✅</p>',
+                                st.markdown(f'<p class="tbot-hint">{ico("check-circle")} Konsultasi selesai</p>',
                                             unsafe_allow_html=True)
-                            if st.button("🔄 Mulai ulang",
+                            if st.button("Mulai ulang",
                                          key=f"tbot_reset_{opt_id}",
                                          use_container_width=True):
                                 del st.session_state[chat_key]
@@ -1192,7 +1303,7 @@ with tab3:
                             st.info("TaniBot belum aktif — bangun database dulu dengan `tanibot_db_builder_v2.py`")
 
                     # Bar probabilitas semua kelas
-                    st.markdown('<p class="sec-title" style="margin-top:16px;">📊 Probabilitas Semua Kelas</p>',
+                    st.markdown(f'<p class="sec-title" style="margin-top:16px;">{ico("chart")} Probabilitas Semua Kelas</p>',
                                 unsafe_allow_html=True)
                     probs_sorted = sorted(hasil["probs"].items(), key=lambda x: x[1], reverse=True)
                     bars_html = ""
@@ -1213,25 +1324,25 @@ with tab3:
 
     else:
         st.markdown('<hr class="divider">', unsafe_allow_html=True)
-        st.markdown('<p class="sec-title">🐛 Kenali Penyakit Padi yang Umum</p>',
+        st.markdown(f'<p class="sec-title">{ico("bug")} Kenali Penyakit Padi yang Umum</p>',
                     unsafe_allow_html=True)
 
         HAMA = [
-            ("🦠","Hawar Daun Bakteri (HDB)","Daun mengering dari tepi, seperti terbakar. Eksudat kuning di permukaan daun."),
-            ("🍂","Bercak Cokelat",           "Bercak oval cokelat gelap di daun, sering di varietas kekurangan nutrisi."),
-            ("🌿","Sehat",                     "Daun hijau segar, tidak ada bercak, tanaman tegak dan subur."),
-            ("🍃","Blas Daun",                 "Bercak belah ketupat abu-abu dengan tepi cokelat, daun bisa mati."),
-            ("📋","Hawar Pelepah",             "Bercak cokelat terang di pelepah daun bawah, berkembang ke atas."),
-            ("🟤","Bercak Cokelat Sempit",     "Garis-garis sempit cokelat sejajar tulang daun."),
-            ("🪲","Hispa Padi",                "Permukaan daun bergaris putih/transparan, ada bekas goresan larva."),
-            ("🌾","Busuk Pelepah",             "Bercak oval abu-abu di pelepah, meluas dan batang bisa roboh."),
-            ("🌡️","Tungro",                   "Daun kuning-oranye, tanaman kerdil, anakan berkurang."),
+            ("leaf","Hawar Daun Bakteri (HDB)","Daun mengering dari tepi, seperti terbakar. Eksudat kuning di permukaan daun."),
+            ("leaf","Bercak Cokelat",           "Bercak oval cokelat gelap di daun, sering di varietas kekurangan nutrisi."),
+            ("check-circle","Sehat",            "Daun hijau segar, tidak ada bercak, tanaman tegak dan subur."),
+            ("leaf","Blas Daun",                "Bercak belah ketupat abu-abu dengan tepi cokelat, daun bisa mati."),
+            ("leaf","Hawar Pelepah",            "Bercak cokelat terang di pelepah daun bawah, berkembang ke atas."),
+            ("leaf","Bercak Cokelat Sempit",    "Garis-garis sempit cokelat sejajar tulang daun."),
+            ("bug","Hispa Padi",                "Permukaan daun bergaris putih/transparan, ada bekas goresan larva."),
+            ("leaf","Busuk Pelepah",            "Bercak oval abu-abu di pelepah, meluas dan batang bisa roboh."),
+            ("bug","Tungro",                    "Daun kuning-oranye, tanaman kerdil, anakan berkurang."),
         ]
         st.markdown('<div class="hama-grid">', unsafe_allow_html=True)
         for ikon, nama, ciri in HAMA:
             st.markdown(f"""
             <div class="hama-card">
-              <span class="hama-icon">{ikon}</span>
+              <span class="hama-icon">{ico(ikon, '1.6rem')}</span>
               <div>
                 <div class="hama-nama">{nama}</div>
                 <div class="hama-ciri">{ciri}</div>
@@ -1245,11 +1356,11 @@ with tab3:
 #  TAB 4 — INFORMASI
 # ════════════════════════════════════════════════════
 with tab4:
-    st.markdown('<p class="sec-title">ℹ️ Tentang HarvestAlert</p>', unsafe_allow_html=True)
+    st.markdown(f'<p class="sec-title">{ico("info-circle")} Tentang HarvestAlert</p>', unsafe_allow_html=True)
 
-    st.markdown("""
+    st.markdown(f"""
     <div class="rekom biru">
-      <div class="rk-title">📖 Tentang Aplikasi</div>
+      <div class="rk-title">{ico('book')} Tentang Aplikasi</div>
       <div class="rk-text">
         <b>HarvestAlert</b> adalah sistem peringatan dini pertanian padi Indonesia yang
         menggabungkan data cuaca real-time BMKG, kondisi iklim global (ENSO),
@@ -1263,25 +1374,25 @@ with tab4:
     """, unsafe_allow_html=True)
 
     st.markdown('<hr class="divider">', unsafe_allow_html=True)
-    st.markdown('<p class="sec-title">📊 Status Sistem</p>', unsafe_allow_html=True)
+    st.markdown(f'<p class="sec-title">{ico("chart")} Status Sistem</p>', unsafe_allow_html=True)
 
     s1, s2, s3, s4 = st.columns(4)
-    s1.metric("Data BMKG",  "🟢 Live"     if cuaca["ok"]       else "🟡 Estimasi")
-    s2.metric("Data ENSO",  f"🟢 {len(df_enso)} data")
-    s3.metric("Data NDVI",  "🟢 Aktif"    if df_ndvi is not None else "❌ Tidak ada")
-    s4.metric("Model CNN",  "🟢 Siap"     if model_cnn is not None else "❌ Tidak ada")
+    s1.metric("Data BMKG",  "Live"  if cuaca["ok"]       else "Estimasi")
+    s2.metric("Data ENSO",  f"{len(df_enso)} data")
+    s3.metric("Data NDVI",  "Aktif" if df_ndvi is not None else "Tidak ada")
+    s4.metric("Model CNN",  "Siap"  if model_cnn is not None else "Tidak ada")
 
     st.markdown('<hr class="divider">', unsafe_allow_html=True)
-    st.markdown('<p class="sec-title">🌦️ Panduan Warna Peringatan</p>', unsafe_allow_html=True)
+    st.markdown(f'<p class="sec-title">{ico("alert-triangle")} Panduan Warna Peringatan</p>', unsafe_allow_html=True)
 
-    for warna, kls, arti, aksi in [
-        ("🟢 Hijau",  "",       "Kondisi aman",  "Lanjutkan aktivitas normal"),
-        ("🟡 Kuning", "kuning", "Perlu waspada", "Pantau lahan lebih sering"),
-        ("🔴 Merah",  "merah",  "Berbahaya",     "Ambil tindakan, hubungi penyuluh"),
+    for ikon_key, warna, kls, arti, aksi in [
+        ("check-circle", "Hijau",  "",       "Kondisi aman",  "Lanjutkan aktivitas normal"),
+        ("alert-circle", "Kuning", "kuning", "Perlu waspada", "Pantau lahan lebih sering"),
+        ("alert-triangle", "Merah", "merah", "Berbahaya",     "Ambil tindakan, hubungi penyuluh"),
     ]:
         st.markdown(f"""
         <div class="rekom {kls}">
-          <div class="rk-title">{warna}</div>
+          <div class="rk-title">{ico(ikon_key)} {warna}</div>
           <div class="rk-text"><b>{arti}</b> — {aksi}</div>
         </div>
         """, unsafe_allow_html=True)
@@ -1291,14 +1402,14 @@ with tab4:
 #  TAB 5 — CHAT AI (DEEPSEEK)
 # ════════════════════════════════════════════════════
 with tab5:
-    st.markdown('<p class="sec-title">🤖 Chat dengan AgriWarn AI</p>', unsafe_allow_html=True)
+    st.markdown(f'<p class="sec-title">{ico("bot")} Chat dengan AgriWarn AI</p>', unsafe_allow_html=True)
 
     ds_client = get_ai_client()
 
     if ds_client is None:
-        st.markdown("""
+        st.markdown(f"""
         <div class="rekom kuning">
-          <div class="rk-title">⚠️ API Key Belum Dikonfigurasi</div>
+          <div class="rk-title">{ico('alert-triangle')} API Key Belum Dikonfigurasi</div>
           <div class="rk-text">
             Untuk mengaktifkan Chat AI, daftar gratis di <b>console.groq.com</b>
             → buat API key → tambahkan di Streamlit Cloud:<br>
@@ -1320,17 +1431,17 @@ with tab5:
                 ctx_color = ""
             st.markdown(f"""
             <div class="rekom biru">
-              <div class="rk-title">📷 Konteks Deteksi Aktif</div>
+              <div class="rk-title">{ico('camera')} Konteks Deteksi Aktif</div>
               <div class="rk-text">AI mengetahui hasil foto kamu: <b>{nama_ctx}</b>
               ({conf_ctx}% keyakinan). Kamu bisa langsung bertanya soal penanganan,
               gejala, dosis pestisida, atau pencegahan.</div>
             </div>
             """, unsafe_allow_html=True)
         else:
-            st.markdown("""
+            st.markdown(f"""
             <div class="rekom">
-              <div class="rk-title">💡 Tips</div>
-              <div class="rk-text">Upload foto tanaman di tab <b>🔬 Cek Hama Padi</b> dulu,
+              <div class="rk-title">{ico('lightbulb')} Tips</div>
+              <div class="rk-text">Upload foto tanaman di tab <b>Cek Hama Padi</b> dulu,
               lalu kembali ke sini — AI akan otomatis tahu hasil deteksinya dan bisa
               memberi jawaban yang lebih spesifik.</div>
             </div>
@@ -1388,6 +1499,6 @@ with tab5:
 
         if st.session_state.get("chat_history"):
             st.markdown('<hr class="divider">', unsafe_allow_html=True)
-            if st.button("🗑️ Hapus riwayat percakapan", type="secondary"):
+            if st.button("Hapus riwayat percakapan", type="secondary"):
                 st.session_state.chat_history = []
                 st.rerun()
