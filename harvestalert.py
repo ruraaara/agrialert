@@ -101,6 +101,13 @@ BERBAHAYA = {'bacterial_leaf_blight', 'leaf_blast', 'sheath_blight', 'tungro', '
 
 AI_MODEL = "llama-3.3-70b-versatile"
 
+# NOAA CPC ONI — gratis, tanpa API key, update bulanan
+NOAA_ONI_URL = "https://www.cpc.ncep.noaa.gov/data/indices/oni.ascii.txt"
+_SEAS_MONTH  = {
+    "DJF":1, "JFM":2, "FMA":3, "MAM":4, "AMJ":5, "MJJ":6,
+    "JJA":7, "JAS":8, "ASO":9, "SON":10, "OND":11, "NDJ":12,
+}
+
 
 # ----------------------------------------------------------------
 #  KONFIGURASI HALAMAN
@@ -569,6 +576,109 @@ def fig_sar(df):
 
 
 # ================================================================
+#  NOAA CPC LIVE FETCH + PREDIKSI ENSO
+# ================================================================
+@st.cache_data(ttl=86400 * 7)   # refresh mingguan — NOAA update bulanan
+def fetch_oni_noaa():
+    """Fetch ONI langsung dari NOAA CPC. Returns (df|None, ok, fetch_time_str)."""
+    try:
+        r = requests.get(NOAA_ONI_URL, timeout=12)
+        r.raise_for_status()
+        rows = []
+        for line in r.text.strip().splitlines()[1:]:
+            parts = line.split()
+            if len(parts) >= 4 and parts[0] in _SEAS_MONTH:
+                try:
+                    rows.append({
+                        "date": datetime(int(parts[1]), _SEAS_MONTH[parts[0]], 1),
+                        "ONI":  float(parts[3]),
+                    })
+                except (ValueError, IndexError):
+                    pass
+        if rows:
+            df = (pd.DataFrame(rows)
+                    .drop_duplicates("date")
+                    .sort_values("date")
+                    .reset_index(drop=True))
+            return df, True, datetime.now().strftime("%d %b %Y %H:%M")
+    except Exception:
+        pass
+    return None, False, None
+
+
+def prediksi_oni_next(df, n=6):
+    """
+    Prediksi ONI bulan depan via linear trend dari n bulan terakhir.
+    Metode: persistence + trend sederhana (bukan model iklim resmi NOAA).
+    """
+    recent = df.tail(n)
+    x = np.arange(len(recent), dtype=float)
+    y = recent["ONI"].values.astype(float)
+    coeffs    = np.polyfit(x, y, 1)
+    next_oni  = float(np.polyval(coeffs, float(len(recent))))
+    residuals = y - np.polyval(coeffs, x)
+    std_err   = float(np.std(residuals)) * 1.5   # ±1.5σ ≈ 86% CI
+    last_date = pd.Timestamp(recent["date"].iloc[-1])
+    next_date = last_date + pd.DateOffset(months=1)
+    slope     = float(coeffs[0])
+    return {
+        "date":     next_date,
+        "oni":      round(next_oni, 2),
+        "oni_low":  round(next_oni - std_err, 2),
+        "oni_high": round(next_oni + std_err, 2),
+        "tren":     "naik ↑" if slope > 0.05 else "turun ↓" if slope < -0.05 else "stabil →",
+    }
+
+
+def fig_oni_with_forecast(df, pred, n=24):
+    """Bar chart ONI historis + diamond prediksi bulan depan."""
+    df_p = df.tail(n).copy()
+    df_p["W"] = df_p["ONI"].apply(
+        lambda v: "#ef4444" if v >= 0.5 else ("#3b82f6" if v <= -0.5 else "#22c55e"))
+    df_p["L"] = df_p["date"].dt.strftime("%b %Y")
+    pred_lbl   = pred["date"].strftime("%b %Y") + " ▶"
+    pred_color = ("#ef4444" if pred["oni"] >= 0.5
+                  else "#3b82f6" if pred["oni"] <= -0.5 else "#22c55e")
+
+    fig = go.Figure()
+    fig.add_hrect(y0=0.5,  y1=3.0,  fillcolor="rgba(239,68,68,0.07)",  line_width=0)
+    fig.add_hrect(y0=-3.0, y1=-0.5, fillcolor="rgba(59,130,246,0.07)", line_width=0)
+    fig.add_hline(y= 0.5, line_dash="dot", line_color="#ef4444", line_width=1)
+    fig.add_hline(y=-0.5, line_dash="dot", line_color="#3b82f6", line_width=1)
+    fig.add_trace(go.Bar(
+        x=df_p["L"], y=df_p["ONI"], marker_color=df_p["W"],
+        name="Historis",
+        hovertemplate="<b>%{x}</b><br>ONI: %{y:.2f}°C<extra></extra>"))
+    fig.add_trace(go.Scatter(
+        x=df_p["L"], y=df_p["ONI"], mode="lines+markers",
+        line=dict(color="white", width=2),
+        marker=dict(size=5, color=df_p["W"].tolist()),
+        hoverinfo="skip", showlegend=False))
+    fig.add_trace(go.Scatter(
+        x=[pred_lbl], y=[pred["oni"]],
+        mode="markers", name="Prediksi",
+        marker=dict(size=14, color=pred_color, symbol="diamond",
+                    line=dict(color="white", width=2)),
+        error_y=dict(
+            type="data",
+            array=[max(0, pred["oni_high"] - pred["oni"])],
+            arrayminus=[max(0, pred["oni"] - pred["oni_low"])],
+            visible=True, color="rgba(255,255,255,0.45)", thickness=2, width=8,
+        ),
+        hovertemplate=(
+            f"<b>Prediksi {pred['date'].strftime('%B %Y')}</b><br>"
+            f"ONI: {pred['oni']:+.2f}°C<br>"
+            f"Rentang: {pred['oni_low']:+.2f} s/d {pred['oni_high']:+.2f}<extra></extra>"
+        ),
+    ))
+    fig.update_layout(
+        **PLOT_STYLE, height=300, showlegend=True,
+        yaxis_title="ONI (°C)", xaxis_tickangle=-40,
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
+    return fig
+
+
+# ================================================================
 #  ── TAMPILAN ──
 # ================================================================
 
@@ -748,9 +858,136 @@ with tab2:
     c4.metric("🌧️ Curah Hujan", f"{cuaca['curah_hujan']} mm/hr")
 
     st.markdown('<hr class="divider">', unsafe_allow_html=True)
-    st.markdown('<p class="sec-title">📊 Kondisi Iklim ENSO — Data Riil</p>', unsafe_allow_html=True)
-    st.caption("🔴 El Niño = kemarau panjang  |  🔵 La Niña = hujan berlebih  |  🟢 Normal")
-    st.plotly_chart(fig_oni(df_enso), use_container_width=True)
+    st.markdown('<p class="sec-title">🌊 Kondisi ENSO — NOAA CPC Live</p>', unsafe_allow_html=True)
+
+    # ── Fetch live NOAA ONI ──────────────────────────────────────
+    df_oni_live, oni_ok, oni_time = fetch_oni_noaa()
+    df_for_enso = (df_oni_live
+                   if df_oni_live is not None and len(df_oni_live) >= 6
+                   else df_enso)
+    src_txt = (f"🟢 NOAA CPC · Diperbarui: {oni_time} · {len(df_for_enso)} data poin"
+               if oni_ok
+               else "🟡 Data lokal (NOAA tidak tersedia saat ini)")
+    st.caption(src_txt)
+
+    # ── Current & predicted ENSO ─────────────────────────────────
+    oni_cur   = float(df_for_enso.iloc[-1]["ONI"])
+    date_cur  = pd.Timestamp(df_for_enso.iloc[-1]["date"])
+    enso_cur  = info_enso(oni_cur)
+    pred      = prediksi_oni_next(df_for_enso, n=6)
+    enso_pred = info_enso(pred["oni"])
+
+    st.markdown(f"""
+    <div class="two-col">
+      <div class="big-card {enso_cur['kelas']}">
+        <div class="bc-label">🌊 ENSO Terkini — {date_cur.strftime('%B %Y')}</div>
+        <div class="bc-row">
+          <span class="bc-icon">{enso_cur['ikon']}</span>
+          <div>
+            <span class="bc-value" style="font-size:1.15rem">{enso_cur['fase']}</span>
+            <div class="bc-sub">ONI: <b>{oni_cur:+.2f}°C</b></div>
+          </div>
+        </div>
+        <div class="bc-sub" style="margin-top:8px">{enso_cur['pesan']}</div>
+      </div>
+      <div class="big-card {enso_pred['kelas']}">
+        <div class="bc-label">🔮 Prediksi — {pred['date'].strftime('%B %Y')} (bulan depan)</div>
+        <div class="bc-row">
+          <span class="bc-icon">{enso_pred['ikon']}</span>
+          <div>
+            <span class="bc-value" style="font-size:1.15rem">{enso_pred['fase']}</span>
+            <div class="bc-sub">ONI ≈ <b>{pred['oni']:+.2f}°C</b>
+              &nbsp;({pred['oni_low']:+.1f} s/d {pred['oni_high']:+.1f})</div>
+          </div>
+        </div>
+        <div class="bc-sub" style="margin-top:8px">
+          Tren: <b>{pred['tren']}</b>. {enso_pred['pesan']}
+        </div>
+      </div>
+    </div>
+    <p style="font-size:0.7rem;color:#64748b;margin:-2px 0 12px">
+      ⚠️ Prediksi menggunakan linear trend 6 bulan terakhir — indikasi awal, bukan model iklim resmi.
+      Rujukan resmi: <b>bmkg.go.id</b> · <b>iri.columbia.edu</b>
+    </p>
+    """, unsafe_allow_html=True)
+
+    st.caption("🔴 El Niño (ONI ≥ +0.5) · 🔵 La Niña (ONI ≤ −0.5) · 🟢 Normal · ◆ Prediksi bulan depan")
+    st.plotly_chart(fig_oni_with_forecast(df_for_enso, pred), use_container_width=True)
+
+    # ── Farming impact section ───────────────────────────────────
+    st.markdown('<hr class="divider">', unsafe_allow_html=True)
+    st.markdown('<p class="sec-title">🌾 Implikasi untuk Pertanian Padi Indonesia</p>',
+                unsafe_allow_html=True)
+
+    _DAMPAK = {
+        "El Niño Kuat": [
+            ("merah", "☀️ Kekeringan Ekstrem",
+             "Produksi padi di Jawa, NTB, dan Sulawesi bisa turun 20–40%. "
+             "Hentikan penanaman varietas sensitif kering. Prioritaskan lahan dekat irigasi teknis."),
+            ("merah", "💧 Krisis Air Irigasi",
+             "Terapkan AWD (Alternate Wetting & Drying): basah 2 hari → kering 3 hari → basah lagi. "
+             "Tutup permukaan tanah dengan jerami untuk kurangi evaporasi."),
+            ("merah", "🐛 Hama Tikus & Wereng",
+             "Populasi tikus melonjak saat kemarau panjang. Koordinasi gropyokan bersama petani sekitar. "
+             "Pasang bubu perangkap dan karet di pematang sawah."),
+        ],
+        "El Niño": [
+            ("kuning", "💧 Hemat Air Irigasi",
+             "Terapkan irigasi berselang. Tanam varietas toleran kering: "
+             "Inpari 32, Inpago, atau Inpara 3. Jadwal tanam lebih awal dari biasanya."),
+            ("kuning", "📅 Sesuaikan Kalender Tanam",
+             "Maju jadwal tanam agar panen selesai sebelum puncak kemarau. "
+             "Koordinasikan dengan kelompok tani dan penyuluh PPL."),
+        ],
+        "Normal": [
+            ("", "✅ Kondisi Iklim Ideal",
+             "Ikuti kalender tanam yang sudah ditetapkan BPP. "
+             "Waktu tepat untuk pemupukan NPK dan pengamatan rutin OPT."),
+        ],
+        "La Niña": [
+            ("kuning", "🌧️ Pantau Drainase",
+             "Bersihkan saluran got sebelum hujan puncak. Perkuat pematang sawah untuk cegah jebol. "
+             "Hindari genangan lebih dari 3 hari pada fase anakan."),
+            ("kuning", "🍄 Waspadai Penyakit Jamur",
+             "Risiko blas dan busuk pelepah meningkat. Aplikasi fungisida profilaksis "
+             "(mankozeb/validamycin) dianjurkan pada fase anakan aktif."),
+        ],
+        "La Niña Kuat": [
+            ("merah", "⛈️ Risiko Banjir Tinggi",
+             "Di Kalimantan, Sumatera, dan pantai utara Jawa, bersiap untuk genangan panjang. "
+             "Pindah ke varietas tahan banjir: Inpara 3, Ciherang Sub-1."),
+            ("merah", "🌿 Ledakan Penyakit",
+             "Blas daun dan tungro melonjak drastis. Kendalikan wereng hijau (vektor tungro) "
+             "dengan imidakloprid. Cabut dan bakar tanaman terinfeksi segera."),
+            ("merah", "🐛 Wereng Cokelat Meledak",
+             "Populasi wereng meledak di kondisi lembab berkepanjangan. "
+             "Gunakan varietas tahan wereng (VUB BPT) dan hindari pemupukan N berlebih."),
+        ],
+    }
+
+    fase_cur  = enso_cur["fase"]
+    items_cur = _DAMPAK.get(fase_cur, _DAMPAK["Normal"])
+    for warna, judul, teks in items_cur:
+        st.markdown(f"""
+        <div class="rekom {warna}">
+          <div class="rk-title">{judul}</div>
+          <div class="rk-text">{teks}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # Peringatan transisi jika prediksi berbeda dari kondisi sekarang
+    if enso_pred["fase"] != enso_cur["fase"]:
+        st.markdown(f"""
+        <div class="rekom biru" style="margin-top:10px">
+          <div class="rk-title">📡 Potensi Transisi ENSO Bulan Depan</div>
+          <div class="rk-text">
+            Tren 6 bulan terakhir menunjukkan kemungkinan pergeseran dari
+            <b>{enso_cur['fase']}</b> → <b>{enso_pred['fase']}</b>
+            pada {pred['date'].strftime('%B %Y')}.
+            Mulai persiapkan langkah antisipasi sekarang.
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
 
     if df_ndvi is not None:
         st.markdown('<hr class="divider">', unsafe_allow_html=True)
