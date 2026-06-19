@@ -619,8 +619,8 @@ st.markdown(f"""
 
 
 # ── 4 TAB ────────────────────────────────────────────────────────
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "🏠  Beranda", "🌤️  Cuaca & Iklim", "🔬  Cek Hama Padi", "ℹ️  Informasi", "🤖  Chat AI"
+tab1, tab2, tab3, tab5, tab4 = st.tabs([
+    "🏠  Beranda", "🌤️  Cuaca & Iklim", "🔬  Cek Hama Padi", "🤖  Chat AI", "ℹ️  Informasi"
 ])
 
 
@@ -835,64 +835,62 @@ with tab3:
                                 "Sanitasi":      "",
                             }
 
-                            # Cek apakah sedang di mode navigasi
-                            nav_key = f"tbot_nav_{opt_id}"
-                            if nav_key not in st.session_state:
-                                st.session_state[nav_key] = None
-
-                            if st.session_state[nav_key] is None:
-                                # Mode default: tampilkan rekomendasi per fase
-                                recs_resp = tanibot.get_post_detection_recs(opt_id, fase)
-                                for rec in recs_resp.recs:
-                                    warna  = WARNA_METODE.get(rec["metode"], "")
-                                    extras = ""
-                                    if rec.get("dosis"):
-                                        extras += f"<br>💊 <b>Dosis:</b> {rec['dosis']}"
-                                    if rec.get("waktu_aplikasi"):
-                                        extras += f"<br>⏰ <b>Waktu:</b> {rec['waktu_aplikasi']}"
-                                    st.markdown(f"""
-                                    <div class="rekom {warna}">
-                                      <div class="rk-title">#{rec['prioritas']} [{rec['metode']}] {rec['langkah']}</div>
-                                      <div class="rk-text">{rec['detail']}{extras}</div>
-                                    </div>
-                                    """, unsafe_allow_html=True)
-                                if recs_resp.sumber:
-                                    st.caption(f"📚 Sumber: {'; '.join(set(recs_resp.sumber))}")
-
-                                # Tampilkan tombol navigasi lanjutan
-                                nav_opts = [(nid, lbl) for nid, lbl in recs_resp.options if nid != "root"]
-                                if nav_opts:
-                                    st.markdown('<hr class="divider">', unsafe_allow_html=True)
-                                    st.markdown('<p class="sec-title">💬 Tanya TaniBot Lebih Lanjut</p>',
-                                                unsafe_allow_html=True)
-                                    cols = st.columns(len(nav_opts))
-                                    for i, (nid, lbl) in enumerate(nav_opts):
-                                        if cols[i].button(lbl, key=f"tbot_btn_{nid}_{opt_id}"):
-                                            st.session_state[nav_key] = nid
-                                            st.rerun()
-                            else:
-                                # Mode navigasi: tampilkan hasil pilihan
-                                nav_resp = tanibot.select(st.session_state[nav_key])
+                            recs_resp = tanibot.get_post_detection_recs(opt_id, fase)
+                            for rec in recs_resp.recs:
+                                warna  = WARNA_METODE.get(rec["metode"], "")
+                                extras = ""
+                                if rec.get("dosis"):
+                                    extras += f"<br>💊 <b>Dosis:</b> {rec['dosis']}"
+                                if rec.get("waktu_aplikasi"):
+                                    extras += f"<br>⏰ <b>Waktu:</b> {rec['waktu_aplikasi']}"
                                 st.markdown(f"""
-                                <div class="rekom biru">
-                                  <div class="rk-title">📄 Info Tambahan</div>
-                                  <div class="rk-text">{nav_resp.text.replace(chr(10), '<br>')}</div>
+                                <div class="rekom {warna}">
+                                  <div class="rk-title">#{rec['prioritas']} [{rec['metode']}] {rec['langkah']}</div>
+                                  <div class="rk-text">{rec['detail']}{extras}</div>
                                 </div>
                                 """, unsafe_allow_html=True)
+                            if recs_resp.sumber:
+                                st.caption(f"📚 Sumber: {'; '.join(set(recs_resp.sumber))}")
 
-                                # Tombol pilihan lanjutan
-                                if nav_resp.options:
-                                    st.markdown('<p class="sec-title" style="margin-top:12px;">Pilih selanjutnya:</p>',
-                                                unsafe_allow_html=True)
-                                    for nid, lbl in nav_resp.options:
-                                        if nid == "root":
-                                            if st.button("🔙 Kembali ke Rekomendasi", key=f"tbot_back_{opt_id}"):
-                                                st.session_state[nav_key] = None
-                                                st.rerun()
-                                        else:
-                                            if st.button(lbl, key=f"tbot_sub_{nid}_{opt_id}"):
-                                                st.session_state[nav_key] = nid
-                                                st.rerun()
+                            # Navigasi pilihan ganda — radio
+                            nav_opts = [(nid, lbl) for nid, lbl in recs_resp.options if nid != "root"]
+                            if nav_opts:
+                                st.markdown('<hr class="divider">', unsafe_allow_html=True)
+                                st.markdown('<p class="sec-title">💬 Tanya TaniBot Lebih Lanjut</p>',
+                                            unsafe_allow_html=True)
+                                pilihan = st.radio(
+                                    "Pilih topik yang ingin kamu ketahui:",
+                                    [lbl for _, lbl in nav_opts],
+                                    index=None,
+                                    key=f"tbot_radio_{opt_id}_{fase}"
+                                )
+                                if pilihan is not None:
+                                    chosen_nid = next(nid for nid, lbl in nav_opts if lbl == pilihan)
+                                    nav_resp = tanibot.select(chosen_nid)
+                                    st.markdown(f"""
+                                    <div class="rekom biru">
+                                      <div class="rk-title">📄 {pilihan}</div>
+                                      <div class="rk-text">{nav_resp.text.replace(chr(10), '<br>')}</div>
+                                    </div>
+                                    """, unsafe_allow_html=True)
+
+                                    sub_opts = [(nid, lbl) for nid, lbl in nav_resp.options if nid != "root"]
+                                    if sub_opts:
+                                        sub_pilihan = st.radio(
+                                            "Topik lanjutan:",
+                                            [lbl for _, lbl in sub_opts],
+                                            index=None,
+                                            key=f"tbot_sub_{chosen_nid}_{opt_id}"
+                                        )
+                                        if sub_pilihan is not None:
+                                            sub_nid = next(nid for nid, lbl in sub_opts if lbl == sub_pilihan)
+                                            sub_resp = tanibot.select(sub_nid)
+                                            st.markdown(f"""
+                                            <div class="rekom">
+                                              <div class="rk-title">📄 {sub_pilihan}</div>
+                                              <div class="rk-text">{sub_resp.text.replace(chr(10), '<br>')}</div>
+                                            </div>
+                                            """, unsafe_allow_html=True)
                         elif tanibot is None:
                             st.info("TaniBot belum aktif — bangun database dulu dengan `tanibot_db_builder_v2.py`")
 
