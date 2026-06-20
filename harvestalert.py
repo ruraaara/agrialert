@@ -322,7 +322,7 @@ html, body, [class*="css"] {
 /* Titik status — hijau aman / kuning waspada / merah bahaya */
 .bc-dot { display:inline-block; width:18px; height:18px; border-radius:50%; margin-right:8px; vertical-align:middle; flex-shrink:0; }
 .bc-dot.aman    { background:#00C96B; }
-.bc-dot.waspada { background:#F59E0B; }
+.bc-dot.waspada { background:#F3FF0F; }
 .bc-dot.bahaya  { background:#FF0505; }
 
 /* ── Metric cards (suhu/kelembapan/curah hujan/iklim) — selalu hijau 20965F, font putih ── */
@@ -1291,6 +1291,10 @@ div:has(> [data-testid="stCustomComponentV1"])::before {{
 }}
 div:has(> [data-testid="stCustomComponentV1"]) {{
     background-color: {_btn_bg} !important;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12Z'/%3E%3Ccircle cx='12' cy='10' r='2.3'/%3E%3C%2Fsvg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: 20px center !important;
+    background-size: 26px 26px !important;
 }}
 </style>""", unsafe_allow_html=True)
     hasil_gps = streamlit_geolocation()
