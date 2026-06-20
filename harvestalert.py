@@ -266,7 +266,7 @@ html, body, [class*="css"] {
 }
 .ha-header-left { display: flex; align-items: center; gap: 16px; position: relative; z-index: 2; }
 .ha-logo  { font-size: 2.6rem; line-height: 1; color: #ffffff; }
-.ha-title { font-size: 5rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -1px; line-height: 1.05; }
+.ha-title { font-size: 5rem !important; font-weight: 800 !important; color: #ffffff !important; margin: 0 !important; letter-spacing: -1px !important; line-height: 1.05 !important; }
 .ha-sub   { font-size: 0.95rem; color: #EEFFD3; margin: 4px 0 0; }
 .ha-badge {
     display: inline-flex; align-items: center; gap: 6px;
@@ -1315,10 +1315,14 @@ div:has(> [data-testid="stCustomComponentV1"])::after {{
   function fix(){
     try{
       var pd=window.parent.document;
-      var ifs=pd.querySelectorAll('[data-testid="stCustomComponentV1"] iframe');
+      /* stCustomComponentV1 IS the iframe element itself */
+      var ifs=pd.querySelectorAll('[data-testid="stCustomComponentV1"]');
       for(var i=0;i<ifs.length;i++){
         try{
-          var d=ifs[i].contentDocument;
+          var iframe=ifs[i];
+          /* skip ourselves */
+          if(iframe===window.frameElement) continue;
+          var d=iframe.contentDocument||(iframe.contentWindow&&iframe.contentWindow.document);
           if(!d||!d.body) continue;
           if(d.getElementById('aa-gps-fix')) continue;
           var btn=d.querySelector('button');
@@ -1331,7 +1335,7 @@ div:has(> [data-testid="stCustomComponentV1"])::after {{
       }
     }catch(e){}
   }
-  setTimeout(fix,200);setTimeout(fix,600);setTimeout(fix,1200);setTimeout(fix,2500);
+  setTimeout(fix,300);setTimeout(fix,800);setTimeout(fix,1500);setTimeout(fix,3000);setTimeout(fix,5000);
 })();
 </script>""", height=1)
 
