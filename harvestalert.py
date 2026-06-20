@@ -200,10 +200,10 @@ st.markdown("""
     --c-bg: #EDEDED;               /* base warna web paling dasar */
     --c-surface: #ffffff;
     --c-border: #dfe6e0;
-    --c-text: #20965F;
-    --c-text-muted: #176e47;
+    --c-text: #1c2620;
+    --c-text-muted: #57685d;
     --c-text-on-light: #20965F;
-    --c-muted-on-surface: #20965F;
+    --c-muted-on-surface: #57685d;
     --c-accent-text: #20965F;
 
     /* ── Status (kondisi cuaca / iklim) — hijau=aman, kuning=waspada, merah=bahaya ── */
@@ -254,10 +254,13 @@ html, body, [class*="css"] {
     height: 132.91px;
     right: 30px;
     top: 19px;
+    background-image: var(--mascot-url);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
     transform: rotate(-0.66deg);
     pointer-events: none;
     z-index: 1;
-    object-fit: contain;
 }
 .ha-header-left { display: flex; align-items: center; gap: 16px; position: relative; z-index: 2; }
 .ha-logo  { font-size: 2.6rem; line-height: 1; color: #ffffff; }
@@ -388,17 +391,6 @@ button[data-baseweb="tab"][aria-selected="true"] p { color: #EEFFD3 !important; 
 .prob-bar-fill.top { background: var(--c-primary); }
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-thumb { background: var(--c-border); border-radius: 6px; }
-/* GPS geolocation component — style iframe container */
-[data-testid="stCustomComponentV1"] {
-    background: #20965F !important;
-    border-radius: 15px !important;
-    overflow: hidden !important;
-    min-height: 65px !important;
-    margin-bottom: 14px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-}
 @media (max-width: 480px) { .ha-title { font-size: 1.4rem; } .bc-value { font-size: 1.35rem; } .sec-title { font-size: 1.02rem; } .rk-text { font-size: 0.92rem; } .gps-box { font-size: 0.85rem; } }
 .tbot-chat {
     background: var(--c-bg); border: 1.5px solid var(--c-border); border-radius: var(--radius-md);
@@ -889,7 +881,7 @@ PLOT_STYLE = dict(
     paper_bgcolor="rgba(0,0,0,0)",
     plot_bgcolor="rgba(246,248,245,1)",
     margin=dict(t=16,b=36,l=44,r=20),
-    font=dict(family="Poppins, sans-serif", size=13, color="#20965F"),
+    font=dict(family="Poppins, sans-serif", size=13, color="#1c2620"),
 )
 
 def fig_oni(df, n=24):
@@ -1119,10 +1111,10 @@ warna_rk, ikon_rk, teks_rk = saran_tanam(status["kelas"], enso["kelas"])
 
 # ── HEADER ───────────────────────────────────────────────────────
 _mascot_url = ui_img_b64("mascot.png")
-_mascot_img = f'<img src="{_mascot_url}" class="ha-mascot" alt="mascot">' if _mascot_url else ""
+_mascot_style = f"--mascot-url: url('{_mascot_url}');" if _mascot_url else ""
 st.markdown(f"""
-<div class="ha-header">
-  {_mascot_img}
+<div class="ha-header" style="{_mascot_style}">
+  <div class="ha-mascot"></div>
   <div class="ha-header-left">
     <span class="ha-logo">{ico('sprout', '2rem')}</span>
     <div>
@@ -1156,6 +1148,7 @@ with tab1:
     # CSS halaman tidak bisa menjangkau ke dalam iframe komponen pihak ketiga.
     _gps_icon_url = ui_img_b64("gps.jpg")
     _gps_aktif = st.session_state.get("gps_aktif", False)
+    _wrap_cls = "aktif" if _gps_aktif else "belum"
     _label_warna = "#20965F" if _gps_aktif else "#FF0505"
     _label_teks = "GPS ANDA AKTIF" if _gps_aktif else "KLIK UNTUK AKTIFKAN GPS"
     _gps_icon_html = (f'<img src="{_gps_icon_url}" style="width:18px;height:18px;object-fit:contain;">'
@@ -1167,7 +1160,9 @@ with tab1:
     </div>
     """, unsafe_allow_html=True)
 
+    st.markdown(f'<div class="gps-trigger-wrap {_wrap_cls}">', unsafe_allow_html=True)
     hasil_gps = streamlit_geolocation()
+    st.markdown('</div>', unsafe_allow_html=True)
 
     if hasil_gps and hasil_gps.get("latitude") and hasil_gps.get("longitude"):
         _lat_baru, _lon_baru = float(hasil_gps["latitude"]), float(hasil_gps["longitude"])
@@ -1369,7 +1364,7 @@ with tab2:
         </div>
       </div>
     </div>
-    <p style="font-size:0.7rem;color:#20965F;margin:-2px 0 12px">
+    <p style="font-size:0.7rem;color:#64748b;margin:-2px 0 12px">
       {ico('alert-triangle')} Prediksi menggunakan model AR(3) yang dilatih dari data historis NOAA 75 tahun — indikasi statistik, bukan model iklim resmi.
       Rujukan resmi: <b>bmkg.go.id</b> · <b>iri.columbia.edu</b>
     </p>
