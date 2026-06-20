@@ -511,36 +511,48 @@ div[data-baseweb="popover"] li {
 [data-testid="stChatMessage"] span,
 [data-testid="stChatMessageContent"] * { color: #1c2620 !important; }
 
-/* ── GPS geolocation component — invisible tapi tetap bisa diklik ── */
-[data-testid="stCustomComponentV1"] {
-    opacity: 0.001 !important;
+/* ── GPS button — container jadi tombol hijau, iframe di dalamnya jadi click target ── */
+div:has(> [data-testid="stCustomComponentV1"]) {
+    background: #20965F !important;
     border-radius: 15px !important;
-    overflow: hidden !important;
     min-height: 65px !important;
-    margin-bottom: 0 !important;
+    margin-bottom: 14px !important;
     position: relative !important;
-    z-index: 1 !important;
+    overflow: hidden !important;
+    box-shadow: 0 2px 8px rgba(32,150,95,0.18) !important;
     cursor: pointer !important;
+}
+div:has(> [data-testid="stCustomComponentV1"])::before {
+    content: "KLIK UNTUK AKTIFKAN GPS";
+    position: absolute !important;
+    inset: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 18px 28px !important;
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 0.97rem !important;
+    color: #ffffff !important;
+    pointer-events: none !important;
+    z-index: 1 !important;
+    letter-spacing: 0.3px !important;
+}
+[data-testid="stCustomComponentV1"] {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    min-height: 65px !important;
+    opacity: 0.001 !important;
+    z-index: 2 !important;
+    cursor: pointer !important;
+    overflow: hidden !important;
+    margin: 0 !important;
 }
 [data-testid="stCustomComponentV1"] iframe {
     width: 100% !important;
+    height: 65px !important;
     min-height: 65px !important;
     cursor: pointer !important;
-}
-/* GPS label — dua pendekatan sekaligus supaya salah satu pasti jalan */
-/* Pendekatan 1: target sibling langsung setelah GPS component */
-div:has(> [data-testid="stCustomComponentV1"]) + div,
-div:has(> [data-testid="stCustomComponentV1"]) + div > *,
-div:has(> [data-testid="stCustomComponentV1"]) + div [data-testid="stMarkdownContainer"],
-div:has(> [data-testid="stCustomComponentV1"]) + div [data-testid="stMarkdownContainer"] * {
-    pointer-events: none !important;
-}
-/* Pendekatan 2: target via atribut data-gps-label */
-[data-testid="stMarkdownContainer"]:has([data-gps-label]),
-[data-testid="stMarkdownContainer"]:has([data-gps-label]) *,
-div:has(> [data-testid="stMarkdownContainer"]:has([data-gps-label])),
-div:has(> [data-testid="stMarkdownContainer"]:has([data-gps-label])) > * {
-    pointer-events: none !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -1262,42 +1274,19 @@ with tab1:
     # Karena itu komponennya harus selalu ada di halaman (bukan di dalam if),
     # dan teks status Figma (merah/hijau) ditampilkan di luar iframe karena
     # CSS halaman tidak bisa menjangkau ke dalam iframe komponen pihak ketiga.
-    _gps_icon_url = ui_img_b64("gps.png")
     _gps_aktif = st.session_state.get("gps_aktif", False)
     _label_teks = "GPS ANDA AKTIF" if _gps_aktif else "KLIK UNTUK AKTIFKAN GPS"
-    _gps_icon_html = (f'<img src="{_gps_icon_url}" style="width:20px;height:20px;object-fit:contain;filter:brightness(0) invert(1);">'
-                       if _gps_icon_url else "")
 
-    # Komponen GPS dirender DULUAN — jadi invisible click-layer di bawah label
-    hasil_gps = streamlit_geolocation()
-
-    # Label hijau dirender SETELAH komponen, lalu ditarik ke atas dengan margin-top negatif
-    # pointer-events:none memastikan klik tembus ke iframe komponen di bawahnya
     _btn_bg = "#1e8a55" if _gps_aktif else "#20965F"
-    st.markdown(f"""
-    <div data-gps-label="1" style="
-        background:{_btn_bg};
-        border-radius:15px;
-        padding:18px 28px;
-        display:flex;
-        align-items:center;
-        gap:10px;
-        font-family:'Poppins',sans-serif;
-        font-weight:700;
-        font-size:0.97rem;
-        color:#ffffff;
-        min-height:65px;
-        box-shadow:0 2px 8px rgba(32,150,95,0.18);
-        margin-top:-75px;
-        position:relative;
-        z-index:2;
-        pointer-events:none;
-        margin-bottom:16px;
-        letter-spacing:0.3px;
-    ">
-      {_gps_icon_html} {_label_teks}
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(f"""<style>
+div:has(> [data-testid="stCustomComponentV1"])::before {{
+    content: "{_label_teks}" !important;
+}}
+div:has(> [data-testid="stCustomComponentV1"]) {{
+    background: {_btn_bg} !important;
+}}
+</style>""", unsafe_allow_html=True)
+    hasil_gps = streamlit_geolocation()
 
     if hasil_gps and hasil_gps.get("latitude") and hasil_gps.get("longitude"):
         _lat_baru, _lon_baru = float(hasil_gps["latitude"]), float(hasil_gps["longitude"])
