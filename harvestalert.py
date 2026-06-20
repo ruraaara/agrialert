@@ -16,7 +16,7 @@ from streamlit_geolocation import streamlit_geolocation
 #  KONFIGURASI
 # ----------------------------------------------------------------
 DATA_DIR      = Path(os.environ.get("DATA_DIR", str(Path(__file__).parent)))
-ASSET_DIR     = DATA_DIR / "assets"
+ASSET_DIR     = DATA_DIR   # mascot.png/gps.png/maps.png/sun.png ada di root repo, bukan di assets/
 CSV_ENSO      = DATA_DIR / "el-nino-southern-oscillation-enso-el-nino-and-la-nina-events.csv"
 CSV_NDVI      = DATA_DIR / "Data_NDVI_Indonesia_2022_2026.csv"
 CSV_SENTINEL1 = DATA_DIR / "3_Data_Sentinel1_Indonesia.csv"
@@ -1146,7 +1146,7 @@ with tab1:
     # Karena itu komponennya harus selalu ada di halaman (bukan di dalam if),
     # dan teks status Figma (merah/hijau) ditampilkan di luar iframe karena
     # CSS halaman tidak bisa menjangkau ke dalam iframe komponen pihak ketiga.
-    _gps_icon_url = ui_img_b64("gps.jpg")
+    _gps_icon_url = ui_img_b64("gps.png")
     _gps_aktif = st.session_state.get("gps_aktif", False)
     _wrap_cls = "aktif" if _gps_aktif else "belum"
     _label_warna = "#20965F" if _gps_aktif else "#FF0505"
@@ -1173,7 +1173,7 @@ with tab1:
             st.rerun()
 
     # ── Kotak instruksi maps ──
-    _maps_icon_url = ui_img_b64("maps.jpg")
+    _maps_icon_url = ui_img_b64("maps.png")
     _maps_icon_html = (f'<img src="{_maps_icon_url}" alt="maps">' if _maps_icon_url
                         else ico("map", "1.6rem"))
     st.markdown(f"""
@@ -1284,7 +1284,7 @@ with tab1:
 with tab2:
     st.markdown(f'<p class="sec-title">{ico("cloud-sun")} Cuaca Detail — {provinsi}</p>', unsafe_allow_html=True)
 
-    _maps_icon_html_t2 = (f'<img src="{ui_img_b64("maps.jpg")}" alt="maps">' if ui_img_b64("maps.jpg")
+    _maps_icon_html_t2 = (f'<img src="{ui_img_b64("maps.png")}" alt="maps">' if ui_img_b64("maps.png")
                            else ico("map", "1.6rem"))
     st.markdown(f"""
     <div class="gps-info-row">
