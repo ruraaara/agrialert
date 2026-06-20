@@ -1336,13 +1336,15 @@ div:has(> [data-testid="stCustomComponentV1"]) {{
             st.rerun()
 
     # ── Kotak instruksi maps ──
-    _maps_icon_url = ui_img_b64("maps.png")
-    _maps_icon_html = (f'<img src="{_maps_icon_url}" alt="maps">' if _maps_icon_url
-                        else ico("map", "1.6rem"))
+    # Pakai ikon "map" (bukan pin) supaya gak keliatan dobel sama pin GPS di tombol atas,
+    # dan teksnya kondisional ikut status GPS biar gak nyuruh klik tombol yang udah diklik.
+    _gps_info_text = ("Lokasi Anda sudah terdeteksi. Data cuaca otomatis mengikuti posisi Anda saat ini."
+                       if _gps_aktif else
+                       "Klik tombol di atas agar sistem kami bisa tahu kondisi cuaca di sawah Anda saat ini")
     st.markdown(f"""
     <div class="gps-info-row">
-      <div class="gps-info-icon">{_maps_icon_html}</div>
-      <div class="gps-info-text">Klik tombol di atas agar sistem kami bisa tahu kondisi cuaca di sawah Anda saat ini</div>
+      <div class="gps-info-icon">{ico("map", "1.6rem")}</div>
+      <div class="gps-info-text">{_gps_info_text}</div>
     </div>
     """, unsafe_allow_html=True)
 
