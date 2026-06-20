@@ -265,7 +265,7 @@ html, body, [class*="css"] {
 }
 .ha-header-left { display: flex; align-items: center; gap: 16px; position: relative; z-index: 2; }
 .ha-logo  { font-size: 2.6rem; line-height: 1; color: #ffffff; }
-.ha-title { font-size: 1.75rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.3px; }
+.ha-title { font-size: 2.4rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.5px; }
 .ha-sub   { font-size: 0.95rem; color: #EEFFD3; margin: 4px 0 0; }
 .ha-badge {
     display: inline-flex; align-items: center; gap: 6px;
@@ -513,7 +513,7 @@ div[data-baseweb="popover"] li {
 
 /* ── GPS geolocation component — invisible tapi tetap bisa diklik ── */
 [data-testid="stCustomComponentV1"] {
-    opacity: 0.01 !important;
+    opacity: 0.001 !important;
     border-radius: 15px !important;
     overflow: hidden !important;
     min-height: 65px !important;
