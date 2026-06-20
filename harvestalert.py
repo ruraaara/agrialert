@@ -268,9 +268,10 @@ html, body, [class*="css"] {
 .ha-title { font-size: 1.75rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.3px; }
 .ha-sub   { font-size: 0.95rem; color: #EEFFD3; margin: 4px 0 0; }
 .ha-badge {
-    position: relative; z-index: 2;
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-top: 8px;
     background: rgba(255,255,255,0.14); border: 1.5px solid rgba(255,255,255,0.3); border-radius: 30px;
-    padding: 8px 18px; font-size: 0.9rem; font-weight: 700; color: #ffffff; white-space: nowrap;
+    padding: 6px 14px; font-size: 0.82rem; font-weight: 700; color: #ffffff; white-space: nowrap;
 }
 .gps-box {
     background: var(--c-surface); border: 1.5px solid var(--c-border); border-radius: var(--radius-md);
@@ -526,9 +527,11 @@ div[data-baseweb="popover"] li {
     min-height: 65px !important;
     cursor: pointer !important;
 }
-/* Label overlay GPS — semua container di sekitarnya harus tembus klik ke iframe di bawah */
-div:has(> [data-testid="stCustomComponentV1"]) + div,
-div:has(> [data-testid="stCustomComponentV1"]) + div * {
+/* GPS label — target langsung stMarkdownContainer yang berisi label dan wrapper-nya */
+[data-testid="stMarkdownContainer"]:has([data-gps-label]),
+[data-testid="stMarkdownContainer"]:has([data-gps-label]) *,
+div:has(> [data-testid="stMarkdownContainer"]:has([data-gps-label])),
+div:has(> [data-testid="stMarkdownContainer"]:has([data-gps-label])) > * {
     pointer-events: none !important;
 }
 </style>
@@ -1225,9 +1228,9 @@ st.markdown(f"""
     <div>
       <p class="ha-title">AgriAlert</p>
       <p class="ha-sub">Peringatan dini hama &amp; cuaca padi Indonesia</p>
+      <span class="ha-badge">{ico('pin')} {provinsi}</span>
     </div>
   </div>
-  <span class="ha-badge">{ico('pin')} {provinsi}</span>
 </div>
 """, unsafe_allow_html=True)
 
@@ -1264,7 +1267,7 @@ with tab1:
     # pointer-events:none memastikan klik tembus ke iframe komponen di bawahnya
     _btn_bg = "#1e8a55" if _gps_aktif else "#20965F"
     st.markdown(f"""
-    <div style="
+    <div data-gps-label="1" style="
         background:{_btn_bg};
         border-radius:15px;
         padding:18px 28px;
