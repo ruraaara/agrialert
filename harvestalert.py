@@ -527,7 +527,15 @@ div[data-baseweb="popover"] li {
     min-height: 65px !important;
     cursor: pointer !important;
 }
-/* GPS label — target langsung stMarkdownContainer yang berisi label dan wrapper-nya */
+/* GPS label — dua pendekatan sekaligus supaya salah satu pasti jalan */
+/* Pendekatan 1: target sibling langsung setelah GPS component */
+div:has(> [data-testid="stCustomComponentV1"]) + div,
+div:has(> [data-testid="stCustomComponentV1"]) + div > *,
+div:has(> [data-testid="stCustomComponentV1"]) + div [data-testid="stMarkdownContainer"],
+div:has(> [data-testid="stCustomComponentV1"]) + div [data-testid="stMarkdownContainer"] * {
+    pointer-events: none !important;
+}
+/* Pendekatan 2: target via atribut data-gps-label */
 [data-testid="stMarkdownContainer"]:has([data-gps-label]),
 [data-testid="stMarkdownContainer"]:has([data-gps-label]) *,
 div:has(> [data-testid="stMarkdownContainer"]:has([data-gps-label])),
