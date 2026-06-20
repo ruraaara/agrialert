@@ -238,11 +238,11 @@ html, body, [class*="css"] {
 .ha-header {
     position: relative;
     width: 100%;
-    min-height: 178px;
+    min-height: 200px;
     border-radius: var(--radius-lg);
     background: #20965F;          /* Rectangle 29 / Rectangle 7 */
-    overflow: hidden;
-    margin-bottom: 22px;
+    overflow: visible;
+    margin-bottom: 32px;
     box-shadow: var(--shadow-md);
     padding: 24px 28px;
     display: flex; align-items: center; justify-content: space-between;
@@ -250,14 +250,14 @@ html, body, [class*="css"] {
 }
 .ha-mascot {
     position: absolute;
-    width: 75.64px;
-    height: 132.91px;
-    right: 30px;
-    top: 19px;
+    width: 185px;
+    height: 245px;
+    right: 18px;
+    bottom: -10px;
     background-image: var(--mascot-url);
     background-size: contain;
     background-repeat: no-repeat;
-    background-position: center;
+    background-position: bottom center;
     transform: rotate(-0.66deg);
     pointer-events: none;
     z-index: 1;
@@ -436,6 +436,60 @@ div[data-baseweb="select"] > div, .stTextInput input, .stTextArea textarea, .stN
     border-color: #20965F !important; border-radius: var(--radius-sm) !important;
 }
 [data-testid="stForm"] { background: #EEFFD3; border: none; border-radius: var(--radius-md); padding: 18px 20px; }
+
+/* ── DARK MODE OVERRIDE — paksa semua widget pakai warna light ── */
+/* Input & textarea */
+.stTextInput input, .stTextArea textarea, .stNumberInput input {
+    background-color: #ffffff !important;
+    color: #1c2620 !important;
+    caret-color: #1c2620 !important;
+}
+/* Select / dropdown */
+div[data-baseweb="select"] > div,
+div[data-baseweb="select"] > div > div {
+    background-color: #ffffff !important;
+    color: #1c2620 !important;
+}
+div[data-baseweb="select"] svg { fill: #20965F !important; }
+/* Popover dropdown options */
+ul[role="listbox"] li,
+div[data-baseweb="menu"] *,
+div[data-baseweb="popover"] li {
+    background-color: #ffffff !important;
+    color: #1c2620 !important;
+}
+/* Widget labels */
+[data-testid="stWidgetLabel"] p,
+[data-testid="stWidgetLabel"] span,
+[data-testid="stWidgetLabel"] label,
+[data-testid="stWidgetLabel"] { color: #1c2620 !important; }
+/* Checkbox label text */
+[data-testid="stCheckbox"] span,
+[data-testid="stCheckbox"] p { color: #1c2620 !important; }
+/* Chat input */
+[data-testid="stChatInput"] textarea {
+    background-color: #ffffff !important;
+    color: #1c2620 !important;
+}
+/* st.info / st.warning / st.success inside dark mode */
+[data-testid="stAlert"] p,
+[data-testid="stAlert"] { color: #1c2620 !important; }
+/* File uploader inner text */
+[data-testid="stFileUploaderDropzone"] small,
+[data-testid="stFileUploaderDropzone"] span { color: #20965F !important; }
+/* Probabilitas bar labels */
+.prob-label span { color: #1c2620 !important; }
+
+/* ── GPS geolocation component — styling langsung tanpa div wrapper ── */
+[data-testid="stCustomComponentV1"] {
+    background: #20965F !important;
+    border-radius: 15px !important;
+    overflow: hidden !important;
+    min-height: 65px !important;
+    box-shadow: 0 1px 3px rgba(32,150,95,0.08) !important;
+    margin-bottom: 14px !important;
+}
+[data-testid="stCustomComponentV1"] iframe { width: 100% !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -1172,7 +1226,6 @@ with tab1:
 
     st.markdown(f'<div class="gps-trigger-wrap {_wrap_cls}">', unsafe_allow_html=True)
     hasil_gps = streamlit_geolocation()
-    st.markdown('</div>', unsafe_allow_html=True)
 
     if hasil_gps and hasil_gps.get("latitude") and hasil_gps.get("longitude"):
         _lat_baru, _lon_baru = float(hasil_gps["latitude"]), float(hasil_gps["longitude"])
