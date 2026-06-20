@@ -254,7 +254,7 @@ html, body, [class*="css"] {
     width: 185px;
     height: 245px;
     right: 18px;
-    bottom: -10px;
+    bottom: -55px;
     background-image: var(--mascot-url);
     background-size: contain;
     background-repeat: no-repeat;
@@ -510,16 +510,22 @@ div[data-baseweb="popover"] li {
 [data-testid="stChatMessage"] span,
 [data-testid="stChatMessageContent"] * { color: #1c2620 !important; }
 
-/* st.write() dan teks plain dari Python */
-[data-testid="stMarkdownContainer"] > p { color: #1c2620 !important; }
-
-/* ── GPS geolocation component — hanya border-radius, biarkan komponen render natural ── */
+/* ── GPS geolocation component — invisible tapi tetap bisa diklik ── */
 [data-testid="stCustomComponentV1"] {
+    opacity: 0.01 !important;       /* tak terlihat tapi masih bisa diklik */
     border-radius: 15px !important;
     overflow: hidden !important;
-    margin-bottom: 14px !important;
+    min-height: 65px !important;
+    margin-bottom: 0 !important;
+    position: relative !important;
+    z-index: 1 !important;
+    cursor: pointer !important;
 }
-[data-testid="stCustomComponentV1"] iframe { width: 100% !important; }
+[data-testid="stCustomComponentV1"] iframe {
+    width: 100% !important;
+    min-height: 65px !important;
+    cursor: pointer !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -1242,18 +1248,40 @@ with tab1:
     # CSS halaman tidak bisa menjangkau ke dalam iframe komponen pihak ketiga.
     _gps_icon_url = ui_img_b64("gps.png")
     _gps_aktif = st.session_state.get("gps_aktif", False)
-    _label_warna = "#20965F" if _gps_aktif else "#FF0505"
     _label_teks = "GPS ANDA AKTIF" if _gps_aktif else "KLIK UNTUK AKTIFKAN GPS"
-    _gps_icon_html = (f'<img src="{_gps_icon_url}" style="width:18px;height:18px;object-fit:contain;">'
-                       if _gps_icon_url else ico("pin", "1.1em"))
+    _gps_icon_html = (f'<img src="{_gps_icon_url}" style="width:20px;height:20px;object-fit:contain;filter:brightness(0) invert(1);">'
+                       if _gps_icon_url else "")
 
+    # Komponen GPS dirender DULUAN — jadi invisible click-layer di bawah label
+    hasil_gps = streamlit_geolocation()
+
+    # Label hijau dirender SETELAH komponen, lalu ditarik ke atas dengan margin-top negatif
+    # pointer-events:none memastikan klik tembus ke iframe komponen di bawahnya
+    _btn_bg = "#1e8a55" if _gps_aktif else "#20965F"
     st.markdown(f"""
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-family:'Poppins',sans-serif;font-weight:600;font-size:0.92rem;color:{_label_warna};">
+    <div style="
+        background:{_btn_bg};
+        border-radius:15px;
+        padding:18px 28px;
+        display:flex;
+        align-items:center;
+        gap:10px;
+        font-family:'Poppins',sans-serif;
+        font-weight:700;
+        font-size:0.97rem;
+        color:#ffffff;
+        min-height:65px;
+        box-shadow:0 2px 8px rgba(32,150,95,0.18);
+        margin-top:-75px;
+        position:relative;
+        z-index:2;
+        pointer-events:none;
+        margin-bottom:16px;
+        letter-spacing:0.3px;
+    ">
       {_gps_icon_html} {_label_teks}
     </div>
     """, unsafe_allow_html=True)
-
-    hasil_gps = streamlit_geolocation()
 
     if hasil_gps and hasil_gps.get("latitude") and hasil_gps.get("longitude"):
         _lat_baru, _lon_baru = float(hasil_gps["latitude"]), float(hasil_gps["longitude"])
