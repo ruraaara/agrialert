@@ -539,18 +539,10 @@ div:has(> [data-testid="stCustomComponentV1"])::before {
     pointer-events: none !important;
     z-index: 1 !important;
     letter-spacing: 0.3px !important;
-}
-div:has(> [data-testid="stCustomComponentV1"])::after {
-    content: "" !important;
-    position: absolute !important;
-    left: 20px !important;
-    top: 50% !important;
-    transform: translateY(-50%) !important;
-    width: 26px !important;
-    height: 26px !important;
-    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12Z'/%3E%3Ccircle cx='12' cy='10' r='2.3'/%3E%3C%2Fsvg%3E") center/contain no-repeat !important;
-    pointer-events: none !important;
-    z-index: 1 !important;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12Z'/%3E%3Ccircle cx='12' cy='10' r='2.3'/%3E%3C%2Fsvg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: 20px center !important;
+    background-size: 26px 26px !important;
 }
 [data-testid="stCustomComponentV1"] {
     position: absolute !important;
@@ -1297,12 +1289,10 @@ with tab1:
     st.markdown(f"""<style>
 div:has(> [data-testid="stCustomComponentV1"])::before {{
     content: "{_label_teks}" !important;
+    background-image: {_icon_bg} !important;
 }}
 div:has(> [data-testid="stCustomComponentV1"]) {{
     background: {_btn_bg} !important;
-}}
-div:has(> [data-testid="stCustomComponentV1"])::after {{
-    background: {_icon_bg} center/contain no-repeat !important;
 }}
 </style>""", unsafe_allow_html=True)
     hasil_gps = streamlit_geolocation()
