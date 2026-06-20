@@ -16,7 +16,7 @@ from streamlit_geolocation import streamlit_geolocation
 #  KONFIGURASI
 # ----------------------------------------------------------------
 DATA_DIR      = Path(os.environ.get("DATA_DIR", str(Path(__file__).parent)))
-ASSET_DIR     = DATA_DIR   # mascot.png/gps.png/maps.png/sun.png ada di root repo, bukan di assets/
+ASSET_DIR     = Path(__file__).parent   # mascot.png/gps.png/maps.png/sun.png ada di root repo, selalu di sebelah file ini — tidak ikut DATA_DIR yang bisa dioverride env var
 CSV_ENSO      = DATA_DIR / "el-nino-southern-oscillation-enso-el-nino-and-la-nina-events.csv"
 CSV_NDVI      = DATA_DIR / "Data_NDVI_Indonesia_2022_2026.csv"
 CSV_SENTINEL1 = DATA_DIR / "3_Data_Sentinel1_Indonesia.csv"
@@ -367,6 +367,16 @@ button[data-baseweb="tab"] p { color: #20965F !important; font-family: 'Poppins'
 button[data-baseweb="tab"][aria-selected="true"] { background: #27B774 !important; }
 button[data-baseweb="tab"][aria-selected="true"] p { color: #EEFFD3 !important; }
 [data-testid="stSidebar"] { background: var(--c-surface) !important; border-right: 1.5px solid var(--c-border) !important; }
+/* ── Paksa teks sidebar tetap kebaca walau browser/OS pengunjung pakai dark mode ── */
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
+[data-testid="stSidebar"] [data-testid="stCaptionContainer"],
+[data-testid="stSidebar"] [data-testid="stCaptionContainer"] *,
+[data-testid="stSidebar"] [data-testid="stWidgetLabel"] *,
+[data-testid="stSidebar"] label { color: var(--c-text) !important; }
+[data-testid="stSidebar"] [data-testid="stAlert"] { background: var(--c-primary-light) !important; border: 1.5px solid var(--c-border) !important; }
+[data-testid="stSidebar"] [data-testid="stAlert"] * { color: var(--c-text) !important; }
+[data-testid="stSidebar"] input,
+[data-testid="stSidebar"] div[data-baseweb="select"] > div { background: var(--c-surface) !important; color: var(--c-text) !important; }
 .stButton > button, div[data-testid="stFormSubmitButton"] button {
     font-family: 'Poppins', sans-serif !important;
     font-weight: 700 !important;
