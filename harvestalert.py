@@ -276,7 +276,7 @@ html, body, [class*="css"] {
 }
 .gps-box {
     background: var(--c-surface); border: 1.5px solid var(--c-border); border-radius: var(--radius-md);
-    padding: 14px 18px; margin-bottom: 20px; font-size: 0.92rem; color: var(--c-muted-on-surface);
+    padding: 14px 18px; margin-bottom: 16px; font-size: 0.92rem; color: var(--c-muted-on-surface);
     line-height: 1.9; display: flex; flex-wrap: wrap; gap: 6px 22px; box-shadow: var(--shadow-sm);
 }
 .gps-box b { color: var(--c-accent-text); }
@@ -306,7 +306,7 @@ html, body, [class*="css"] {
     background: #EEFFD3; border-radius: 15px; border: none;
     padding: 16px 20px; margin-bottom: 16px; box-shadow: var(--shadow-sm);
 }
-.gps-info-row.below-gps-btn { margin-top: -33px; }
+.gps-info-row.below-gps-btn { margin-top: -35px; }
 .gps-info-icon { width: 32px; height: 32px; flex-shrink: 0; color: #20965F; }
 .gps-info-icon img { width: 100%; height: 100%; object-fit: contain; }
 .gps-info-text { font-family: 'Poppins', sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #20965F; }
@@ -343,7 +343,7 @@ html, body, [class*="css"] {
 @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
 
 /* ── Rekom (Saran Tanam, Kondisi Iklim, dll) — base EEFFD3, font 20965F, tanpa border-left ── */
-.rekom { background: #EEFFD3; border-radius: var(--radius-md); border: none; padding: 18px 20px; margin-bottom: 12px; box-shadow: var(--shadow-sm); }
+.rekom { background: #EEFFD3; border-radius: var(--radius-md); border: none; padding: 18px 20px; margin-bottom: 16px; box-shadow: var(--shadow-sm); }
 .rekom.kuning, .rekom.merah, .rekom.biru { background: #EEFFD3; border: none; }
 .rk-title { font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #20965F; margin-bottom: 10px; }
 .rekom .rk-title, .rekom.kuning .rk-title, .rekom.merah .rk-title, .rekom.biru .rk-title { color: #20965F; }
@@ -362,7 +362,7 @@ html, body, [class*="css"] {
 .hama-img-ph-path { font-family: monospace; font-size: 0.68rem; opacity: 0.75; word-break: break-all; color: #20965F; }
 .sec-title { font-size: 1.15rem; font-weight: 700; color: #20965F; margin: 24px 0 14px; display: flex; align-items: center; gap: 10px; }
 .divider { border: none; border-top: 1.5px solid #20965F; opacity: 0.25; margin: 20px 0; }
-.status-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+.status-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
 .chip { border-radius: 30px; padding: 8px 16px; font-size: 0.85rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; border: none; background: #EEFFD3; color: #20965F; }
 .chip.aman, .chip.waspada, .chip.bahaya, .chip.info { background: #EEFFD3; border: none; color: #20965F; }
 div[data-baseweb="tab-list"] { background: var(--c-surface) !important; border: 1.5px solid var(--c-border) !important; border-radius: var(--radius-md) !important; padding: 6px !important; gap: 4px !important; margin-bottom: 22px; box-shadow: var(--shadow-sm); }
@@ -524,7 +524,7 @@ div:has(> [data-testid="stCustomComponentV1"]) {
     border-radius: 15px !important;
     height: 65px !important;
     min-height: 65px !important;
-    margin-bottom: 14px !important;
+    margin-bottom: 16px !important;
     position: relative !important;
     overflow: hidden !important;
     box-shadow: 0 2px 8px rgba(32,150,95,0.18) !important;
