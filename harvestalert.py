@@ -239,10 +239,10 @@ html, body, [class*="css"] {
 .ha-header {
     position: relative;
     width: 100%;
-    min-height: 200px;
+    min-height: 260px;
     border-radius: var(--radius-lg);
     background: #20965F;          /* Rectangle 29 / Rectangle 7 */
-    overflow: visible;
+    overflow: hidden;
     margin-bottom: 32px;
     box-shadow: var(--shadow-md);
     padding: 24px 28px;
@@ -253,8 +253,8 @@ html, body, [class*="css"] {
     position: absolute;
     width: 185px;
     height: 245px;
-    right: 18px;
-    bottom: -55px;
+    right: 40px;
+    bottom: 5px;
     background-image: var(--mascot-url);
     background-size: contain;
     background-repeat: no-repeat;
@@ -512,7 +512,7 @@ div[data-baseweb="popover"] li {
 
 /* ── GPS geolocation component — invisible tapi tetap bisa diklik ── */
 [data-testid="stCustomComponentV1"] {
-    opacity: 0.01 !important;       /* tak terlihat tapi masih bisa diklik */
+    opacity: 0.01 !important;
     border-radius: 15px !important;
     overflow: hidden !important;
     min-height: 65px !important;
@@ -525,6 +525,11 @@ div[data-baseweb="popover"] li {
     width: 100% !important;
     min-height: 65px !important;
     cursor: pointer !important;
+}
+/* Label overlay GPS — semua container di sekitarnya harus tembus klik ke iframe di bawah */
+div:has(> [data-testid="stCustomComponentV1"]) + div,
+div:has(> [data-testid="stCustomComponentV1"]) + div * {
+    pointer-events: none !important;
 }
 </style>
 """, unsafe_allow_html=True)
