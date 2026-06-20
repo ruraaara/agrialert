@@ -415,7 +415,7 @@ button[data-baseweb="tab"][aria-selected="true"] p { color: #EEFFD3 !important; 
 .tbot-row { display: flex; align-items: flex-end; gap: 10px; }
 .tbot-row.bot  { flex-direction: row; }
 .tbot-row.user { flex-direction: row-reverse; }
-.tbot-av { font-size: 1.3rem; flex-shrink: 0; }
+.tbot-av { font-size: 1.3rem; flex-shrink: 0; color: #20965F; }
 .tbot-bbl { padding: 11px 15px; font-size: 0.92rem; line-height: 1.7; max-width: 84%; word-break: break-word; }
 .tbot-bbl.bot  { background:var(--c-surface); border:1.5px solid var(--c-border); border-radius:4px 16px 16px 16px; color:var(--c-text); }
 .tbot-bbl.user { background:var(--c-aman-bg); border:1.5px solid var(--c-aman-border); border-radius:16px 4px 16px 16px; color:var(--c-aman-text); }
@@ -1537,7 +1537,7 @@ with tab2:
     """, unsafe_allow_html=True)
 
     st.caption("El Niño (ONI ≥ +0.5) · La Niña (ONI ≤ −0.5) · Normal · ◆ Prediksi bulan depan")
-    st.plotly_chart(fig_oni_with_forecast(df_for_enso, pred), use_container_width=True)
+    st.plotly_chart(fig_oni_with_forecast(df_for_enso, pred), use_container_width=True, theme=None)
 
     # ── Farming impact section ───────────────────────────────────
     st.markdown('<hr class="divider">', unsafe_allow_html=True)
