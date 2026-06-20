@@ -404,8 +404,8 @@ button[data-baseweb="tab"][aria-selected="true"] p { color: #EEFFD3 !important; 
 .prob-bar-fill.top { background: var(--c-primary); }
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-thumb { background: var(--c-border); border-radius: 6px; }
-@media (max-width: 600px) { .ha-mascot { display: none !important; } .ha-header { min-height: 130px !important; } }
-@media (max-width: 480px) { .ha-title { font-size: 2.4rem; } .bc-value { font-size: 1.35rem; } .sec-title { font-size: 1.02rem; } .rk-text { font-size: 0.92rem; } .gps-box { font-size: 0.85rem; } }
+@media (max-width: 600px) { .ha-mascot { width: 85px !important; height: 112px !important; right: 8px !important; bottom: 0 !important; } .ha-header { min-height: 150px !important; padding-right: 100px !important; } }
+@media (max-width: 480px) { .ha-title { font-size: 2.4rem !important; } .bc-value { font-size: 1.35rem; } .sec-title { font-size: 1.02rem; } .rk-text { font-size: 0.92rem; } .gps-box { font-size: 0.85rem; } }
 .tbot-chat {
     background: var(--c-bg); border: 1.5px solid var(--c-border); border-radius: var(--radius-md);
     padding: 16px 14px; max-height: 400px; overflow-y: auto;
@@ -1261,7 +1261,6 @@ st.markdown(f"""
 <div class="ha-header" style="{_mascot_style}">
   <div class="ha-mascot"></div>
   <div class="ha-header-left">
-    <span class="ha-logo">{ico('sprout', '2rem')}</span>
     <div>
       <p class="ha-title">AgriAlert</p>
       <p class="ha-sub">Peringatan dini hama &amp; cuaca padi Indonesia</p>
@@ -1294,10 +1293,7 @@ with tab1:
     _gps_aktif = st.session_state.get("gps_aktif", False)
     _label_teks = "GPS ANDA AKTIF" if _gps_aktif else "KLIK UNTUK AKTIFKAN GPS"
     _btn_bg = "#1e8a55" if _gps_aktif else "#20965F"
-    _gps_icon_url = ui_img_b64("gps.png")
-    _icon_bg = (f"url('{_gps_icon_url}')"
-                if _gps_icon_url
-                else "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12Z'/%3E%3Ccircle cx='12' cy='10' r='2.3'/%3E%3C%2Fsvg%3E\")")
+    _icon_bg = "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12Z'/%3E%3Ccircle cx='12' cy='10' r='2.3'/%3E%3C%2Fsvg%3E\")"
     st.markdown(f"""<style>
 div:has(> [data-testid="stCustomComponentV1"])::before {{
     content: "{_label_teks}" !important;
