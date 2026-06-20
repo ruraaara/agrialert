@@ -5,6 +5,7 @@ import os
 import uuid
 import requests
 import streamlit as st
+import streamlit.components.v1 as _stcv1
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
@@ -265,7 +266,7 @@ html, body, [class*="css"] {
 }
 .ha-header-left { display: flex; align-items: center; gap: 16px; position: relative; z-index: 2; }
 .ha-logo  { font-size: 2.6rem; line-height: 1; color: #ffffff; }
-.ha-title { font-size: 2.4rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.5px; }
+.ha-title { font-size: 5rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -1px; line-height: 1.05; }
 .ha-sub   { font-size: 0.95rem; color: #EEFFD3; margin: 4px 0 0; }
 .ha-badge {
     display: inline-flex; align-items: center; gap: 6px;
@@ -403,7 +404,8 @@ button[data-baseweb="tab"][aria-selected="true"] p { color: #EEFFD3 !important; 
 .prob-bar-fill.top { background: var(--c-primary); }
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-thumb { background: var(--c-border); border-radius: 6px; }
-@media (max-width: 480px) { .ha-title { font-size: 1.4rem; } .bc-value { font-size: 1.35rem; } .sec-title { font-size: 1.02rem; } .rk-text { font-size: 0.92rem; } .gps-box { font-size: 0.85rem; } }
+@media (max-width: 600px) { .ha-mascot { display: none !important; } .ha-header { min-height: 130px !important; } }
+@media (max-width: 480px) { .ha-title { font-size: 2.4rem; } .bc-value { font-size: 1.35rem; } .sec-title { font-size: 1.02rem; } .rk-text { font-size: 0.92rem; } .gps-box { font-size: 0.85rem; } }
 .tbot-chat {
     background: var(--c-bg); border: 1.5px solid var(--c-border); border-radius: var(--radius-md);
     padding: 16px 14px; max-height: 400px; overflow-y: auto;
@@ -515,6 +517,7 @@ div[data-baseweb="popover"] li {
 div:has(> [data-testid="stCustomComponentV1"]) {
     background: #20965F !important;
     border-radius: 15px !important;
+    height: 65px !important;
     min-height: 65px !important;
     margin-bottom: 14px !important;
     position: relative !important;
@@ -528,7 +531,7 @@ div:has(> [data-testid="stCustomComponentV1"])::before {
     inset: 0 !important;
     display: flex !important;
     align-items: center !important;
-    padding: 18px 28px !important;
+    padding: 18px 28px 18px 58px !important;
     font-family: 'Poppins', sans-serif !important;
     font-weight: 700 !important;
     font-size: 0.97rem !important;
@@ -537,10 +540,23 @@ div:has(> [data-testid="stCustomComponentV1"])::before {
     z-index: 1 !important;
     letter-spacing: 0.3px !important;
 }
+div:has(> [data-testid="stCustomComponentV1"])::after {
+    content: "" !important;
+    position: absolute !important;
+    left: 20px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: 26px !important;
+    height: 26px !important;
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12Z'/%3E%3Ccircle cx='12' cy='10' r='2.3'/%3E%3C%2Fsvg%3E") center/contain no-repeat !important;
+    pointer-events: none !important;
+    z-index: 1 !important;
+}
 [data-testid="stCustomComponentV1"] {
     position: absolute !important;
     inset: 0 !important;
     width: 100% !important;
+    height: 65px !important;
     min-height: 65px !important;
     opacity: 0.001 !important;
     z-index: 2 !important;
@@ -549,6 +565,7 @@ div:has(> [data-testid="stCustomComponentV1"])::before {
     margin: 0 !important;
 }
 [data-testid="stCustomComponentV1"] iframe {
+    display: block !important;
     width: 100% !important;
     height: 65px !important;
     min-height: 65px !important;
@@ -1276,8 +1293,11 @@ with tab1:
     # CSS halaman tidak bisa menjangkau ke dalam iframe komponen pihak ketiga.
     _gps_aktif = st.session_state.get("gps_aktif", False)
     _label_teks = "GPS ANDA AKTIF" if _gps_aktif else "KLIK UNTUK AKTIFKAN GPS"
-
     _btn_bg = "#1e8a55" if _gps_aktif else "#20965F"
+    _gps_icon_url = ui_img_b64("gps.png")
+    _icon_bg = (f"url('{_gps_icon_url}')"
+                if _gps_icon_url
+                else "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12Z'/%3E%3Ccircle cx='12' cy='10' r='2.3'/%3E%3C%2Fsvg%3E\")")
     st.markdown(f"""<style>
 div:has(> [data-testid="stCustomComponentV1"])::before {{
     content: "{_label_teks}" !important;
@@ -1285,8 +1305,35 @@ div:has(> [data-testid="stCustomComponentV1"])::before {{
 div:has(> [data-testid="stCustomComponentV1"]) {{
     background: {_btn_bg} !important;
 }}
+div:has(> [data-testid="stCustomComponentV1"])::after {{
+    background: {_icon_bg} center/contain no-repeat !important;
+}}
 </style>""", unsafe_allow_html=True)
     hasil_gps = streamlit_geolocation()
+    _stcv1.html("""<script>
+(function(){
+  function fix(){
+    try{
+      var pd=window.parent.document;
+      var ifs=pd.querySelectorAll('[data-testid="stCustomComponentV1"] iframe');
+      for(var i=0;i<ifs.length;i++){
+        try{
+          var d=ifs[i].contentDocument;
+          if(!d||!d.body) continue;
+          if(d.getElementById('aa-gps-fix')) continue;
+          var btn=d.querySelector('button');
+          if(!btn) continue;
+          var s=d.createElement('style');
+          s.id='aa-gps-fix';
+          s.textContent='html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden}button{position:fixed!important;top:0!important;left:0!important;width:100vw!important;height:100vh!important;opacity:0.001!important;cursor:pointer!important;border:none!important;background:transparent!important}';
+          (d.head||d.documentElement).appendChild(s);
+        }catch(e){}
+      }
+    }catch(e){}
+  }
+  setTimeout(fix,200);setTimeout(fix,600);setTimeout(fix,1200);setTimeout(fix,2500);
+})();
+</script>""", height=1)
 
     if hasil_gps and hasil_gps.get("latitude") and hasil_gps.get("longitude"):
         _lat_baru, _lon_baru = float(hasil_gps["latitude"]), float(hasil_gps["longitude"])
