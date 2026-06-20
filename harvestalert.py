@@ -16,6 +16,7 @@ from streamlit_geolocation import streamlit_geolocation
 #  KONFIGURASI
 # ----------------------------------------------------------------
 DATA_DIR      = Path(os.environ.get("DATA_DIR", str(Path(__file__).parent)))
+ASSET_DIR     = DATA_DIR / "assets"
 CSV_ENSO      = DATA_DIR / "el-nino-southern-oscillation-enso-el-nino-and-la-nina-events.csv"
 CSV_NDVI      = DATA_DIR / "Data_NDVI_Indonesia_2022_2026.csv"
 CSV_SENTINEL1 = DATA_DIR / "3_Data_Sentinel1_Indonesia.csv"
@@ -177,59 +178,50 @@ def ico(name, size="1.2em"):
 # ----------------------------------------------------------------
 st.set_page_config(
     page_title="AgriAlert",
-    page_icon="🌾",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap');
 
 :root {
-    --c-primary: #1f7a4d;
-    --c-primary-dark: #0f4429;
-    --c-primary-darker: #0a331f;
-    --c-primary-light: #e8f5ee;
+    /* ── Palet utama — sesuai desain Figma AgriAlert ── */
+    --c-primary: #20965F;          /* hijau utama — header, tombol, shape gelap */
+    --c-primary-dark: #20965F;
+    --c-primary-darker: #176e47;
+    --c-primary-light: #EEFFD3;    /* hijau muda — base card terang */
     --c-sage: #6f8f78;
 
-    --c-bg: #f6f8f5;
+    --c-tab-active-text: #EEFFD3;  /* font tab yang sedang aktif */
+    --c-tab-inactive-text: #20965F;/* font tab yang tidak aktif */
+
+    --c-bg: #EDEDED;               /* base warna web paling dasar */
     --c-surface: #ffffff;
     --c-border: #dfe6e0;
     --c-text: #1c2620;
     --c-text-muted: #57685d;
-    --c-text-on-light: #1c2620;
+    --c-text-on-light: #20965F;
     --c-muted-on-surface: #57685d;
-    --c-accent-text: #0f4429;
+    --c-accent-text: #20965F;
 
-    --c-aman-bg: #eaf7ef;     --c-aman-border:#1f7a4d;   --c-aman-text:#14532d;
-    --c-waspada-bg:#fef6e7;   --c-waspada-border:#d97706; --c-waspada-text:#92400e;
-    --c-bahaya-bg:#fdeceb;    --c-bahaya-border:#dc2626; --c-bahaya-text:#991b1b;
-    --c-info-bg:#eaf2fb;      --c-info-border:#2563eb;   --c-info-text:#1e40af;
+    /* ── Status (kondisi cuaca / iklim) — hijau=aman, kuning=waspada, merah=bahaya ── */
+    --c-aman-bg: #EEFFD3;     --c-aman-border:#20965F;   --c-aman-text:#20965F;   --c-aman-dot:#00EA7D;
+    --c-waspada-bg:#EEFFD3;   --c-waspada-border:#20965F; --c-waspada-text:#20965F; --c-waspada-dot:#F3FF0F;
+    --c-bahaya-bg:#EEFFD3;    --c-bahaya-border:#20965F; --c-bahaya-text:#20965F;  --c-bahaya-dot:#FF0505;
+    --c-info-bg:#EEFFD3;      --c-info-border:#20965F;   --c-info-text:#20965F;
 
     --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 16px;
-    --shadow-sm: 0 1px 3px rgba(15,68,41,0.07);
-    --shadow-md: 0 4px 14px rgba(15,68,41,0.10);
-}
-
-/* Mode gelap (mengikuti preferensi sistem/browser) — menjaga kontras teks tetap
-   tinggi karena widget asli Streamlit otomatis berganti ke teks terang saat gelap. */
-@media (prefers-color-scheme: dark) {
-    :root {
-        --c-bg: #161b1f;
-        --c-surface: #20262b;
-        --c-border: #38423d;
-        --c-text: #e9ede9;
-        --c-muted-on-surface: #a3b3a8;
-        --c-accent-text: #5fd897;
-    }
+    --radius-md: 15px;
+    --radius-lg: 40px;
+    --shadow-sm: 0 1px 3px rgba(32,150,95,0.08);
+    --shadow-md: 0 4px 14px rgba(32,150,95,0.12);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
 html, body, [class*="css"] {
-    font-family: 'Lexend', sans-serif !important;
+    font-family: 'Poppins', sans-serif !important;
     -webkit-font-smoothing: antialiased;
     font-size: 17px;
     color: var(--c-text);
@@ -240,17 +232,42 @@ html, body, [class*="css"] {
     padding: 1.25rem 1.5rem 4rem !important;
     margin: 0 auto !important;
 }
+/* ── HEADER — mask group sesuai Figma ──
+   Dua Rectangle hijau (#20965F, radius 40px) bertumpuk sebagai latar,
+   mascot.png di-mask/diposisikan di kanan-atas, judul+sub di kiri. */
 .ha-header {
-    background: var(--c-primary-dark); border-radius: var(--radius-lg); padding: 24px 28px;
-    margin-bottom: 22px; border: none; box-shadow: var(--shadow-md);
+    position: relative;
+    width: 100%;
+    min-height: 178px;
+    border-radius: var(--radius-lg);
+    background: #20965F;          /* Rectangle 29 / Rectangle 7 */
+    overflow: hidden;
+    margin-bottom: 22px;
+    box-shadow: var(--shadow-md);
+    padding: 24px 28px;
     display: flex; align-items: center; justify-content: space-between;
     flex-wrap: wrap; gap: 12px;
 }
-.ha-header-left { display: flex; align-items: center; gap: 16px; }
-.ha-logo  { font-size: 2.6rem; line-height: 1; }
+.ha-mascot {
+    position: absolute;
+    width: 75.64px;
+    height: 132.91px;
+    right: 30px;
+    top: 19px;
+    background-image: var(--mascot-url);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    transform: rotate(-0.66deg);
+    pointer-events: none;
+    z-index: 1;
+}
+.ha-header-left { display: flex; align-items: center; gap: 16px; position: relative; z-index: 2; }
+.ha-logo  { font-size: 2.6rem; line-height: 1; color: #ffffff; }
 .ha-title { font-size: 1.75rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.3px; }
-.ha-sub   { font-size: 0.95rem; color: #cdeedb; margin: 4px 0 0; }
+.ha-sub   { font-size: 0.95rem; color: #EEFFD3; margin: 4px 0 0; }
 .ha-badge {
+    position: relative; z-index: 2;
     background: rgba(255,255,255,0.14); border: 1.5px solid rgba(255,255,255,0.3); border-radius: 30px;
     padding: 8px 18px; font-size: 0.9rem; font-weight: 700; color: #ffffff; white-space: nowrap;
 }
@@ -260,75 +277,98 @@ html, body, [class*="css"] {
     line-height: 1.9; display: flex; flex-wrap: wrap; gap: 6px 22px; box-shadow: var(--shadow-sm);
 }
 .gps-box b { color: var(--c-accent-text); }
-.big-card { border-radius: var(--radius-lg); padding: 22px 26px; margin-bottom: 16px; border: 1.5px solid transparent; box-shadow: var(--shadow-sm); }
-.big-card.aman    { background: var(--c-aman-bg);    border-color: var(--c-aman-border); }
-.big-card.waspada { background: var(--c-waspada-bg); border-color: var(--c-waspada-border); }
-.big-card.bahaya  { background: var(--c-bahaya-bg);  border-color: var(--c-bahaya-border); }
-.big-card.info    { background: var(--c-info-bg);    border-color: var(--c-info-border); }
-.bc-label { font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--c-text-muted); margin-bottom: 10px; }
+
+/* ── Tombol GPS — Rectangle 16: 376x65, bg 20965F, radius 15 ──
+   Catatan: streamlit_geolocation merender iframe pihak ketiga, jadi kita
+   styling kontainernya saja (bentuk, warna dasar, radius); teks/tombol di
+   dalam iframe mengikuti style bawaan komponen tersebut. */
+.gps-trigger-wrap {
+    margin-bottom: 14px;
+    background: #20965F;
+    border-radius: 15px;
+    min-height: 65px;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+.gps-trigger-wrap.aktif {
+    background: #ffffff;
+    border: 1.5px solid #20965F;
+}
+.gps-trigger-wrap iframe { width: 100%; }
+
+/* ── Kotak instruksi maps — Rectangle 7: 376x118, bg EEFFD3, radius 15 ── */
+.gps-info-row {
+    display: flex; align-items: center; gap: 14px;
+    background: #EEFFD3; border-radius: 15px; border: none;
+    padding: 16px 20px; margin-bottom: 16px; box-shadow: var(--shadow-sm);
+}
+.gps-info-icon { width: 32px; height: 32px; flex-shrink: 0; }
+.gps-info-icon img { width: 100%; height: 100%; object-fit: contain; }
+.gps-info-text { font-family: 'Poppins', sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #20965F; }
+
+/* ── Big-card "Kondisi Cuaca Hari Ini" — base EEFFD3, font 20965F ── */
+.big-card { border-radius: var(--radius-lg); padding: 22px 26px; margin-bottom: 16px; border: none; box-shadow: var(--shadow-sm); background: #EEFFD3; }
+.big-card.aman, .big-card.waspada, .big-card.bahaya, .big-card.info { background: #EEFFD3; border: none; }
+.bc-label { font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #20965F; margin-bottom: 10px; }
 .bc-row   { display: flex; align-items: center; gap: 14px; margin-bottom: 6px; }
-.bc-icon  { font-size: 2.2rem; line-height: 1; flex-shrink: 0; }
-.bc-value { font-size: 1.65rem; font-weight: 800; color: var(--c-text); line-height: 1.15; }
-.bc-sub   { font-size: 0.92rem; color: var(--c-text-muted); margin-top: 6px; line-height: 1.6; }
-.big-card.aman    .bc-value, .big-card.aman    .bc-label { color: var(--c-aman-text); }
-.big-card.waspada .bc-value, .big-card.waspada .bc-label { color: var(--c-waspada-text); }
-.big-card.bahaya  .bc-value, .big-card.bahaya  .bc-label { color: var(--c-bahaya-text); }
-.big-card.info    .bc-value, .big-card.info    .bc-label { color: var(--c-info-text); }
+.bc-icon  { font-size: 2.2rem; line-height: 1; flex-shrink: 0; color: #20965F; }
+.bc-value { font-size: 1.65rem; font-weight: 900; color: #20965F; line-height: 1.15; }
+.bc-sub   { font-size: 0.92rem; color: #20965F; margin-top: 6px; line-height: 1.6; }
+.big-card .bc-value, .big-card .bc-label, .big-card .bc-sub { color: #20965F; }
+/* Titik status — hijau aman / kuning waspada / merah bahaya */
+.bc-dot { display:inline-block; width:14px; height:14px; border-radius:50%; margin-right:8px; vertical-align:middle; }
+.bc-dot.aman    { background:#00EA7D; }
+.bc-dot.waspada { background:#F3FF0F; }
+.bc-dot.bahaya  { background:#FF0505; }
+
+/* ── Metric cards (suhu/kelembapan/curah hujan/iklim) — selalu hijau 20965F, font putih ── */
 .metric-grid {
     display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 16px;
 }
 @media (max-width: 900px) { .metric-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 480px) { .metric-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
-.metric-card { border-radius: var(--radius-md); padding: 18px 20px; border: 1.5px solid var(--c-border); background: var(--c-surface); box-shadow: var(--shadow-sm); min-width: 0; }
-.metric-card.aman    { background: var(--c-aman-bg);    border-color: var(--c-aman-border); }
-.metric-card.waspada { background: var(--c-waspada-bg); border-color: var(--c-waspada-border); }
-.metric-card.bahaya  { background: var(--c-bahaya-bg);  border-color: var(--c-bahaya-border); }
-.metric-card.info    { background: var(--c-info-bg);    border-color: var(--c-info-border); }
-.mc-label { font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--c-text-muted); margin-bottom: 8px; }
-.mc-val   { font-size: 1.5rem; font-weight: 800; color: var(--c-text); line-height: 1.15; }
-.mc-sub   { font-size: 0.8rem; color: var(--c-text-muted); margin-top: 6px; }
-.metric-card.aman    .mc-val { color: var(--c-aman-text); }
-.metric-card.waspada .mc-val { color: var(--c-waspada-text); }
-.metric-card.bahaya  .mc-val { color: var(--c-bahaya-text); }
-.metric-card.info    .mc-val { color: var(--c-info-text); }
+.metric-card { border-radius: var(--radius-md); padding: 18px 20px; border: none; background: #20965F; box-shadow: var(--shadow-sm); min-width: 0; }
+.metric-card.aman, .metric-card.waspada, .metric-card.bahaya, .metric-card.info { background: #20965F; border: none; }
+.mc-label { font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #ffffff; margin-bottom: 8px; }
+.mc-val   { font-size: 1.5rem; font-weight: 800; color: #ffffff; line-height: 1.15; }
+.mc-sub   { font-size: 0.8rem; color: #ffffff; margin-top: 6px; opacity: 0.9; }
+.metric-card .mc-val, .metric-card .mc-label, .metric-card .mc-sub { color: #ffffff; }
 @media (max-width: 480px) { .metric-card { padding: 14px 16px; } .mc-val { font-size: 1.3rem; } }
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
 @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
-.rekom { background: var(--c-aman-bg); border-radius: 0 var(--radius-md) var(--radius-md) 0; border-left: 5px solid var(--c-primary); padding: 18px 20px; margin-bottom: 12px; box-shadow: var(--shadow-sm); }
-.rekom.kuning { background: var(--c-waspada-bg); border-left-color: var(--c-waspada-border); }
-.rekom.merah  { background: var(--c-bahaya-bg);  border-left-color: var(--c-bahaya-border); }
-.rekom.biru   { background: var(--c-info-bg);    border-left-color: var(--c-info-border); }
-.rk-title { font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--c-primary-dark); margin-bottom: 10px; }
-.rekom.kuning .rk-title { color: var(--c-waspada-text); }
-.rekom.merah  .rk-title { color: var(--c-bahaya-text); }
-.rekom.biru   .rk-title { color: var(--c-info-text); }
-.rk-text { font-size: 0.98rem; color: var(--c-text-on-light); line-height: 1.7; }
+
+/* ── Rekom (Saran Tanam, Kondisi Iklim, dll) — base EEFFD3, font 20965F, tanpa border-left ── */
+.rekom { background: #EEFFD3; border-radius: var(--radius-md); border: none; padding: 18px 20px; margin-bottom: 12px; box-shadow: var(--shadow-sm); }
+.rekom.kuning, .rekom.merah, .rekom.biru { background: #EEFFD3; border: none; }
+.rk-title { font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #20965F; margin-bottom: 10px; }
+.rekom .rk-title, .rekom.kuning .rk-title, .rekom.merah .rk-title, .rekom.biru .rk-title { color: #20965F; }
+.rk-text { font-size: 0.98rem; color: #20965F; line-height: 1.7; }
 .hama-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
 @media (max-width: 500px) { .hama-grid { grid-template-columns: 1fr; } }
-.hama-card { background: var(--c-surface); border: 1.5px solid var(--c-border); border-radius: var(--radius-md); padding: 16px 18px; display: flex; align-items: flex-start; gap: 14px; box-shadow: var(--shadow-sm); }
-.hama-icon { font-size: 1.8rem; line-height: 1; flex-shrink: 0; margin-top: 2px; }
-.hama-nama { font-size: 0.98rem; font-weight: 700; color: var(--c-text); margin-bottom: 4px; }
-.hama-ciri { font-size: 0.85rem; color: var(--c-muted-on-surface); line-height: 1.55; }
-.hama-card-v { background: var(--c-surface); border: 1.5px solid var(--c-border); border-radius: var(--radius-md); padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 10px; box-shadow: var(--shadow-sm); }
-.hama-card-v .hama-nama { display: flex; align-items: center; gap: 8px; margin-bottom: 0; }
-.hama-img-wrap { width: 100%; aspect-ratio: 4/3; border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--c-border); }
+.hama-card { background: #EEFFD3; border: none; border-radius: var(--radius-md); padding: 16px 18px; display: flex; align-items: flex-start; gap: 14px; box-shadow: var(--shadow-sm); }
+.hama-icon { font-size: 1.8rem; line-height: 1; flex-shrink: 0; margin-top: 2px; color: #20965F; }
+.hama-nama { font-size: 0.98rem; font-weight: 700; color: #20965F; margin-bottom: 4px; }
+.hama-ciri { font-size: 0.85rem; color: #20965F; line-height: 1.55; }
+.hama-card-v { background: #EEFFD3; border: none; border-radius: var(--radius-md); padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 10px; box-shadow: var(--shadow-sm); }
+.hama-card-v .hama-nama { display: flex; align-items: center; gap: 8px; margin-bottom: 0; color: #20965F; }
+.hama-img-wrap { width: 100%; aspect-ratio: 4/3; border-radius: var(--radius-sm); overflow: hidden; border: none; }
 .hama-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.hama-img-ph { width: 100%; aspect-ratio: 4/3; border-radius: var(--radius-sm); border: 1.5px dashed var(--c-border); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: var(--c-muted-on-surface); text-align: center; padding: 10px; }
-.hama-img-ph-path { font-family: monospace; font-size: 0.68rem; opacity: 0.75; word-break: break-all; }
-.sec-title { font-size: 1.15rem; font-weight: 700; color: var(--c-accent-text); margin: 24px 0 14px; display: flex; align-items: center; gap: 10px; }
-.divider { border: none; border-top: 1.5px solid var(--c-border); margin: 20px 0; }
+.hama-img-ph { width: 100%; aspect-ratio: 4/3; border-radius: var(--radius-sm); border: 1.5px dashed #20965F; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: #20965F; text-align: center; padding: 10px; }
+.hama-img-ph-path { font-family: monospace; font-size: 0.68rem; opacity: 0.75; word-break: break-all; color: #20965F; }
+.sec-title { font-size: 1.15rem; font-weight: 700; color: #20965F; margin: 24px 0 14px; display: flex; align-items: center; gap: 10px; }
+.divider { border: none; border-top: 1.5px solid #20965F; opacity: 0.25; margin: 20px 0; }
 .status-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
-.chip { border-radius: 30px; padding: 8px 16px; font-size: 0.85rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; border: 1.5px solid transparent; }
-.chip.aman    { background: var(--c-aman-bg);    border-color: var(--c-aman-border);    color: var(--c-aman-text); }
-.chip.waspada { background: var(--c-waspada-bg); border-color: var(--c-waspada-border); color: var(--c-waspada-text); }
-.chip.bahaya  { background: var(--c-bahaya-bg);  border-color: var(--c-bahaya-border);  color: var(--c-bahaya-text); }
-.chip.info    { background: var(--c-info-bg);    border-color: var(--c-info-border);    color: var(--c-info-text); }
+.chip { border-radius: 30px; padding: 8px 16px; font-size: 0.85rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; border: none; background: #EEFFD3; color: #20965F; }
+.chip.aman, .chip.waspada, .chip.bahaya, .chip.info { background: #EEFFD3; border: none; color: #20965F; }
 div[data-baseweb="tab-list"] { background: var(--c-surface) !important; border: 1.5px solid var(--c-border) !important; border-radius: var(--radius-md) !important; padding: 6px !important; gap: 4px !important; margin-bottom: 22px; box-shadow: var(--shadow-sm); }
-button[data-baseweb="tab"] { font-family: 'Lexend', sans-serif !important; font-size: 0.98rem !important; font-weight: 700 !important; border-radius: var(--radius-sm) !important; padding: 12px 10px !important; color: var(--c-muted-on-surface) !important; }
-button[data-baseweb="tab"][aria-selected="true"] { background: var(--c-primary) !important; color: #ffffff !important; }
+button[data-baseweb="tab"] { font-family: 'Poppins', sans-serif !important; font-size: 0.98rem !important; font-weight: 700 !important; border-radius: var(--radius-sm) !important; padding: 12px 10px !important; color: #20965F !important; }
+button[data-baseweb="tab"] p { color: #20965F !important; font-family: 'Poppins', sans-serif !important; font-weight: 700 !important; }
+button[data-baseweb="tab"][aria-selected="true"] { background: #27B774 !important; }
+button[data-baseweb="tab"][aria-selected="true"] p { color: #EEFFD3 !important; }
 [data-testid="stSidebar"] { background: var(--c-surface) !important; border-right: 1.5px solid var(--c-border) !important; }
 .stButton > button, div[data-testid="stFormSubmitButton"] button {
-    font-family: 'Lexend', sans-serif !important;
+    font-family: 'Poppins', sans-serif !important;
     font-weight: 700 !important;
     font-size: 1rem !important;
     border-radius: var(--radius-md) !important;
@@ -365,6 +405,27 @@ button[data-baseweb="tab"][aria-selected="true"] { background: var(--c-primary) 
 .tbot-bbl.bot  { background:var(--c-surface); border:1.5px solid var(--c-border); border-radius:4px 16px 16px 16px; color:var(--c-text); }
 .tbot-bbl.user { background:var(--c-aman-bg); border:1.5px solid var(--c-aman-border); border-radius:16px 4px 16px 16px; color:var(--c-aman-text); }
 .tbot-hint { font-size:0.82rem; color:var(--c-muted-on-surface); margin:8px 0 6px; }
+
+/* ── Unggah foto (Cek Hama) — base EEFFD3, tombol 20965F font putih, tanpa stroke ── */
+[data-testid="stFileUploader"] {
+    background: #EEFFD3 !important; border: none !important; border-radius: var(--radius-md) !important;
+    padding: 14px !important;
+}
+[data-testid="stFileUploaderDropzone"] {
+    background: #EEFFD3 !important; border: none !important; border-radius: var(--radius-md) !important;
+}
+[data-testid="stFileUploaderDropzone"] button {
+    background: #20965F !important; color: #ffffff !important; border: none !important;
+    border-radius: var(--radius-sm) !important; font-weight: 700 !important;
+}
+[data-testid="stFileUploaderDropzone"] * { color: #20965F; }
+[data-testid="stFileUploaderDropzone"] button * { color: #ffffff !important; }
+
+/* ── Form & select widgets — selaraskan dengan palet, tanpa stroke tebal ── */
+div[data-baseweb="select"] > div, .stTextInput input, .stTextArea textarea, .stNumberInput input {
+    border-color: #20965F !important; border-radius: var(--radius-sm) !important;
+}
+[data-testid="stForm"] { background: #EEFFD3; border: none; border-radius: var(--radius-md); padding: 18px 20px; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -491,6 +552,26 @@ def simpan_crowdsource_foto(file_bytes, ext, jenis_hama, lokasi, catatan):
             str((folder / nama_file).relative_to(DATA_DIR)),
         ])
     return nama_file
+
+
+# ================================================================
+#  ASET UI (mascot, ikon gps/maps/sun) — dari folder assets/
+# ================================================================
+ASSET_DIR.mkdir(parents=True, exist_ok=True)
+
+
+@st.cache_data
+def ui_img_b64(filename):
+    """Baca file dari assets/ lalu kembalikan sebagai data-URI base64.
+    Kalau file belum ada (mis. belum diunggah ke repo), kembalikan string kosong
+    supaya CSS/HTML yang memakainya tidak error — tinggal tampil tanpa gambar."""
+    path = ASSET_DIR / filename
+    if not path.exists():
+        return ""
+    ext  = path.suffix.lstrip(".").lower()
+    mime = "jpeg" if ext == "jpg" else ext
+    b64  = base64.b64encode(path.read_bytes()).decode()
+    return f"data:image/{mime};base64,{b64}"
 
 
 # ================================================================
@@ -800,7 +881,7 @@ PLOT_STYLE = dict(
     paper_bgcolor="rgba(0,0,0,0)",
     plot_bgcolor="rgba(246,248,245,1)",
     margin=dict(t=16,b=36,l=44,r=20),
-    font=dict(family="Lexend, sans-serif", size=13, color="#1c2620"),
+    font=dict(family="Poppins, sans-serif", size=13, color="#1c2620"),
 )
 
 def fig_oni(df, n=24):
@@ -982,18 +1063,25 @@ with st.sidebar:
     st.markdown(f'<h2 style="display:flex;align-items:center;gap:8px;color:var(--c-accent-text);">{ico("gear")} Pengaturan</h2>', unsafe_allow_html=True)
     st.markdown("---")
     st.markdown(f'<h3 style="display:flex;align-items:center;gap:8px;color:var(--c-accent-text);">{ico("pin")} Lokasi Anda</h3>', unsafe_allow_html=True)
-    st.caption("Tekan tombol di bawah untuk deteksi otomatis.")
-    gps = streamlit_geolocation()
+    st.caption("Aktifkan GPS lewat tombol di tab Beranda. Atau atur manual di sini.")
 
-    lat, lon, aktif = -7.8754, 110.4262, False
-    if gps and gps.get("latitude") and gps.get("longitude"):
-        lat, lon, aktif = float(gps["latitude"]), float(gps["longitude"]), True
+    if "gps_lat" not in st.session_state:
+        st.session_state["gps_lat"]   = -7.8754
+        st.session_state["gps_lon"]   = 110.4262
+        st.session_state["gps_aktif"] = False
+
+    lat, lon, aktif = (
+        st.session_state["gps_lat"], st.session_state["gps_lon"], st.session_state["gps_aktif"]
+    )
+    if aktif:
         st.success(f"GPS aktif\n{round(lat,4)}°, {round(lon,4)}°\n"
                    f"{prov_terdekat(lat,lon)}")
     else:
         st.warning("GPS belum aktif. Pilih manual.")
         lat = st.number_input("Lintang:", value=lat, format="%.4f")
         lon = st.number_input("Bujur:",   value=lon, format="%.4f")
+        st.session_state["gps_lat"] = lat
+        st.session_state["gps_lon"] = lon
 
     st.markdown("---")
     st.markdown(f'<h3 style="display:flex;align-items:center;gap:8px;color:var(--c-accent-text);">{ico("map")} Provinsi</h3>', unsafe_allow_html=True)
@@ -1022,8 +1110,11 @@ warna_rk, ikon_rk, teks_rk = saran_tanam(status["kelas"], enso["kelas"])
 
 
 # ── HEADER ───────────────────────────────────────────────────────
+_mascot_url = ui_img_b64("mascot.png")
+_mascot_style = f"--mascot-url: url('{_mascot_url}');" if _mascot_url else ""
 st.markdown(f"""
-<div class="ha-header">
+<div class="ha-header" style="{_mascot_style}">
+  <div class="ha-mascot"></div>
   <div class="ha-header-left">
     <span class="ha-logo">{ico('sprout', '2rem')}</span>
     <div>
@@ -1049,6 +1140,49 @@ with tab1:
     if not cuaca["ok"] and cuaca["pesan"]:
         st.warning(cuaca["pesan"])
 
+    # ── Tombol GPS — klik langsung di Beranda (sesuai Figma) ──
+    # Catatan teknis: streamlit_geolocation adalah komponen pihak ketiga yang
+    # dirender di dalam iframe browser sendiri (untuk bisa minta izin lokasi).
+    # Karena itu komponennya harus selalu ada di halaman (bukan di dalam if),
+    # dan teks status Figma (merah/hijau) ditampilkan di luar iframe karena
+    # CSS halaman tidak bisa menjangkau ke dalam iframe komponen pihak ketiga.
+    _gps_icon_url = ui_img_b64("gps.jpg")
+    _gps_aktif = st.session_state.get("gps_aktif", False)
+    _wrap_cls = "aktif" if _gps_aktif else "belum"
+    _label_warna = "#20965F" if _gps_aktif else "#FF0505"
+    _label_teks = "GPS ANDA AKTIF" if _gps_aktif else "KLIK UNTUK AKTIFKAN GPS"
+    _gps_icon_html = (f'<img src="{_gps_icon_url}" style="width:18px;height:18px;object-fit:contain;">'
+                       if _gps_icon_url else ico("pin", "1.1em"))
+
+    st.markdown(f"""
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-family:'Poppins',sans-serif;font-weight:600;font-size:0.92rem;color:{_label_warna};">
+      {_gps_icon_html} {_label_teks}
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown(f'<div class="gps-trigger-wrap {_wrap_cls}">', unsafe_allow_html=True)
+    hasil_gps = streamlit_geolocation()
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    if hasil_gps and hasil_gps.get("latitude") and hasil_gps.get("longitude"):
+        _lat_baru, _lon_baru = float(hasil_gps["latitude"]), float(hasil_gps["longitude"])
+        if not st.session_state.get("gps_aktif") or st.session_state.get("gps_lat") != _lat_baru:
+            st.session_state["gps_lat"]   = _lat_baru
+            st.session_state["gps_lon"]   = _lon_baru
+            st.session_state["gps_aktif"] = True
+            st.rerun()
+
+    # ── Kotak instruksi maps ──
+    _maps_icon_url = ui_img_b64("maps.jpg")
+    _maps_icon_html = (f'<img src="{_maps_icon_url}" alt="maps">' if _maps_icon_url
+                        else ico("map", "1.6rem"))
+    st.markdown(f"""
+    <div class="gps-info-row">
+      <div class="gps-info-icon">{_maps_icon_html}</div>
+      <div class="gps-info-text">Klik tombol di atas agar sistem kami bisa tahu kondisi cuaca di sawah Anda saat ini</div>
+    </div>
+    """, unsafe_allow_html=True)
+
     st.markdown(f"""
     <div class="gps-box">
       <span>{ico('antenna')} <b>Stasiun BMKG:</b> {cuaca['nama']}</span>
@@ -1067,14 +1201,19 @@ with tab1:
     </div>
     """, unsafe_allow_html=True)
 
+    _sun_url = ui_img_b64("sun.png")
+    _sun_img_html = (f'<img src="{_sun_url}" style="position:absolute;width:80px;height:80px;right:24px;top:50%;transform:translateY(-50%);object-fit:contain;" alt="sun">'
+                      if (_sun_url and status['kelas'] == 'aman') else "")
     st.markdown(f"""
-    <div class="big-card {status['kelas']}">
+    <div class="big-card {status['kelas']}" style="position:relative;">
       <div class="bc-label">Kondisi Cuaca Hari Ini — {provinsi}</div>
       <div class="bc-row">
+        <span class="bc-dot {status['kelas']}"></span>
         <span class="bc-icon">{ico(status['ikon'], '2.2rem')}</span>
         <span class="bc-value">{status['level']}</span>
       </div>
       <div class="bc-sub">{status['pesan']}</div>
+      {_sun_img_html}
     </div>
     """, unsafe_allow_html=True)
 
@@ -1145,15 +1284,40 @@ with tab1:
 with tab2:
     st.markdown(f'<p class="sec-title">{ico("cloud-sun")} Cuaca Detail — {provinsi}</p>', unsafe_allow_html=True)
 
-    c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Suhu Maks",   f"{cuaca['tmax']} °C",
-              delta=f"{round(cuaca['tmax']-30,1)} dari ideal 30°C", delta_color="inverse")
-    c2.metric("Suhu Min",    f"{cuaca['tmin']} °C")
-    c3.metric("Kelembapan",  f"{int(cuaca['kelembapan'])} %")
-    c4.metric("Curah Hujan", f"{cuaca['curah_hujan']} mm/hr")
+    _maps_icon_html_t2 = (f'<img src="{ui_img_b64("maps.jpg")}" alt="maps">' if ui_img_b64("maps.jpg")
+                           else ico("map", "1.6rem"))
+    st.markdown(f"""
+    <div class="gps-info-row">
+      <div class="gps-info-icon">{_maps_icon_html_t2}</div>
+      <div class="gps-info-text">Data cuaca diambil dari koordinat: {round(lat,4)}°, {round(lon,4)}° — {provinsi}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    _delta_suhu = round(cuaca['tmax']-30, 1)
+    st.markdown(f"""
+    <div class="metric-grid">
+      <div class="metric-card">
+        <div class="mc-label">{ico('thermometer')} Suhu Maks</div>
+        <div class="mc-val">{cuaca['tmax']}°C</div>
+        <div class="mc-sub">{_delta_suhu:+} dari ideal 30°C</div>
+      </div>
+      <div class="metric-card">
+        <div class="mc-label">{ico('thermometer')} Suhu Min</div>
+        <div class="mc-val">{cuaca['tmin']}°C</div>
+      </div>
+      <div class="metric-card">
+        <div class="mc-label">{ico('droplet')} Kelembapan</div>
+        <div class="mc-val">{int(cuaca['kelembapan'])}%</div>
+      </div>
+      <div class="metric-card">
+        <div class="mc-label">{ico('cloud-rain')} Curah Hujan</div>
+        <div class="mc-val">{cuaca['curah_hujan']} mm/hr</div>
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
 
     st.markdown('<hr class="divider">', unsafe_allow_html=True)
-    st.markdown(f'<p class="sec-title">{ico("wave")} Kondisi ENSO — NOAA CPC Live</p>', unsafe_allow_html=True)
+    st.markdown(f'<p class="sec-title" style="font-weight:900;color:#20965F;">{ico("wave")} Kondisi ENSO — NOAA CPC Live</p>', unsafe_allow_html=True)
 
     # ── Fetch live NOAA ONI ──────────────────────────────────────
     df_oni_live, oni_ok, oni_time = fetch_oni_noaa()
@@ -1292,7 +1456,7 @@ with tab2:
 
     if df_sar is not None:
         st.markdown('<hr class="divider">', unsafe_allow_html=True)
-        st.markdown(f'<p class="sec-title">{ico("satellite")} Radar Satelit — SAR Sentinel-1 (VH)</p>', unsafe_allow_html=True)
+        st.markdown(f'<p class="sec-title" style="font-weight:900;color:#20965F;">{ico("satellite")} Radar Satelit — SAR Sentinel-1 (VH)</p>', unsafe_allow_html=True)
         st.caption("Deteksi kelembapan tanah dan genangan air di lahan sawah")
         st.plotly_chart(fig_sar(df_sar), use_container_width=True)
 
