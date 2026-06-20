@@ -187,6 +187,7 @@ st.markdown("""
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap');
 
 :root {
+    color-scheme: light;
     /* ── Palet utama — sesuai desain Figma AgriAlert ── */
     --c-primary: #20965F;          /* hijau utama — header, tombol, shape gelap */
     --c-primary-dark: #20965F;
@@ -480,13 +481,42 @@ div[data-baseweb="popover"] li {
 /* Probabilitas bar labels */
 .prob-label span { color: #1c2620 !important; }
 
-/* ── GPS geolocation component — styling langsung tanpa div wrapper ── */
+/* Caption text */
+[data-testid="stCaptionContainer"],
+[data-testid="stCaptionContainer"] p { color: #57685d !important; }
+
+/* Radio button labels */
+[data-testid="stRadio"] label p,
+[data-testid="stRadio"] label div p,
+[data-testid="stRadio"] span { color: #1c2620 !important; }
+
+/* Chat input box */
+[data-testid="stChatInput"] {
+    background-color: #f0f7f4 !important;
+    border: 1.5px solid #20965F !important;
+    border-radius: 15px !important;
+}
+[data-testid="stChatInput"] textarea {
+    background-color: #f0f7f4 !important;
+    color: #1c2620 !important;
+    caret-color: #1c2620 !important;
+}
+[data-testid="stChatInput"] button { background-color: #20965F !important; }
+[data-testid="stChatInput"] button svg path { stroke: #ffffff !important; }
+
+/* Chat messages */
+[data-testid="stChatMessage"] { background: #ffffff !important; border: 1px solid #dfe6e0 !important; }
+[data-testid="stChatMessage"] p,
+[data-testid="stChatMessage"] span,
+[data-testid="stChatMessageContent"] * { color: #1c2620 !important; }
+
+/* st.write() dan teks plain dari Python */
+[data-testid="stMarkdownContainer"] > p { color: #1c2620 !important; }
+
+/* ── GPS geolocation component — hanya border-radius, biarkan komponen render natural ── */
 [data-testid="stCustomComponentV1"] {
-    background: #20965F !important;
     border-radius: 15px !important;
     overflow: hidden !important;
-    min-height: 65px !important;
-    box-shadow: 0 1px 3px rgba(32,150,95,0.08) !important;
     margin-bottom: 14px !important;
 }
 [data-testid="stCustomComponentV1"] iframe { width: 100% !important; }
@@ -1212,7 +1242,6 @@ with tab1:
     # CSS halaman tidak bisa menjangkau ke dalam iframe komponen pihak ketiga.
     _gps_icon_url = ui_img_b64("gps.png")
     _gps_aktif = st.session_state.get("gps_aktif", False)
-    _wrap_cls = "aktif" if _gps_aktif else "belum"
     _label_warna = "#20965F" if _gps_aktif else "#FF0505"
     _label_teks = "GPS ANDA AKTIF" if _gps_aktif else "KLIK UNTUK AKTIFKAN GPS"
     _gps_icon_html = (f'<img src="{_gps_icon_url}" style="width:18px;height:18px;object-fit:contain;">'
@@ -1224,7 +1253,6 @@ with tab1:
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown(f'<div class="gps-trigger-wrap {_wrap_cls}">', unsafe_allow_html=True)
     hasil_gps = streamlit_geolocation()
 
     if hasil_gps and hasil_gps.get("latitude") and hasil_gps.get("longitude"):
@@ -1861,11 +1889,26 @@ with tab5:
     st.markdown('<hr class="divider">', unsafe_allow_html=True)
     st.markdown(f'<p class="sec-title">{ico("chart")} Status Sistem</p>', unsafe_allow_html=True)
 
-    s1, s2, s3, s4 = st.columns(4)
-    s1.metric("Data BMKG",  "Live"  if cuaca["ok"]       else "Estimasi")
-    s2.metric("Data ENSO",  f"{len(df_enso)} data")
-    s3.metric("Data NDVI",  "Aktif" if df_ndvi is not None else "Tidak ada")
-    s4.metric("Model CNN",  "Siap"  if model_cnn is not None else "Tidak ada")
+    st.markdown(f"""
+    <div class="metric-grid">
+      <div class="metric-card">
+        <div class="mc-label">{ico('antenna')} Data BMKG</div>
+        <div class="mc-val">{"Live" if cuaca["ok"] else "Estimasi"}</div>
+      </div>
+      <div class="metric-card">
+        <div class="mc-label">{ico('wave')} Data ENSO</div>
+        <div class="mc-val">{len(df_enso)} data</div>
+      </div>
+      <div class="metric-card">
+        <div class="mc-label">{ico('leaf')} Data NDVI</div>
+        <div class="mc-val">{"Aktif" if df_ndvi is not None else "Tidak ada"}</div>
+      </div>
+      <div class="metric-card">
+        <div class="mc-label">{ico('microscope')} Model CNN</div>
+        <div class="mc-val">{"Siap" if model_cnn is not None else "Tidak ada"}</div>
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
 
     st.markdown('<hr class="divider">', unsafe_allow_html=True)
     st.markdown(f'<p class="sec-title">{ico("alert-triangle")} Panduan Warna Peringatan</p>', unsafe_allow_html=True)
