@@ -320,9 +320,9 @@ html, body, [class*="css"] {
 .bc-sub   { font-size: 0.92rem; color: #20965F; margin-top: 6px; line-height: 1.6; }
 .big-card .bc-value, .big-card .bc-label, .big-card .bc-sub { color: #20965F; }
 /* Titik status — hijau aman / kuning waspada / merah bahaya */
-.bc-dot { display:inline-block; width:14px; height:14px; border-radius:50%; margin-right:8px; vertical-align:middle; }
-.bc-dot.aman    { background:#00EA7D; }
-.bc-dot.waspada { background:#F3FF0F; }
+.bc-dot { display:inline-block; width:18px; height:18px; border-radius:50%; margin-right:8px; vertical-align:middle; flex-shrink:0; }
+.bc-dot.aman    { background:#00C96B; }
+.bc-dot.waspada { background:#F59E0B; }
 .bc-dot.bahaya  { background:#FF0505; }
 
 /* ── Metric cards (suhu/kelembapan/curah hujan/iklim) — selalu hijau 20965F, font putih ── */
@@ -405,7 +405,7 @@ button[data-baseweb="tab"][aria-selected="true"] p { color: #EEFFD3 !important; 
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-thumb { background: var(--c-border); border-radius: 6px; }
 @media (max-width: 600px) { .ha-mascot { width: 85px !important; height: 112px !important; right: 8px !important; bottom: 0 !important; } .ha-header { min-height: 150px !important; padding-right: 100px !important; } }
-@media (max-width: 480px) { .ha-title { font-size: 2.4rem !important; } .bc-value { font-size: 1.35rem; } .sec-title { font-size: 1.02rem; } .rk-text { font-size: 0.92rem; } .gps-box { font-size: 0.85rem; } }
+@media (max-width: 480px) { .ha-title { font-size: 2.4rem !important; } .bc-value { font-size: 1.35rem; } .sec-title { font-size: 1.02rem; } .rk-text { font-size: 0.92rem; } .gps-box { font-size: 0.85rem; } .bc-dot { width: 14px !important; height: 14px !important; } }
 .tbot-chat {
     background: var(--c-bg); border: 1.5px solid var(--c-border); border-radius: var(--radius-md);
     padding: 16px 14px; max-height: 400px; overflow-y: auto;
@@ -515,7 +515,11 @@ div[data-baseweb="popover"] li {
 
 /* ── GPS button — container jadi tombol hijau, iframe di dalamnya jadi click target ── */
 div:has(> [data-testid="stCustomComponentV1"]) {
-    background: #20965F !important;
+    background-color: #20965F !important;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12Z'/%3E%3Ccircle cx='12' cy='10' r='2.3'/%3E%3C%2Fsvg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: 20px center !important;
+    background-size: 26px 26px !important;
     border-radius: 15px !important;
     height: 65px !important;
     min-height: 65px !important;
@@ -539,10 +543,6 @@ div:has(> [data-testid="stCustomComponentV1"])::before {
     pointer-events: none !important;
     z-index: 1 !important;
     letter-spacing: 0.3px !important;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12Z'/%3E%3Ccircle cx='12' cy='10' r='2.3'/%3E%3C%2Fsvg%3E") !important;
-    background-repeat: no-repeat !important;
-    background-position: 20px center !important;
-    background-size: 26px 26px !important;
 }
 [data-testid="stCustomComponentV1"] {
     position: absolute !important;
@@ -1285,14 +1285,12 @@ with tab1:
     _gps_aktif = st.session_state.get("gps_aktif", False)
     _label_teks = "GPS ANDA AKTIF" if _gps_aktif else "KLIK UNTUK AKTIFKAN GPS"
     _btn_bg = "#1e8a55" if _gps_aktif else "#20965F"
-    _icon_bg = "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12Z'/%3E%3Ccircle cx='12' cy='10' r='2.3'/%3E%3C%2Fsvg%3E\")"
     st.markdown(f"""<style>
 div:has(> [data-testid="stCustomComponentV1"])::before {{
     content: "{_label_teks}" !important;
-    background-image: {_icon_bg} !important;
 }}
 div:has(> [data-testid="stCustomComponentV1"]) {{
-    background: {_btn_bg} !important;
+    background-color: {_btn_bg} !important;
 }}
 </style>""", unsafe_allow_html=True)
     hasil_gps = streamlit_geolocation()
