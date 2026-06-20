@@ -306,7 +306,8 @@ html, body, [class*="css"] {
     background: #EEFFD3; border-radius: 15px; border: none;
     padding: 16px 20px; margin-bottom: 16px; box-shadow: var(--shadow-sm);
 }
-.gps-info-icon { width: 32px; height: 32px; flex-shrink: 0; }
+.gps-info-row.below-gps-btn { margin-top: -33px; }
+.gps-info-icon { width: 32px; height: 32px; flex-shrink: 0; color: #20965F; }
 .gps-info-icon img { width: 100%; height: 100%; object-fit: contain; }
 .gps-info-text { font-family: 'Poppins', sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #20965F; }
 
@@ -1342,7 +1343,7 @@ div:has(> [data-testid="stCustomComponentV1"]) {{
                        if _gps_aktif else
                        "Klik tombol di atas agar sistem kami bisa tahu kondisi cuaca di sawah Anda saat ini")
     st.markdown(f"""
-    <div class="gps-info-row">
+    <div class="gps-info-row below-gps-btn">
       <div class="gps-info-icon">{ico("map", "1.6rem")}</div>
       <div class="gps-info-text">{_gps_info_text}</div>
     </div>
