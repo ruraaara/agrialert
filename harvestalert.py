@@ -1445,57 +1445,225 @@ div:has(> [data-testid="stCustomComponentV1"]) {{
 
 
 # ════════════════════════════════════════════════════
-#  TAB 2 — CUACA & IKLIM
+#  TAB 2 — CUACA & IKLIM  (VERSI 2 — bugfix length mismatch)
+#  Ganti seluruh blok `with tab2:` yang lama dengan kode ini.
 # ════════════════════════════════════════════════════
 with tab2:
-    st.markdown(f'<p class="sec-title">{ico("cloud-sun")} Cuaca Detail — {provinsi}</p>', unsafe_allow_html=True)
 
-    _maps_icon_html_t2 = (f'<img src="{ui_img_b64("maps.png")}" alt="maps">' if ui_img_b64("maps.png")
-                           else ico("map", "1.6rem"))
+    # ================================================================
+    #  HELPER: COMPOSITE SCORING ENGINE
+    #  Indeks Lahan Stres Komposit (ILSK)
+    # ================================================================
+    import plotly.graph_objects as go
+    from plotly.subplots import make_subplots
+
+    def hitung_ilsk(df_ndvi_in, df_sar_in, df_enso_in):
+        """
+        Menggabungkan tiga sumber data satelit + iklim menjadi satu skor
+        Indeks Lahan Stres Komposit (ILSK) skala 0-1.
+
+        Metode: Rolling Z-score Anomaly Detection + Weighted Fusion
+          Komponen A (bobot 45%) : NDVI Deficiency  — anomali vegetasi vs. baseline 4-bulan
+          Komponen B (bobot 30%) : SAR Dryness      — anomali kelembapan tanah vs. baseline
+          Komponen C (bobot 25%) : ENSO Pressure    — tekanan iklim makro dari ONI
+
+        Seluruh join antar-dataset dilakukan via merge_asof (safe untuk
+        dataset dengan panjang dan timestamp berbeda-beda).
+        """
+        WINDOW = 8        # biweekly x8 ~ 4 bulan rolling baseline
+        W_NDVI = 0.45
+        W_SAR  = 0.30
+        W_ENSO = 0.25
+
+        # ── Komponen A: NDVI Anomaly Score ──────────────────────────
+        df_n = (df_ndvi_in[["Tanggal", "NDVI"]]
+                .copy()
+                .sort_values("Tanggal")
+                .reset_index(drop=True))
+
+        df_n["ndvi_baseline"] = (df_n["NDVI"]
+                                  .rolling(WINDOW, min_periods=4).mean()
+                                  .bfill())
+        df_n["ndvi_roll_std"] = (df_n["NDVI"]
+                                  .rolling(WINDOW, min_periods=4).std()
+                                  .bfill()
+                                  .replace(0, 0.01))
+        df_n["ndvi_z"]       = ((df_n["NDVI"] - df_n["ndvi_baseline"])
+                                 / df_n["ndvi_roll_std"])
+        # z negatif = di bawah baseline = stres; skor 0=sehat, 1=kritis
+        df_n["ndvi_stress"]  = ((-df_n["ndvi_z"]).clip(-3, 3) + 3) / 6
+
+        # ── Komponen B: SAR Dryness Anomaly Score ───────────────────
+        df_s = (df_sar_in[["Tanggal", "SAR_VH"]]
+                .copy()
+                .sort_values("Tanggal")
+                .reset_index(drop=True))
+
+        df_s["sar_baseline"] = (df_s["SAR_VH"]
+                                 .rolling(WINDOW, min_periods=4).mean()
+                                 .bfill())
+        df_s["sar_roll_std"] = (df_s["SAR_VH"]
+                                 .rolling(WINDOW, min_periods=4).std()
+                                 .bfill()
+                                 .replace(0, 0.5))
+        df_s["sar_z"]        = ((df_s["SAR_VH"] - df_s["sar_baseline"])
+                                 / df_s["sar_roll_std"])
+        # SAR VH lebih positif (dB kurang negatif) = lahan lebih kering = stres lebih tinggi
+        df_s["sar_stress"]   = (df_s["sar_z"].clip(-3, 3) + 3) / 6
+
+        # ── Komponen C: ENSO Pressure Score ─────────────────────────
+        df_e = df_enso_in.copy()
+        date_col = "date" if "date" in df_e.columns else "Tanggal"
+        df_e = df_e.rename(columns={date_col: "Tanggal"})
+        df_e["Tanggal"]       = pd.to_datetime(df_e["Tanggal"])
+        df_e["oni_drought"]   = df_e["ONI"].clip(0, 3) / 3.0
+        df_e["oni_flood"]     = (-df_e["ONI"]).clip(0, 3) / 3.0
+        df_e["enso_pressure"] = df_e[["oni_drought", "oni_flood"]].max(axis=1)
+
+        # ── Gabung: semua via merge_asof (aman meski panjang berbeda) ─
+        # Master timeline = NDVI (data terlengkap)
+        df_merge = df_n[["Tanggal", "NDVI", "ndvi_baseline",
+                          "ndvi_z", "ndvi_stress"]].copy()
+
+        # Join SAR — toleransi ±30 hari agar tetap cocok meski jadwal akuisisi beda
+        df_merge = pd.merge_asof(
+            df_merge.sort_values("Tanggal"),
+            df_s[["Tanggal", "SAR_VH", "sar_baseline",
+                  "sar_stress"]].sort_values("Tanggal"),
+            on="Tanggal",
+            direction="nearest",
+            tolerance=pd.Timedelta("30D")
+        )
+
+        # Isi NaN SAR (periode di luar jangkauan data) dengan skor netral
+        sar_vh_median = df_s["SAR_VH"].median()
+        df_merge["SAR_VH"]      = df_merge["SAR_VH"].fillna(sar_vh_median)
+        df_merge["sar_baseline"] = df_merge["sar_baseline"].fillna(sar_vh_median)
+        df_merge["sar_stress"]   = df_merge["sar_stress"].fillna(0.5)
+
+        # Join ENSO — bulanan ke biweekly via backward fill
+        df_merge = pd.merge_asof(
+            df_merge.sort_values("Tanggal"),
+            df_e[["Tanggal", "ONI", "enso_pressure",
+                  "oni_drought", "oni_flood"]].sort_values("Tanggal"),
+            on="Tanggal",
+            direction="backward"
+        )
+        df_merge["ONI"]           = df_merge["ONI"].fillna(0.0)
+        df_merge["enso_pressure"] = df_merge["enso_pressure"].fillna(0.0)
+        df_merge["oni_drought"]   = df_merge["oni_drought"].fillna(0.0)
+        df_merge["oni_flood"]     = df_merge["oni_flood"].fillna(0.0)
+
+        # ── Skor Komposit ILSK ───────────────────────────────────────
+        df_merge["ILSK"] = (
+            W_NDVI * df_merge["ndvi_stress"]   +
+            W_SAR  * df_merge["sar_stress"]    +
+            W_ENSO * df_merge["enso_pressure"]
+        ).clip(0, 1)
+
+        # EWM smoothing untuk visualisasi tren
+        df_merge["ILSK_smooth"] = (df_merge["ILSK"]
+                                    .ewm(span=5, min_periods=2)
+                                    .mean())
+
+        # Klasifikasi status
+        def _status(s):
+            if s < 0.35:   return "Aman"
+            elif s < 0.55: return "Waspada"
+            return "Bahaya"
+
+        df_merge["status"]        = df_merge["ILSK"].apply(_status)
+        df_merge["status_smooth"] = df_merge["ILSK_smooth"].apply(_status)
+
+        return df_merge.reset_index(drop=True)
+
+    # ================================================================
+    #  HITUNG ILSK (hanya jika kedua data satelit tersedia)
+    # ================================================================
+    data_lengkap = (df_ndvi is not None) and (df_sar is not None)
+
+    if data_lengkap:
+        df_ilsk = hitung_ilsk(df_ndvi, df_sar, df_enso)
+        ilsk_terkini      = float(df_ilsk["ILSK"].iloc[-1])
+        status_terkini    = df_ilsk["status"].iloc[-1]
+        tanggal_terakhir  = df_ilsk["Tanggal"].iloc[-1].strftime("%d %b %Y")
+
+        ndvi_val   = float(df_ilsk["NDVI"].iloc[-1])
+        sar_val    = float(df_ilsk["SAR_VH"].iloc[-1])
+        oni_val    = float(df_ilsk["ONI"].iloc[-1])
+        ndvi_skor  = float(df_ilsk["ndvi_stress"].iloc[-1])
+        sar_skor   = float(df_ilsk["sar_stress"].iloc[-1])
+        enso_skor  = float(df_ilsk["enso_pressure"].iloc[-1])
+
+        ilsk_4ago  = float(df_ilsk["ILSK"].iloc[-5]) if len(df_ilsk) >= 5 else ilsk_terkini
+        delta_tren = ilsk_terkini - ilsk_4ago
+
+    # ================================================================
+    #  SECTION 1 — HEADER + LOKASI + CUACA BMKG
+    # ================================================================
+    st.markdown(
+        f'<p class="sec-title">{ico("cloud-sun")} Cuaca Detail — {provinsi}</p>',
+        unsafe_allow_html=True
+    )
+
+    _maps_icon_t2 = (
+        f'<img src="{ui_img_b64("maps.png")}" alt="maps">'
+        if ui_img_b64("maps.png") else ico("map", "1.6rem")
+    )
     st.markdown(f"""
     <div class="gps-info-row">
-      <div class="gps-info-icon">{_maps_icon_html_t2}</div>
-      <div class="gps-info-text">Data cuaca diambil dari koordinat: {round(lat,4)}°, {round(lon,4)}° — {provinsi}</div>
+      <div class="gps-info-icon">{_maps_icon_t2}</div>
+      <div class="gps-info-text">
+        Data cuaca dari koordinat: {round(lat, 4)}, {round(lon, 4)} — {provinsi}
+      </div>
     </div>
     """, unsafe_allow_html=True)
 
-    _delta_suhu = round(cuaca['tmax']-30, 1)
+    _delta_suhu = round(cuaca["tmax"] - 30, 1)
     st.markdown(f"""
     <div class="metric-grid">
       <div class="metric-card">
-        <div class="mc-label">{ico('thermometer')} Suhu Maks</div>
-        <div class="mc-val">{cuaca['tmax']}°C</div>
+        <div class="mc-label">{ico("thermometer")} Suhu Maks</div>
+        <div class="mc-val">{cuaca["tmax"]}°C</div>
         <div class="mc-sub">{_delta_suhu:+} dari ideal 30°C</div>
       </div>
       <div class="metric-card">
-        <div class="mc-label">{ico('thermometer')} Suhu Min</div>
-        <div class="mc-val">{cuaca['tmin']}°C</div>
+        <div class="mc-label">{ico("thermometer")} Suhu Min</div>
+        <div class="mc-val">{cuaca["tmin"]}°C</div>
       </div>
       <div class="metric-card">
-        <div class="mc-label">{ico('droplet')} Kelembapan</div>
-        <div class="mc-val">{int(cuaca['kelembapan'])}%</div>
+        <div class="mc-label">{ico("droplet")} Kelembapan</div>
+        <div class="mc-val">{int(cuaca["kelembapan"])}%</div>
       </div>
       <div class="metric-card">
-        <div class="mc-label">{ico('cloud-rain')} Curah Hujan</div>
-        <div class="mc-val">{cuaca['curah_hujan']} mm/hr</div>
+        <div class="mc-label">{ico("cloud-rain")} Curah Hujan</div>
+        <div class="mc-val">{cuaca["curah_hujan"]} mm/hr</div>
       </div>
     </div>
     """, unsafe_allow_html=True)
 
+    # ================================================================
+    #  SECTION 2 — ENSO LIVE
+    # ================================================================
     st.markdown('<hr class="divider">', unsafe_allow_html=True)
-    st.markdown(f'<p class="sec-title" style="font-weight:900;color:#20965F;">{ico("wave")} Kondisi ENSO — NOAA CPC Live</p>', unsafe_allow_html=True)
+    st.markdown(
+        f'<p class="sec-title" style="font-weight:900;color:#20965F;">'
+        f'{ico("wave")} Kondisi ENSO — NOAA CPC Live</p>',
+        unsafe_allow_html=True
+    )
 
-    # ── Fetch live NOAA ONI ──────────────────────────────────────
     df_oni_live, oni_ok, oni_time = fetch_oni_noaa()
-    df_for_enso = (df_oni_live
-                   if df_oni_live is not None and len(df_oni_live) >= 6
-                   else df_enso)
-    src_txt = (f"NOAA CPC · Diperbarui: {oni_time} · {len(df_for_enso)} data poin"
-               if oni_ok
-               else "Data lokal (NOAA tidak tersedia saat ini)")
+    df_for_enso = (
+        df_oni_live
+        if df_oni_live is not None and len(df_oni_live) >= 6
+        else df_enso
+    )
+    src_txt = (
+        f"NOAA CPC · Diperbarui: {oni_time} · {len(df_for_enso)} data poin"
+        if oni_ok else "Data lokal (NOAA tidak tersedia saat ini)"
+    )
     st.caption(src_txt)
 
-    # ── Current & predicted ENSO ─────────────────────────────────
     oni_cur   = float(df_for_enso.iloc[-1]["ONI"])
     date_cur  = pd.Timestamp(df_for_enso.iloc[-1]["date"])
     enso_cur  = info_enso(oni_cur)
@@ -1505,61 +1673,74 @@ with tab2:
     st.markdown(f"""
     <div class="two-col">
       <div class="big-card {enso_cur['kelas']}">
-        <div class="bc-label">{ico('wave')} ENSO Terkini — {date_cur.strftime('%B %Y')}</div>
+        <div class="bc-label">{ico("wave")} ENSO Terkini — {date_cur.strftime("%B %Y")}</div>
         <div class="bc-row">
-          <span class="bc-icon">{ico(enso_cur['ikon'], '2.2rem')}</span>
+          <span class="bc-icon">{ico(enso_cur["ikon"], "2.2rem")}</span>
           <div>
-            <span class="bc-value" style="font-size:1.15rem">{enso_cur['fase']}</span>
+            <span class="bc-value" style="font-size:1.15rem">{enso_cur["fase"]}</span>
             <div class="bc-sub">ONI: <b>{oni_cur:+.2f}°C</b></div>
           </div>
         </div>
-        <div class="bc-sub" style="margin-top:8px">{enso_cur['pesan']}</div>
+        <div class="bc-sub" style="margin-top:8px">{enso_cur["pesan"]}</div>
       </div>
       <div class="big-card {enso_pred['kelas']}">
-        <div class="bc-label">{ico('chart')} Prediksi — {pred['date'].strftime('%B %Y')} (bulan depan)</div>
+        <div class="bc-label">{ico("chart")} Prediksi — {pred["date"].strftime("%B %Y")}</div>
         <div class="bc-row">
-          <span class="bc-icon">{ico(enso_pred['ikon'], '2.2rem')}</span>
+          <span class="bc-icon">{ico(enso_pred["ikon"], "2.2rem")}</span>
           <div>
-            <span class="bc-value" style="font-size:1.15rem">{enso_pred['fase']}</span>
-            <div class="bc-sub">ONI ≈ <b>{pred['oni']:+.2f}°C</b>
-              &nbsp;({pred['oni_low']:+.1f} s/d {pred['oni_high']:+.1f})</div>
+            <span class="bc-value" style="font-size:1.15rem">{enso_pred["fase"]}</span>
+            <div class="bc-sub">
+              ONI kira-kira <b>{pred["oni"]:+.2f}°C</b>
+              &nbsp;({pred["oni_low"]:+.1f} s/d {pred["oni_high"]:+.1f})
+            </div>
           </div>
         </div>
         <div class="bc-sub" style="margin-top:8px">
-          Tren: <b>{pred['tren']}</b>. {enso_pred['pesan']}
+          Tren: <b>{pred["tren"]}</b>. {enso_pred["pesan"]}
         </div>
       </div>
     </div>
     <p style="font-size:0.7rem;color:#64748b;margin:-2px 0 12px">
-      {ico('alert-triangle')} Prediksi menggunakan model AR(3) yang dilatih dari data historis NOAA 75 tahun — indikasi statistik, bukan model iklim resmi.
-      Rujukan resmi: <b>bmkg.go.id</b> · <b>iri.columbia.edu</b>
+      {ico("alert-triangle")} Prediksi menggunakan model AR(3) dari data historis NOAA 75 tahun —
+      indikasi statistik, bukan model iklim resmi.
+      Rujukan: <b>bmkg.go.id</b> · <b>iri.columbia.edu</b>
     </p>
     """, unsafe_allow_html=True)
 
-    st.caption("El Niño (ONI ≥ +0.5) · La Niña (ONI ≤ −0.5) · Normal · ◆ Prediksi bulan depan")
-    st.plotly_chart(fig_oni_with_forecast(df_for_enso, pred), use_container_width=True, theme=None)
+    st.caption("El Nino (ONI >= +0.5) · La Nina (ONI <= -0.5) · Normal · Prediksi bulan depan")
+    st.plotly_chart(
+        fig_oni_with_forecast(df_for_enso, pred),
+        use_container_width=True,
+        theme=None
+    )
 
     # ── Farming impact section ───────────────────────────────────
     st.markdown('<hr class="divider">', unsafe_allow_html=True)
-    st.markdown(f'<p class="sec-title">{ico("sprout")} Implikasi untuk Pertanian Padi Indonesia</p>',
-                unsafe_allow_html=True)
+    st.markdown(
+        f'<p class="sec-title">{ico("sprout")} Implikasi untuk Pertanian Padi Indonesia</p>',
+        unsafe_allow_html=True
+    )
 
     _DAMPAK = {
-        "El Niño Kuat": [
+        "El Nino Kuat": [
             ("merah", "sun", "Kekeringan Ekstrem",
-             "Produksi padi di Jawa, NTB, dan Sulawesi bisa turun 20–40%. "
-             "Hentikan penanaman varietas sensitif kering. Prioritaskan lahan dekat irigasi teknis."),
+             "Produksi padi di Jawa, NTB, dan Sulawesi bisa turun 20-40%. "
+             "Hentikan penanaman varietas sensitif kering. "
+             "Prioritaskan lahan dekat irigasi teknis."),
             ("merah", "droplet", "Krisis Air Irigasi",
-             "Terapkan AWD (Alternate Wetting & Drying): basah 2 hari → kering 3 hari → basah lagi. "
+             "Terapkan AWD (Alternate Wetting and Drying): basah 2 hari, "
+             "kering 3 hari, basah lagi. "
              "Tutup permukaan tanah dengan jerami untuk kurangi evaporasi."),
-            ("merah", "bug", "Hama Tikus & Wereng",
-             "Populasi tikus melonjak saat kemarau panjang. Koordinasi gropyokan bersama petani sekitar. "
+            ("merah", "bug", "Hama Tikus dan Wereng",
+             "Populasi tikus melonjak saat kemarau panjang. "
+             "Koordinasi gropyokan bersama petani sekitar. "
              "Pasang bubu perangkap dan karet di pematang sawah."),
         ],
-        "El Niño": [
+        "El Nino": [
             ("kuning", "droplet", "Hemat Air Irigasi",
              "Terapkan irigasi berselang. Tanam varietas toleran kering: "
-             "Inpari 32, Inpago, atau Inpara 3. Jadwal tanam lebih awal dari biasanya."),
+             "Inpari 32, Inpago, atau Inpara 3. "
+             "Jadwal tanam lebih awal dari biasanya."),
             ("kuning", "calendar", "Sesuaikan Kalender Tanam",
              "Maju jadwal tanam agar panen selesai sebelum puncak kemarau. "
              "Koordinasikan dengan kelompok tani dan penyuluh PPL."),
@@ -1569,30 +1750,32 @@ with tab2:
              "Ikuti kalender tanam yang sudah ditetapkan BPP. "
              "Waktu tepat untuk pemupukan NPK dan pengamatan rutin OPT."),
         ],
-        "La Niña": [
+        "La Nina": [
             ("kuning", "cloud-rain", "Pantau Drainase",
-             "Bersihkan saluran got sebelum hujan puncak. Perkuat pematang sawah untuk cegah jebol. "
+             "Bersihkan saluran got sebelum hujan puncak. Perkuat pematang sawah. "
              "Hindari genangan lebih dari 3 hari pada fase anakan."),
             ("kuning", "leaf", "Waspadai Penyakit Jamur",
-             "Risiko blas dan busuk pelepah meningkat. Aplikasi fungisida profilaksis "
-             "(mankozeb/validamycin) dianjurkan pada fase anakan aktif."),
+             "Risiko blas dan busuk pelepah meningkat. "
+             "Aplikasi fungisida profilaksis (mankozeb/validamycin) "
+             "dianjurkan pada fase anakan aktif."),
         ],
-        "La Niña Kuat": [
+        "La Nina Kuat": [
             ("merah", "storm", "Risiko Banjir Tinggi",
-             "Di Kalimantan, Sumatera, dan pantai utara Jawa, bersiap untuk genangan panjang. "
+             "Di Kalimantan, Sumatera, dan pantai utara Jawa, "
+             "bersiap untuk genangan panjang. "
              "Pindah ke varietas tahan banjir: Inpara 3, Ciherang Sub-1."),
             ("merah", "leaf", "Ledakan Penyakit",
-             "Blas daun dan tungro melonjak drastis. Kendalikan wereng hijau (vektor tungro) "
-             "dengan imidakloprid. Cabut dan bakar tanaman terinfeksi segera."),
+             "Blas daun dan tungro melonjak drastis. "
+             "Kendalikan wereng hijau (vektor tungro) dengan imidakloprid. "
+             "Cabut dan bakar tanaman terinfeksi segera."),
             ("merah", "bug", "Wereng Cokelat Meledak",
              "Populasi wereng meledak di kondisi lembab berkepanjangan. "
-             "Gunakan varietas tahan wereng (VUB BPT) dan hindari pemupukan N berlebih."),
+             "Gunakan varietas tahan wereng (VUB BPT) "
+             "dan hindari pemupukan N berlebih."),
         ],
     }
 
-    fase_cur  = enso_cur["fase"]
-    items_cur = _DAMPAK.get(fase_cur, _DAMPAK["Normal"])
-    for warna, ikon_key, judul, teks in items_cur:
+    for warna, ikon_key, judul, teks in _DAMPAK.get(enso_cur["fase"], _DAMPAK["Normal"]):
         st.markdown(f"""
         <div class="rekom {warna}">
           <div class="rk-title">{ico(ikon_key)} {judul}</div>
@@ -1600,32 +1783,417 @@ with tab2:
         </div>
         """, unsafe_allow_html=True)
 
-    # Peringatan transisi jika prediksi berbeda dari kondisi sekarang
     if enso_pred["fase"] != enso_cur["fase"]:
         st.markdown(f"""
         <div class="rekom biru" style="margin-top:10px">
-          <div class="rk-title">{ico('satellite')} Potensi Transisi ENSO Bulan Depan</div>
+          <div class="rk-title">{ico("satellite")} Potensi Transisi ENSO Bulan Depan</div>
           <div class="rk-text">
             Tren 6 bulan terakhir menunjukkan kemungkinan pergeseran dari
-            <b>{enso_cur['fase']}</b> → <b>{enso_pred['fase']}</b>
-            pada {pred['date'].strftime('%B %Y')}.
+            <b>{enso_cur["fase"]}</b> ke <b>{enso_pred["fase"]}</b>
+            pada {pred["date"].strftime("%B %Y")}.
             Mulai persiapkan langkah antisipasi sekarang.
           </div>
         </div>
         """, unsafe_allow_html=True)
 
-    if df_ndvi is not None:
-        st.markdown('<hr class="divider">', unsafe_allow_html=True)
-        st.markdown(f'<p class="sec-title">{ico("leaf")} Kondisi Tanaman — NDVI Sentinel-2</p>', unsafe_allow_html=True)
-        st.caption("Nilai 0.6–0.8 = tanaman sehat dan subur")
-        st.plotly_chart(fig_ndvi(df_ndvi), use_container_width=True)
+    # ================================================================
+    #  SECTION 3 — ILSK: INDEKS LAHAN STRES KOMPOSIT
+    # ================================================================
+    st.markdown('<hr class="divider">', unsafe_allow_html=True)
+    st.markdown(
+        f'<p class="sec-title" style="font-weight:900;color:#20965F;">'
+        f'{ico("satellite")} Indeks Lahan Stres Komposit (ILSK)</p>',
+        unsafe_allow_html=True
+    )
 
-    if df_sar is not None:
-        st.markdown('<hr class="divider">', unsafe_allow_html=True)
-        st.markdown(f'<p class="sec-title" style="font-weight:900;color:#20965F;">{ico("satellite")} Radar Satelit — SAR Sentinel-1 (VH)</p>', unsafe_allow_html=True)
-        st.caption("Deteksi kelembapan tanah dan genangan air di lahan sawah")
-        st.plotly_chart(fig_sar(df_sar), use_container_width=True)
+    if not data_lengkap:
+        st.warning(
+            "Data satelit NDVI atau SAR belum tersedia. "
+            "ILSK akan tampil setelah kedua dataset dimuat."
+        )
+    else:
+        # ── Banner Peringatan Utama ─────────────────────────────
+        tren_txt = (
+            "meningkat dalam 2 bulan terakhir"  if delta_tren >  0.04 else
+            "menurun dalam 2 bulan terakhir"    if delta_tren < -0.04 else
+            "stabil dalam 2 bulan terakhir"
+        )
 
+        if status_terkini == "Bahaya":
+            st.error(
+                f"PERINGATAN DINI — STRES LAHAN TINGGI\n\n"
+                f"Berdasarkan data satelit per {tanggal_terakhir}, "
+                f"Indeks Lahan Stres Komposit (ILSK) menunjukkan nilai "
+                f"{ilsk_terkini:.2f} (Kategori: BAHAYA). "
+                f"Tingkat stres lahan {tren_txt}. "
+                f"Segera lakukan evaluasi kondisi irigasi dan "
+                f"kelembapan tanah di lapangan."
+            )
+        elif status_terkini == "Waspada":
+            st.warning(
+                f"PERLU PERHATIAN — STRES LAHAN SEDANG\n\n"
+                f"Berdasarkan data satelit per {tanggal_terakhir}, "
+                f"Indeks Lahan Stres Komposit (ILSK) bernilai "
+                f"{ilsk_terkini:.2f} (Kategori: WASPADA). "
+                f"Tingkat stres lahan {tren_txt}. "
+                f"Pantau kondisi lahan lebih sering dan "
+                f"siapkan tindakan preventif."
+            )
+        else:
+            st.success(
+                f"KONDISI LAHAN NORMAL\n\n"
+                f"Berdasarkan data satelit per {tanggal_terakhir}, "
+                f"Indeks Lahan Stres Komposit (ILSK) bernilai "
+                f"{ilsk_terkini:.2f} (Kategori: AMAN). "
+                f"Tingkat stres lahan {tren_txt}. "
+                f"Tidak ada indikasi tekanan signifikan pada "
+                f"lahan sawah saat ini."
+            )
+
+        # ── Kartu Breakdown 3 Komponen ──────────────────────────
+        def _warna_skor(s):
+            if s < 0.35:   return "aman"
+            elif s < 0.55: return "waspada"
+            return "bahaya"
+
+        def _label_skor(s):
+            if s < 0.35:   return "Rendah"
+            elif s < 0.55: return "Sedang"
+            return "Tinggi"
+
+        st.markdown(f"""
+        <div class="metric-grid" style="grid-template-columns:repeat(3,1fr);margin-top:14px">
+
+          <div class="metric-card {_warna_skor(ndvi_skor)}">
+            <div class="mc-label">{ico("leaf")} Stres Vegetasi (NDVI)</div>
+            <div class="mc-val">{ndvi_skor:.2f}</div>
+            <div class="mc-sub">
+              NDVI: {ndvi_val:.3f}<br>
+              Tekanan: <b>{_label_skor(ndvi_skor)}</b> — bobot 45%
+            </div>
+          </div>
+
+          <div class="metric-card {_warna_skor(sar_skor)}">
+            <div class="mc-label">{ico("satellite")} Anomali Kelembapan (SAR)</div>
+            <div class="mc-val">{sar_skor:.2f}</div>
+            <div class="mc-sub">
+              SAR VH: {sar_val:.1f} dB<br>
+              Tekanan: <b>{_label_skor(sar_skor)}</b> — bobot 30%
+            </div>
+          </div>
+
+          <div class="metric-card {_warna_skor(enso_skor)}">
+            <div class="mc-label">{ico("wave")} Tekanan Iklim (ENSO)</div>
+            <div class="mc-val">{enso_skor:.2f}</div>
+            <div class="mc-sub">
+              ONI: {oni_val:+.2f}°C<br>
+              Tekanan: <b>{_label_skor(enso_skor)}</b> — bobot 25%
+            </div>
+          </div>
+
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown(f"""
+        <div class="rekom" style="margin-top:10px">
+          <div class="rk-title">{ico("info-circle")} Cara Membaca ILSK</div>
+          <div class="rk-text">
+            ILSK (0-1) dihitung dari tiga sinyal: anomali vegetasi NDVI Sentinel-2 (45%),
+            anomali kelembapan tanah SAR Sentinel-1 VH (30%), dan tekanan iklim makro
+            dari Indeks ENSO-ONI NOAA (25%). Nilai di bawah 0.35 = Aman,
+            0.35-0.55 = Waspada, di atas 0.55 = Bahaya.
+            Skor anomali menggunakan z-score rolling 4-bulan agar fluktuasi
+            musiman tidak bias terhadap tren jangka panjang.
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # ── GRAFIK 1: ILSK Timeline ─────────────────────────────
+        st.markdown(
+            f'<p class="sec-title" style="margin-top:20px">'
+            f'{ico("chart")} Tren ILSK — Seluruh Periode Data</p>',
+            unsafe_allow_html=True
+        )
+
+        fig_ilsk = go.Figure()
+
+        # Background bands
+        fig_ilsk.add_hrect(y0=0.55, y1=1.0,
+                           fillcolor="rgba(239,68,68,0.13)", line_width=0,
+                           annotation_text="Bahaya",
+                           annotation_position="top left",
+                           annotation_font_color="#ef4444")
+        fig_ilsk.add_hrect(y0=0.35, y1=0.55,
+                           fillcolor="rgba(234,179,8,0.11)", line_width=0,
+                           annotation_text="Waspada",
+                           annotation_position="top left",
+                           annotation_font_color="#ca8a04")
+        fig_ilsk.add_hrect(y0=0.0, y1=0.35,
+                           fillcolor="rgba(34,197,94,0.09)", line_width=0,
+                           annotation_text="Aman",
+                           annotation_position="bottom left",
+                           annotation_font_color="#16a34a")
+
+        # Garis ambang batas
+        fig_ilsk.add_hline(y=0.55, line_dash="dot",
+                           line_color="#ef4444", line_width=1.2)
+        fig_ilsk.add_hline(y=0.35, line_dash="dot",
+                           line_color="#ca8a04", line_width=1.2)
+
+        # Area fill
+        fig_ilsk.add_trace(go.Scatter(
+            x=df_ilsk["Tanggal"], y=df_ilsk["ILSK_smooth"],
+            fill="tozeroy", fillcolor="rgba(32,150,95,0.07)",
+            line=dict(color="rgba(0,0,0,0)"),
+            showlegend=False, hoverinfo="skip"
+        ))
+
+        # Kurva ILSK raw — titik diwarnai sesuai status
+        ilsk_colors = df_ilsk["status"].map(
+            {"Aman": "#22c55e", "Waspada": "#eab308", "Bahaya": "#ef4444"}
+        ).tolist()
+
+        fig_ilsk.add_trace(go.Scatter(
+            x=df_ilsk["Tanggal"], y=df_ilsk["ILSK"],
+            mode="lines+markers",
+            name="ILSK (nilai aktual)",
+            line=dict(color="#20965F", width=1.5),
+            marker=dict(size=6, color=ilsk_colors,
+                        line=dict(color="white", width=1)),
+            hovertemplate="<b>%{x|%d %b %Y}</b><br>ILSK: %{y:.3f}<extra></extra>"
+        ))
+
+        # Kurva tren halus (EWM)
+        fig_ilsk.add_trace(go.Scatter(
+            x=df_ilsk["Tanggal"], y=df_ilsk["ILSK_smooth"],
+            mode="lines",
+            name="ILSK (tren halus)",
+            line=dict(color="#176e47", width=2.5),
+            hovertemplate="<b>%{x|%d %b %Y}</b><br>Tren: %{y:.3f}<extra></extra>"
+        ))
+
+        # Titik terkini
+        dot_color = (
+            "#ef4444" if status_terkini == "Bahaya" else
+            "#eab308" if status_terkini == "Waspada" else
+            "#22c55e"
+        )
+        fig_ilsk.add_trace(go.Scatter(
+            x=[df_ilsk["Tanggal"].iloc[-1]],
+            y=[ilsk_terkini],
+            mode="markers",
+            name="Posisi Terkini",
+            marker=dict(size=14, symbol="diamond", color=dot_color,
+                        line=dict(color="white", width=2)),
+            hovertemplate=(
+                f"<b>Terkini: {tanggal_terakhir}</b><br>"
+                f"ILSK: {ilsk_terkini:.3f}<br>"
+                f"Status: {status_terkini}<extra></extra>"
+            )
+        ))
+
+        fig_ilsk.update_layout(
+            **PLOT_STYLE, height=340,
+            yaxis=dict(title="Indeks Lahan Stres (ILSK)", range=[0, 1]),
+            xaxis=dict(title=""),
+            legend=dict(orientation="h", yanchor="bottom", y=1.02,
+                        xanchor="right", x=1)
+        )
+        st.plotly_chart(fig_ilsk, use_container_width=True, theme=None)
+
+        # ── GRAFIK 2: Dekomposisi 3 Komponen ───────────────────
+        st.markdown(
+            f'<p class="sec-title">'
+            f'{ico("chart")} Dekomposisi Tiga Komponen ILSK</p>',
+            unsafe_allow_html=True
+        )
+
+        fig_decomp = make_subplots(
+            rows=3, cols=1,
+            shared_xaxes=True,
+            vertical_spacing=0.07,
+            subplot_titles=[
+                "Komponen A — Skor Stres Vegetasi (NDVI Sentinel-2)",
+                "Komponen B — Skor Anomali Kelembapan Tanah (SAR Sentinel-1 VH)",
+                "Komponen C — Skor Tekanan Iklim Makro (ENSO-ONI NOAA)"
+            ]
+        )
+
+        # Panel A: NDVI Stress Score + baseline
+        fig_decomp.add_trace(go.Scatter(
+            x=df_ilsk["Tanggal"], y=df_ilsk["ndvi_stress"],
+            mode="lines+markers", name="Skor Stres NDVI",
+            line=dict(color="#4ade80", width=2),
+            marker=dict(size=4),
+            hovertemplate="<b>%{x|%d %b %Y}</b><br>Skor: %{y:.3f}<extra></extra>"
+        ), row=1, col=1)
+
+        fig_decomp.add_trace(go.Scatter(
+            x=df_ilsk["Tanggal"], y=df_ilsk["NDVI"],
+            mode="lines", name="NDVI (nilai asli)",
+            line=dict(color="#86efac", width=1.2, dash="dot"),
+            hovertemplate="<b>%{x|%d %b %Y}</b><br>NDVI: %{y:.3f}<extra></extra>"
+        ), row=1, col=1)
+
+        fig_decomp.add_trace(go.Scatter(
+            x=df_ilsk["Tanggal"], y=df_ilsk["ndvi_baseline"],
+            mode="lines", name="Baseline NDVI (rolling 4-bulan)",
+            line=dict(color="#16a34a", width=1, dash="longdash"),
+            hovertemplate="<b>%{x|%d %b %Y}</b><br>Baseline: %{y:.3f}<extra></extra>"
+        ), row=1, col=1)
+
+        # Panel B: SAR Stress Score (bar)
+        sar_bar_colors = [
+            "#ef4444" if s > 0.55 else ("#eab308" if s > 0.35 else "#60a5fa")
+            for s in df_ilsk["sar_stress"]
+        ]
+        fig_decomp.add_trace(go.Bar(
+            x=df_ilsk["Tanggal"], y=df_ilsk["sar_stress"],
+            name="Skor Anomali SAR",
+            marker_color=sar_bar_colors,
+            hovertemplate="<b>%{x|%d %b %Y}</b><br>Skor: %{y:.3f}<extra></extra>"
+        ), row=2, col=1)
+
+        # Panel C: ENSO breakdown — drought vs flood
+        fig_decomp.add_trace(go.Bar(
+            x=df_ilsk["Tanggal"], y=df_ilsk["oni_drought"],
+            name="Tekanan Kekeringan (El Nino)",
+            marker_color="rgba(239,68,68,0.65)",
+            hovertemplate="<b>%{x|%d %b %Y}</b><br>Drought: %{y:.3f}<extra></extra>"
+        ), row=3, col=1)
+
+        fig_decomp.add_trace(go.Bar(
+            x=df_ilsk["Tanggal"], y=df_ilsk["oni_flood"],
+            name="Tekanan Banjir (La Nina)",
+            marker_color="rgba(59,130,246,0.65)",
+            hovertemplate="<b>%{x|%d %b %Y}</b><br>Flood: %{y:.3f}<extra></extra>"
+        ), row=3, col=1)
+
+        fig_decomp.update_layout(
+            **PLOT_STYLE, height=600,
+            showlegend=True, barmode="overlay",
+            legend=dict(orientation="h", yanchor="bottom", y=1.01,
+                        xanchor="right", x=1, font=dict(size=11))
+        )
+        for r in [1, 2, 3]:
+            fig_decomp.update_yaxes(range=[0, 1], title_text="Skor [0-1]",
+                                    row=r, col=1)
+
+        st.plotly_chart(fig_decomp, use_container_width=True, theme=None)
+
+        # ── GRAFIK 3: Distribusi Status ─────────────────────────
+        st.markdown(
+            f'<p class="sec-title">'
+            f'{ico("flag")} Distribusi Status Lahan — Seluruh Periode</p>',
+            unsafe_allow_html=True
+        )
+
+        status_counts = (df_ilsk["status"]
+                         .value_counts()
+                         .reindex(["Aman", "Waspada", "Bahaya"], fill_value=0))
+        total_obs = len(df_ilsk)
+
+        fig_dist = go.Figure(go.Bar(
+            x=status_counts.index,
+            y=status_counts.values,
+            marker_color=["#22c55e", "#eab308", "#ef4444"],
+            text=[f"{v} obs ({v / total_obs * 100:.0f}%)"
+                  for v in status_counts.values],
+            textposition="outside",
+            hovertemplate="<b>%{x}</b><br>%{y} observasi<extra></extra>"
+        ))
+        fig_dist.update_layout(
+            **PLOT_STYLE, height=260, showlegend=False,
+            yaxis_title="Jumlah Observasi", xaxis_title="Status ILSK"
+        )
+        st.plotly_chart(fig_dist, use_container_width=True, theme=None)
+
+        # ── Tabel Top-5 Periode Risiko Tertinggi ───────────────
+        st.markdown(
+            f'<p class="sec-title">'
+            f'{ico("alert-triangle")} 5 Periode Risiko Tertinggi</p>',
+            unsafe_allow_html=True
+        )
+
+        top5 = (df_ilsk
+                .nlargest(5, "ILSK")
+                [["Tanggal", "NDVI", "SAR_VH", "ONI", "ILSK", "status"]]
+                .copy())
+        top5["Tanggal"] = top5["Tanggal"].dt.strftime("%d %b %Y")
+        top5 = top5.rename(columns={
+            "Tanggal": "Tanggal Observasi",
+            "NDVI":    "NDVI",
+            "SAR_VH":  "SAR VH (dB)",
+            "ONI":     "ONI",
+            "ILSK":    "Skor ILSK",
+            "status":  "Status"
+        })
+
+        def _style_status(val):
+            if val == "Bahaya":
+                return "background-color:#fef2f2;color:#b91c1c;font-weight:700"
+            elif val == "Waspada":
+                return "background-color:#fefce8;color:#92400e;font-weight:700"
+            return "background-color:#f0fdf4;color:#15803d;font-weight:700"
+
+        st.dataframe(
+            top5.style
+                .format({
+                    "NDVI":        "{:.3f}",
+                    "SAR VH (dB)": "{:.1f}",
+                    "ONI":         "{:+.2f}",
+                    "Skor ILSK":   "{:.3f}"
+                })
+                .map(_style_status, subset=["Status"])
+                .set_properties(**{"font-size": "0.88rem"}),
+            use_container_width=True,
+            hide_index=True
+        )
+
+    # ================================================================
+    #  SECTION 4 — DATA MENTAH (di dalam expander)
+    # ================================================================
+    st.markdown('<hr class="divider">', unsafe_allow_html=True)
+
+    with st.expander("Lihat Data Mentah Satelit"):
+        st.markdown(
+            f'<p class="sec-title" style="margin-top:0">'
+            f'{ico("leaf")} NDVI Sentinel-2 — Nilai Asli</p>',
+            unsafe_allow_html=True
+        )
+        if df_ndvi is not None:
+            st.caption("Rentang nilai sehat padi: 0.60 - 0.80")
+            st.plotly_chart(fig_ndvi(df_ndvi),
+                            use_container_width=True, theme=None)
+        else:
+            st.info("Data NDVI belum tersedia.")
+
+        st.markdown(
+            f'<p class="sec-title">'
+            f'{ico("satellite")} SAR Sentinel-1 VH — Nilai Asli (dB)</p>',
+            unsafe_allow_html=True
+        )
+        if df_sar is not None:
+            st.caption(
+                "Nilai lebih tinggi (kurang negatif) menandakan lahan lebih kering. "
+                "Tipikal sawah normal: -17 hingga -12 dB."
+            )
+            st.plotly_chart(fig_sar(df_sar),
+                            use_container_width=True, theme=None)
+        else:
+            st.info("Data SAR Sentinel-1 belum tersedia.")
+
+        st.markdown(
+            f'<p class="sec-title">'
+            f'{ico("wave")} ENSO-ONI — Nilai Asli</p>',
+            unsafe_allow_html=True
+        )
+        st.caption(
+            "Data historis ONI dari NOAA/CPC sebelum diolah "
+            "menjadi skor tekanan iklim."
+        )
+        st.plotly_chart(fig_oni(df_for_enso, n=36),
+                        use_container_width=True, theme=None)
 
 # ════════════════════════════════════════════════════
 #  TAB 3 — KENALI HAMA & PENYAKIT
