@@ -1043,7 +1043,7 @@ def fig_oni(df, n=24):
     return fig
 
 def fig_ndvi(df):
-    df_p = df.tail(24)
+    df_p = df
     fig = go.Figure()
     fig.add_hrect(y0=0.6, y1=0.8, fillcolor="rgba(34,197,94,0.1)",
                   annotation_text="Zona sehat (0.6–0.8)",
@@ -1057,7 +1057,7 @@ def fig_ndvi(df):
     return fig
 
 def fig_sar(df):
-    df_p = df.tail(24)
+    df_p = df
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=df_p["Tanggal"], y=df_p["SAR_VH"],
                              mode="lines+markers", name="VH",
