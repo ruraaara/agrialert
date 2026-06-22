@@ -1719,24 +1719,24 @@ with tab2:
       Rujukan: <b>bmkg.go.id</b> · <b>iri.columbia.edu</b>
     </p>
     """, unsafe_allow_html=True)
-    st.markdown("""
-    <div style="border: 1px solid #d1d5db; border-radius: 12px; padding: 20px; background-color: #ffffff;">
-        <h3 style="margin-top: 0; font-size: 1.1rem; color: #374151;">Grafik Tren Indeks Iklim (ONI)</h3>
-        <p style="font-size: 0.9rem; color: #4b5563; margin-bottom: 15px;">
-            Grafik ini menunjukkan pergerakan suhu permukaan laut (ONI) selama 2 tahun terakhir 
-            untuk mendeteksi gejala El Niño atau La Niña.
-        </p>
-        <div style="font-size: 0.8rem; color: #6b7280; margin-bottom: 10px; border-bottom: 1px solid #e5e7eb; padding-bottom: 10px;">
-            El Niño (≥ +0.5) · La Niña (≤ -0.5) · Normal · Prediksi bulan depan
-        </div>
-    """, unsafe_allow_html=True)
-
-    st.plotly_chart(
-        fig_oni_with_forecast(df_for_enso, pred),
-        use_container_width=True,
-        theme=None
-    )
-    st.markdown("</div>", unsafe_allow_html=True)
+    with st.container(border=True):
+        st.markdown("""
+            <h3 style="margin-top: 0; font-size: 1.1rem; color: #374151;">Grafik Tren Indeks Iklim (ONI)</h3>
+            <p style="font-size: 0.9rem; color: #4b5563; margin-bottom: 15px;">
+                Grafik di bawah memantau suhu permukaan laut (ONI) dalam 2 tahun terakhir. 
+                Ini membantu kita melihat apakah sedang terjadi El Niño (kemarau ekstrem) 
+                atau La Niña (basah berlebih).
+            </p>
+            <div style="font-size: 0.8rem; color: #6b7280; margin-bottom: 10px; border-bottom: 1px solid #e5e7eb; padding-bottom: 10px;">
+                El Niño (≥ +0.5) · La Niña (≤ -0.5) · Normal · Prediksi bulan depan
+            </div>
+        """, unsafe_allow_html=True)
+    
+        st.plotly_chart(
+            fig_oni_with_forecast(df_for_enso, pred),
+            use_container_width=True,
+            theme=None
+        )
 
     # ── Farming impact section ───────────────────────────────────
     st.markdown('<hr class="divider">', unsafe_allow_html=True)
