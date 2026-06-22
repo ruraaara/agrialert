@@ -1735,6 +1735,7 @@ with tab2:
         use_container_width=True,
         theme=None
     )
+    st.markdown("</div>", unsafe_allow_html=True)
 
     # ── Farming impact section ───────────────────────────────────
     st.markdown('<hr class="divider">', unsafe_allow_html=True)
