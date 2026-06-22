@@ -1343,18 +1343,17 @@ div:has(> [data-testid="stCustomComponentV1"]) {{
                        "Klik tombol di atas agar sistem kami bisa tahu kondisi cuaca di sawah Anda saat ini")
     st.markdown(f"""
     <div class="gps-info-row below-gps-btn">
-      <div class="gps-info-icon">{ico("map", "1.6rem")}</div>
       <div class="gps-info-text">{_gps_info_text}</div>
     </div>
     """, unsafe_allow_html=True)
 
     st.markdown(f"""
     <div class="gps-box">
-      <span>{ico('antenna')} <b>Stasiun BMKG:</b> {cuaca['nama']}</span>
-      <span>{ico('ruler')} <b>Jarak:</b> {cuaca['jarak_km']} km</span>
-      <span>{ico('clock')} <b>Data per:</b> {cuaca['waktu']}</span>
-      <span>{ico('pin')} <b>Koordinat:</b> {round(lat,4)}°, {round(lon,4)}°</span>
-      <span>{ico('map')} <b>Provinsi:</b> {provinsi}</span>
+      <span> <b>Stasiun BMKG:</b> {cuaca['nama']}</span>
+      <span> <b>Jarak:</b> {cuaca['jarak_km']} km</span>
+      <span> <b>Data per:</b> {cuaca['waktu']}</span>
+      <span> <b>Koordinat:</b> {round(lat,4)}°, {round(lon,4)}°</span>
+      <span> <b>Provinsi:</b> {provinsi}</span>
     </div>
     """, unsafe_allow_html=True)
 
@@ -1371,7 +1370,7 @@ div:has(> [data-testid="stCustomComponentV1"]) {{
                       if (_sun_url and status['kelas'] == 'aman') else "")
     st.markdown(f"""
     <div class="big-card {status['kelas']}" style="position:relative;">
-      <div class="bc-label">Kondisi Cuaca Hari Ini — {provinsi}</div>
+      <div class="bc-label">Kondisi Cuaca Hari Ini - {provinsi}</div>
       <div class="bc-row">
         <span class="bc-dot {status['kelas']}"></span>
         <span class="bc-icon">{ico(status['ikon'], '2.2rem')}</span>
@@ -1392,7 +1391,7 @@ div:has(> [data-testid="stCustomComponentV1"]) {{
       <div class="metric-card {kls_suhu}">
         <div class="mc-label">{ico('thermometer')} Suhu Maksimum</div>
         <div class="mc-val">{cuaca['tmax']}°C</div>
-        <div class="mc-sub">Min: {cuaca['tmin']}°C &nbsp;|&nbsp; Ideal padi: 24–30°C</div>
+        <div class="mc-sub">Min: {cuaca['tmin']}°C &nbsp;|&nbsp; Ideal padi: 24°-30°C</div>
       </div>
       <div class="metric-card {kls_kel}">
         <div class="mc-label">{ico('droplet')} Kelembapan Udara</div>
@@ -1411,6 +1410,20 @@ div:has(> [data-testid="stCustomComponentV1"]) {{
       </div>
     </div>
     """, unsafe_allow_html=True)
+    st.markdown("""
+    <style>
+    .metric-grid {
+        display: flex !important;
+        justify-content: center !important;
+        flex-wrap: wrap !important;
+        gap: 15px !important;
+    }
+    .metric-card {
+        text-align: center !important;
+        flex: 0 1 200px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
     st.markdown('<hr class="divider">', unsafe_allow_html=True)
     st.markdown(f'<p class="sec-title">{ico("lightbulb")} Yang Harus Dilakukan</p>', unsafe_allow_html=True)
@@ -1418,11 +1431,11 @@ div:has(> [data-testid="stCustomComponentV1"]) {{
     st.markdown(f"""
     <div class="two-col">
       <div class="rekom {warna_rk}">
-        <div class="rk-title">{ico('sprout')} Saran Tanam</div>
+        <div class="rk-title"> Saran Tanam</div>
         <div class="rk-text">{ico(ikon_rk)} {teks_rk}</div>
       </div>
       <div class="rekom biru">
-        <div class="rk-title">{ico('map')} Kondisi Iklim — {enso['fase']}</div>
+        <div class="rk-title"> Kondisi Iklim - {enso['fase']}</div>
         <div class="rk-text">{enso['pesan']}</div>
       </div>
     </div>
@@ -1437,7 +1450,7 @@ div:has(> [data-testid="stCustomComponentV1"]) {{
     )
     st.markdown(f"""
     <div class="rekom">
-      <div class="rk-title">{ico(musim_ikon)} {msmn}</div>
+      <div class="rk-title">{msmn}</div>
       <div class="rk-text">{musim_tips}</div>
     </div>
     """, unsafe_allow_html=True)
@@ -1601,7 +1614,7 @@ with tab2:
     #  SECTION 1 — HEADER + LOKASI + CUACA BMKG
     # ================================================================
     st.markdown(
-        f'<p class="sec-title">{ico("cloud-sun")} Cuaca Detail — {provinsi}</p>',
+        f'<p class="sec-title">{ico("cloud-sun")} Cuaca Detail - {provinsi}</p>',
         unsafe_allow_html=True
     )
 
@@ -1647,7 +1660,7 @@ with tab2:
     st.markdown('<hr class="divider">', unsafe_allow_html=True)
     st.markdown(
         f'<p class="sec-title" style="font-weight:900;color:#20965F;">'
-        f'{ico("wave")} Kondisi ENSO — NOAA CPC Live</p>',
+        f'Pantauan Cuaca & Iklim (ENSO)</p>',
         unsafe_allow_html=True
     )
 
@@ -1672,7 +1685,7 @@ with tab2:
     st.markdown(f"""
     <div class="two-col">
       <div class="big-card {enso_cur['kelas']}">
-        <div class="bc-label">{ico("wave")} ENSO Terkini — {date_cur.strftime("%B %Y")}</div>
+        <div class="bc-label"> ENSO Terkini - {date_cur.strftime("%B %Y")}</div>
         <div class="bc-row">
           <span class="bc-icon">{ico(enso_cur["ikon"], "2.2rem")}</span>
           <div>
@@ -1683,7 +1696,7 @@ with tab2:
         <div class="bc-sub" style="margin-top:8px">{enso_cur["pesan"]}</div>
       </div>
       <div class="big-card {enso_pred['kelas']}">
-        <div class="bc-label">{ico("chart")} Prediksi — {pred["date"].strftime("%B %Y")}</div>
+        <div class="bc-label">{ico("chart")} Prediksi - {pred["date"].strftime("%B %Y")}</div>
         <div class="bc-row">
           <span class="bc-icon">{ico(enso_pred["ikon"], "2.2rem")}</span>
           <div>
@@ -1705,8 +1718,18 @@ with tab2:
       Rujukan: <b>bmkg.go.id</b> · <b>iri.columbia.edu</b>
     </p>
     """, unsafe_allow_html=True)
+    st.markdown("""
+    <div style="border: 1px solid #d1d5db; border-radius: 12px; padding: 20px; background-color: #ffffff;">
+        <h3 style="margin-top: 0; font-size: 1.1rem; color: #374151;">Grafik Tren Indeks Iklim (ONI)</h3>
+        <p style="font-size: 0.9rem; color: #4b5563; margin-bottom: 15px;">
+            Grafik ini menunjukkan pergerakan suhu permukaan laut (ONI) selama 2 tahun terakhir 
+            untuk mendeteksi gejala El Niño atau La Niña.
+        </p>
+        <div style="font-size: 0.8rem; color: #6b7280; margin-bottom: 10px; border-bottom: 1px solid #e5e7eb; padding-bottom: 10px;">
+            El Niño (≥ +0.5) · La Niña (≤ -0.5) · Normal · Prediksi bulan depan
+        </div>
+    """, unsafe_allow_html=True)
 
-    st.caption("El Nino (ONI >= +0.5) · La Nina (ONI <= -0.5) · Normal · Prediksi bulan depan")
     st.plotly_chart(
         fig_oni_with_forecast(df_for_enso, pred),
         use_container_width=True,
@@ -1716,7 +1739,7 @@ with tab2:
     # ── Farming impact section ───────────────────────────────────
     st.markdown('<hr class="divider">', unsafe_allow_html=True)
     st.markdown(
-        f'<p class="sec-title">{ico("sprout")} Implikasi untuk Pertanian Padi Indonesia</p>',
+        f'<p class="sec-title">Implikasi untuk Pertanian Padi Indonesia</p>',
         unsafe_allow_html=True
     )
 
@@ -1745,7 +1768,7 @@ with tab2:
              "Koordinasikan dengan kelompok tani dan penyuluh PPL."),
         ],
         "Normal": [
-            ("", "check-circle", "Kondisi Iklim Ideal",
+            ("", "Kondisi Iklim Ideal",
              "Ikuti kalender tanam yang sudah ditetapkan BPP. "
              "Waktu tepat untuk pemupukan NPK dan pengamatan rutin OPT."),
         ],
@@ -1785,10 +1808,10 @@ with tab2:
     if enso_pred["fase"] != enso_cur["fase"]:
         st.markdown(f"""
         <div class="rekom biru" style="margin-top:10px">
-          <div class="rk-title">{ico("satellite")} Potensi Transisi ENSO Bulan Depan</div>
+          <div class="rk-title"> Potensi Transisi ENSO Bulan Depan</div>
           <div class="rk-text">
             Tren 6 bulan terakhir menunjukkan kemungkinan pergeseran dari
-            <b>{enso_cur["fase"]}</b> ke <b>{enso_pred["fase"]}</b>
+            {enso_cur["fase"]} ke {enso_pred["fase"]}
             pada {pred["date"].strftime("%B %Y")}.
             Mulai persiapkan langkah antisipasi sekarang.
           </div>
@@ -1801,7 +1824,7 @@ with tab2:
     st.markdown('<hr class="divider">', unsafe_allow_html=True)
     st.markdown(
         f'<p class="sec-title" style="font-weight:900;color:#20965F;">'
-        f'{ico("satellite")} Indeks Lahan Stres Komposit (ILSK)</p>',
+        f' Indeks Lahan Stres Komposit (ILSK)</p>',
         unsafe_allow_html=True
     )
 
@@ -1820,7 +1843,7 @@ with tab2:
 
         if status_terkini == "Bahaya":
             st.error(
-                f"PERINGATAN DINI — STRES LAHAN TINGGI\n\n"
+                f"PERINGATAN DINI - STRES LAHAN TINGGI\n\n"
                 f"Berdasarkan data satelit per {tanggal_terakhir}, "
                 f"Indeks Lahan Stres Komposit (ILSK) menunjukkan nilai "
                 f"{ilsk_terkini:.2f} (Kategori: BAHAYA). "
@@ -1830,7 +1853,7 @@ with tab2:
             )
         elif status_terkini == "Waspada":
             st.warning(
-                f"PERLU PERHATIAN — STRES LAHAN SEDANG\n\n"
+                f"PERLU PERHATIAN - STRES LAHAN SEDANG\n\n"
                 f"Berdasarkan data satelit per {tanggal_terakhir}, "
                 f"Indeks Lahan Stres Komposit (ILSK) bernilai "
                 f"{ilsk_terkini:.2f} (Kategori: WASPADA). "
@@ -1861,32 +1884,37 @@ with tab2:
             return "Tinggi"
 
         st.markdown(f"""
+        <style>
+        .metric-card {
+            text-align: center !important;
+        }
+        </style>
         <div class="metric-grid" style="grid-template-columns:repeat(3,1fr);margin-top:14px">
 
           <div class="metric-card {_warna_skor(ndvi_skor)}">
-            <div class="mc-label">{ico("leaf")} Stres Vegetasi (NDVI)</div>
+            <div class="mc-label"> Stres Vegetasi (NDVI)</div>
             <div class="mc-val">{ndvi_skor:.2f}</div>
             <div class="mc-sub">
               NDVI: {ndvi_val:.3f}<br>
-              Tekanan: <b>{_label_skor(ndvi_skor)}</b> — bobot 45%
+              Tekanan: <b>{_label_skor(ndvi_skor)}</b> - bobot 45%
             </div>
           </div>
 
           <div class="metric-card {_warna_skor(sar_skor)}">
-            <div class="mc-label">{ico("satellite")} Anomali Kelembapan (SAR)</div>
+            <div class="mc-label"> Anomali Kelembapan (SAR)</div>
             <div class="mc-val">{sar_skor:.2f}</div>
             <div class="mc-sub">
               SAR VH: {sar_val:.1f} dB<br>
-              Tekanan: <b>{_label_skor(sar_skor)}</b> — bobot 30%
+              Tekanan: <b>{_label_skor(sar_skor)}</b> - bobot 30%
             </div>
           </div>
 
           <div class="metric-card {_warna_skor(enso_skor)}">
-            <div class="mc-label">{ico("wave")} Tekanan Iklim (ENSO)</div>
+            <div class="mc-label"> Tekanan Iklim (ENSO)</div>
             <div class="mc-val">{enso_skor:.2f}</div>
             <div class="mc-sub">
               ONI: {oni_val:+.2f}°C<br>
-              Tekanan: <b>{_label_skor(enso_skor)}</b> — bobot 25%
+              Tekanan: <b>{_label_skor(enso_skor)}</b> - bobot 25%
             </div>
           </div>
 
@@ -2429,9 +2457,10 @@ with tab4:
                             """, unsafe_allow_html=True)
 
                             sys_prompt = (
-                                "Kamu adalah AgriAlert AI, asisten pertanian padi Indonesia yang ahli dan ramah. "
-                                "Bantu petani dengan pertanyaan seputar penyakit padi, hama, cara pemupukan, "
-                                "irigasi, dan pengendalian OPT (Organisme Pengganggu Tumbuhan). "
+                                "Kamu adalah Penyuluh Pertanian Lapangan (PPL) senior yang sangat berpengalaman, ramah, dan membumi. "
+                                "Bantu petani padi di Indonesia dengan bahasa yang santai, tidak kaku, dan mudah dipahami (jangan gunakan gaya bahasa AI atau robot). "
+                                "Berikan saran praktis yang bisa langsung diterapkan di sawah berbasis Pengendalian Hama Terpadu (PHT). "
+                                "Jika menyarankan pestisida/kimia, selalu sarankan pencegahan alami atau mekanis terlebih dahulu."
                                 "Jawab dalam Bahasa Indonesia yang mudah dipahami petani biasa. "
                                 "Berikan saran praktis dan berbasis ilmu pertanian yang valid."
                             )
@@ -2574,7 +2603,7 @@ with tab5:
     <div class="rekom kuning">
       <div class="rk-title">{ico('alert-triangle')} Hasil Deteksi AI Tidak Sesuai?</div>
       <div class="rk-text">
-        Kalau AI salah mengenali penyakit atau hama dari foto Anda, beri tahu kami di sini.
+        Jika AI salah mengenali penyakit atau hama dari foto Anda, beri tahu kami di sini.
         Laporan Anda dipakai untuk memperbaiki ketepatan model ke depannya.
       </div>
     </div>
@@ -2585,7 +2614,7 @@ with tab5:
         jenis_lapor = st.selectbox(
             "Jenis kesalahan:",
             [
-                "Salah jenis penyakit/hama",
+                "Salah jenis penyakit / hama",
                 "Tanaman sehat terdeteksi sakit",
                 "Hasil tidak akurat / meragukan",
                 "Lainnya",
