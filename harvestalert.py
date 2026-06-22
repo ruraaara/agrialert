@@ -1882,13 +1882,16 @@ with tab2:
             if s < 0.35:   return "Rendah"
             elif s < 0.55: return "Sedang"
             return "Tinggi"
+        st.markdown("""
+        <style>
+            .metric-card {
+                text-align: center !important;
+            }
+        </style>
+        """, unsafe_allow_html=True)
+
 
         st.markdown(f"""
-        <style>
-        .metric-card {
-            text-align: center !important;
-        }
-        </style>
         <div class="metric-grid" style="grid-template-columns:repeat(3,1fr);margin-top:14px">
 
           <div class="metric-card {_warna_skor(ndvi_skor)}">
