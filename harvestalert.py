@@ -1420,7 +1420,8 @@ div:has(> [data-testid="stCustomComponentV1"]) {{
     }
     .metric-card {
         text-align: center !important;
-        flex: 0 1 200px;
+        flex: 1 1 150px !important;
+        max-width: 200px !important;
     }
     </style>
     """, unsafe_allow_html=True)
