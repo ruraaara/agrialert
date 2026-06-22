@@ -1101,7 +1101,8 @@ def fetch_oni_noaa():
     except Exception:
         pass
     return None, False, None
-
+    
+@st.cache_data(ttl=86400)
 def prediksi_oni_lstm(df, lookback=12):
     """
     Prediksi ONI 1 bulan ke depan menggunakan LSTM mini yang di-fit secara
