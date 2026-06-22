@@ -1721,15 +1721,17 @@ with tab2:
     """, unsafe_allow_html=True)
     with st.container(border=True):
         st.markdown("""
-            <h3 style="margin-top: 0; font-size: 1.1rem; color: #374151;">Grafik Tren Indeks Iklim (ONI)</h3>
-            <p style="font-size: 0.9rem; color: #4b5563; margin-bottom: 15px;">
+          <div style="background-color: #EEFFD3; padding: 20px; border-radius: 12px; border: 1px solid #20965F;">
+            <h3 style="margin-top: 0; font-size: 1.1rem; color: #20965F;">Grafik Tren Indeks Iklim (ONI)</h3>
+            <p style="font-size: 0.9rem; color: #57685d; margin-bottom: 15px;">
                 Grafik di bawah memantau suhu permukaan laut (ONI) dalam 2 tahun terakhir. 
                 Ini membantu kita melihat apakah sedang terjadi El Niño (kemarau ekstrem) 
                 atau La Niña (basah berlebih).
             </p>
-            <div style="font-size: 0.8rem; color: #6b7280; margin-bottom: 10px; border-bottom: 1px solid #e5e7eb; padding-bottom: 10px;">
+            <div style="font-size: 0.8rem; color: #20965F; margin-bottom: 10px; border-bottom: 1px solid #20965F; padding-bottom: 10px;">
                 El Niño (≥ +0.5) · La Niña (≤ -0.5) · Normal · Prediksi bulan depan
             </div>
+        </div>
         """, unsafe_allow_html=True)
     
         st.plotly_chart(
