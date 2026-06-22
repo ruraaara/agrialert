@@ -1097,51 +1097,132 @@ def fetch_oni_noaa():
         pass
     return None, False, None
 
+def prediksi_oni_lstm(df, lookback=12):
+    """
+    Prediksi ONI 1 bulan ke depan menggunakan LSTM mini yang di-fit secara
+    in-sample langsung dari data historis NOAA.
 
-def prediksi_oni_ar(df, p=3):
+    Arsitektur:
+        Input  → LSTM(32, return_sequences=False) → Dropout(0.1)
+               → Dense(16, relu) → Dense(1)
+    Loss       : MSE, Optimizer: Adam(lr=1e-3)
+    Epochs     : 80 (cepat, data bulanan ±900 titik)
+    Lookback   : 12 bulan (1 tahun musiman)
+
+    Output dict (format identik dengan versi AR lama):
+        {"date": Timestamp, "oni": float, "oni_low": float,
+         "oni_high": float, "tren": str}
     """
-    AR(p) model fitted on full NOAA historical data.
-    y(t) = c + a1*y(t-1) + a2*y(t-2) + a3*y(t-3) + e
-    Memanfaatkan autocorrelation kuat ENSO (event bertahan berbulan-bulan).
-    """
-    y = df["ONI"].values.astype(float)
-    n = len(y)
-    if n <= p:
-        # Fallback ke persistence jika data terlalu sedikit
+    import warnings
+
+    y_raw  = df["ONI"].values.astype("float32")
+    n      = len(y_raw)
+
+    # ── Fallback ke persistence jika data terlalu sedikit ──────────
+    if n <= lookback + 2:
         last_date = pd.Timestamp(df["date"].iloc[-1])
+        v = float(y_raw[-1])
         return {"date": last_date + pd.DateOffset(months=1),
-                "oni": round(float(y[-1]), 2), "oni_low": round(float(y[-1]) - 0.3, 2),
-                "oni_high": round(float(y[-1]) + 0.3, 2), "tren": "stabil →"}
+                "oni": round(v, 2), "oni_low": round(v - 0.3, 2),
+                "oni_high": round(v + 0.3, 2), "tren": "stabil →"}
 
-    # Bangun lagged feature matrix dari seluruh data historis
-    X = np.column_stack([[1.0] * (n - p)] +
-                        [[y[i - j] for i in range(p, n)] for j in range(1, p + 1)])
-    Y = y[p:]
+    # ── Normalisasi Min-Max ke [0, 1] ───────────────────────────────
+    y_min, y_max = y_raw.min(), y_raw.max()
+    rng = y_max - y_min if y_max != y_min else 1.0
+    y_scaled = (y_raw - y_min) / rng
 
-    # OLS: koefisien AR belajar dari pola historis 75 tahun
-    coeffs, _, _, _ = np.linalg.lstsq(X, Y, rcond=None)
-    intercept = coeffs[0]
-    ar_coefs  = coeffs[1:]
+    # ── Bangun sliding-window dataset ──────────────────────────────
+    X_list, Y_list = [], []
+    for i in range(lookback, n):
+        X_list.append(y_scaled[i - lookback: i])
+        Y_list.append(y_scaled[i])
+    X = np.array(X_list, dtype="float32").reshape(-1, lookback, 1)
+    Y = np.array(Y_list, dtype="float32")
 
-    # Prediksi: y(T+1) = c + a1*y(T) + a2*y(T-1) + a3*y(T-2)
-    last_vals = y[-p:][::-1]
-    next_oni  = intercept + float(np.dot(ar_coefs, last_vals))
+    # ── Bangun & latih model LSTM (lazy import TF/Keras) ───────────
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            import os as _os
+            _os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "3")
+            from tensorflow import keras                              # type: ignore
+            from tensorflow.keras import layers                      # type: ignore
 
-    # Ketidakpastian = std residual in-sample × 1.2
-    std_err   = float(np.std(Y - X @ coeffs)) * 1.2
+        # Kunci reproducibility
+        keras.utils.set_random_seed(42)
 
+        model = keras.Sequential([
+            layers.Input(shape=(lookback, 1)),
+            layers.LSTM(32, return_sequences=False),
+            layers.Dropout(0.1),
+            layers.Dense(16, activation="relu"),
+            layers.Dense(1),
+        ])
+        model.compile(optimizer=keras.optimizers.Adam(1e-3), loss="mse")
+
+        # EarlyStopping agar tidak overfit & tetap cepat
+        cb_es = keras.callbacks.EarlyStopping(
+            monitor="loss", patience=8, restore_best_weights=True, verbose=0
+        )
+        model.fit(
+            X, Y,
+            epochs=80,
+            batch_size=16,
+            verbose=0,
+            callbacks=[cb_es],
+        )
+
+        # ── Inferensi: ambil window 12 bulan terakhir ───────────────
+        last_window = y_scaled[-lookback:].reshape(1, lookback, 1).astype("float32")
+        pred_scaled  = float(model.predict(last_window, verbose=0)[0, 0])
+
+        # Hitung ketidakpastian dari residual in-sample
+        y_pred_all  = model.predict(X, verbose=0).flatten()
+        residuals   = Y - y_pred_all
+        std_err_sc  = float(np.std(residuals)) * 1.3   # ×1.3 konservatif
+
+    except Exception:
+        # ── Fallback ke AR(3) jika TensorFlow tidak tersedia ────────
+        p = 3
+        n2 = len(y_raw)
+        Xar = np.column_stack([[1.0] * (n2 - p)] +
+                              [[y_raw[i - j] for i in range(p, n2)]
+                               for j in range(1, p + 1)])
+        Yar = y_raw[p:]
+        coeffs, _, _, _ = np.linalg.lstsq(Xar, Yar, rcond=None)
+        pred_raw  = coeffs[0] + float(np.dot(coeffs[1:], y_raw[-p:][::-1]))
+        std_err   = float(np.std(Yar - Xar @ coeffs)) * 1.2
+        last_date = pd.Timestamp(df["date"].iloc[-1])
+        cur_oni   = float(y_raw[-1])
+        return {
+            "date":     last_date + pd.DateOffset(months=1),
+            "oni":      round(pred_raw, 2),
+            "oni_low":  round(pred_raw - std_err, 2),
+            "oni_high": round(pred_raw + std_err, 2),
+            "tren":     ("naik"  if pred_raw > cur_oni + 0.05
+                         else "turun" if pred_raw < cur_oni - 0.05
+                         else "stabil"),
+        }
+
+    # ── Denormalisasi kembali ke satuan °C ─────────────────────────
+    pred_oni     = float(pred_scaled * rng + y_min)
+    std_err_oni  = float(std_err_sc  * rng)          # skala kesalahan → °C
+
+    cur_oni   = float(y_raw[-1])
     last_date = pd.Timestamp(df["date"].iloc[-1])
-    cur_oni   = float(y[-1])
+
     return {
         "date":     last_date + pd.DateOffset(months=1),
-        "oni":      round(next_oni, 2),
-        "oni_low":  round(next_oni - std_err, 2),
-        "oni_high": round(next_oni + std_err, 2),
-        "tren":     ("naik ↑"  if next_oni > cur_oni + 0.05
-                     else "turun ↓" if next_oni < cur_oni - 0.05
-                     else "stabil →"),
+        "oni":      round(pred_oni, 2),
+        "oni_low":  round(pred_oni - std_err_oni, 2),
+        "oni_high": round(pred_oni + std_err_oni, 2),
+        "tren":     ("naik"  if pred_oni > cur_oni + 0.05
+                     else "turun" if pred_oni < cur_oni - 0.05
+                     else "stabil"),
     }
 
+
+   
 
 def fig_oni_with_forecast(df, pred, n=24):
     """Bar chart ONI historis + diamond prediksi bulan depan."""
@@ -1680,7 +1761,7 @@ with tab2:
     oni_cur   = float(df_for_enso.iloc[-1]["ONI"])
     date_cur  = pd.Timestamp(df_for_enso.iloc[-1]["date"])
     enso_cur  = info_enso(oni_cur)
-    pred      = prediksi_oni_ar(df_for_enso, p=3)
+    pred = prediksi_oni_lstm(df_for_enso)
     enso_pred = info_enso(pred["oni"])
 
     st.markdown(f"""
