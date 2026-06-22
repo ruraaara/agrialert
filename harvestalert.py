@@ -106,8 +106,8 @@ AI_MODEL = "llama-3.3-70b-versatile"
 # NOAA CPC ONI — gratis, tanpa API key, update bulanan
 NOAA_ONI_URL = "https://www.cpc.ncep.noaa.gov/data/indices/oni.ascii.txt"
 _SEAS_MONTH  = {
-    "DJF":1, "JFM":2, "FMA":3, "MAM":4, "AMJ":5, "MJJ":6,
-    "JJA":7, "JAS":8, "ASO":9, "SON":10, "OND":11, "NDJ":12,
+    "DJF":2, "JFM":3, "FMA":4, "MAM":5, "AMJ":6, "MJJ":7,
+    "JJA":8, "JAS":9, "ASO":10, "SON":11, "OND":12, "NDJ":1,
 }
 
 
@@ -1070,7 +1070,7 @@ def fig_sar(df):
 # ================================================================
 #  NOAA CPC LIVE FETCH + PREDIKSI ENSO
 # ================================================================
-@st.cache_data(ttl=86400 * 7)   # refresh mingguan — NOAA update bulanan
+@st.cache_data(ttl=86400)   # refresh mingguan — NOAA update bulanan
 def fetch_oni_noaa():
     """Fetch ONI langsung dari NOAA CPC. Returns (df|None, ok, fetch_time_str)."""
     try:
@@ -1081,8 +1081,13 @@ def fetch_oni_noaa():
             parts = line.split()
             if len(parts) >= 4 and parts[0] in _SEAS_MONTH:
                 try:
+                    _season = parts[0]
+                    _year   = int(parts[1])
+                    _month  = _SEAS_MONTH[_season]
+                    if _season == "NDJ":
+                        _year += 1
                     rows.append({
-                        "date": datetime(int(parts[1]), _SEAS_MONTH[parts[0]], 1),
+                        "date": datetime(_year, _month, 1),
                         "ONI":  float(parts[3]),
                     })
                 except (ValueError, IndexError):
