@@ -1745,25 +1745,25 @@ with tab2:
 
     _DAMPAK = {
         "El Nino Kuat": [
-            ("merah", "sun", "Kekeringan Ekstrem",
+            ("merah","Kekeringan Ekstrem",
              "Produksi padi di Jawa, NTB, dan Sulawesi bisa turun 20-40%. "
              "Hentikan penanaman varietas sensitif kering. "
              "Prioritaskan lahan dekat irigasi teknis."),
-            ("merah", "droplet", "Krisis Air Irigasi",
+            ("merah", "Krisis Air Irigasi",
              "Terapkan AWD (Alternate Wetting and Drying): basah 2 hari, "
              "kering 3 hari, basah lagi. "
              "Tutup permukaan tanah dengan jerami untuk kurangi evaporasi."),
-            ("merah", "bug", "Hama Tikus dan Wereng",
+            ("merah", "Hama Tikus dan Wereng",
              "Populasi tikus melonjak saat kemarau panjang. "
              "Koordinasi gropyokan bersama petani sekitar. "
              "Pasang bubu perangkap dan karet di pematang sawah."),
         ],
         "El Nino": [
-            ("kuning", "droplet", "Hemat Air Irigasi",
+            ("kuning", "Hemat Air Irigasi",
              "Terapkan irigasi berselang. Tanam varietas toleran kering: "
              "Inpari 32, Inpago, atau Inpara 3. "
              "Jadwal tanam lebih awal dari biasanya."),
-            ("kuning", "calendar", "Sesuaikan Kalender Tanam",
+            ("kuning", "Sesuaikan Kalender Tanam",
              "Maju jadwal tanam agar panen selesai sebelum puncak kemarau. "
              "Koordinasikan dengan kelompok tani dan penyuluh PPL."),
         ],
@@ -1773,34 +1773,34 @@ with tab2:
              "Waktu tepat untuk pemupukan NPK dan pengamatan rutin OPT."),
         ],
         "La Nina": [
-            ("kuning", "cloud-rain", "Pantau Drainase",
+            ("kuning", "Pantau Drainase",
              "Bersihkan saluran got sebelum hujan puncak. Perkuat pematang sawah. "
              "Hindari genangan lebih dari 3 hari pada fase anakan."),
-            ("kuning", "leaf", "Waspadai Penyakit Jamur",
+            ("kuning", "Waspadai Penyakit Jamur",
              "Risiko blas dan busuk pelepah meningkat. "
              "Aplikasi fungisida profilaksis (mankozeb/validamycin) "
              "dianjurkan pada fase anakan aktif."),
         ],
         "La Nina Kuat": [
-            ("merah", "storm", "Risiko Banjir Tinggi",
+            ("merah", "Risiko Banjir Tinggi",
              "Di Kalimantan, Sumatera, dan pantai utara Jawa, "
              "bersiap untuk genangan panjang. "
              "Pindah ke varietas tahan banjir: Inpara 3, Ciherang Sub-1."),
-            ("merah", "leaf", "Ledakan Penyakit",
+            ("merah", "Ledakan Penyakit",
              "Blas daun dan tungro melonjak drastis. "
              "Kendalikan wereng hijau (vektor tungro) dengan imidakloprid. "
              "Cabut dan bakar tanaman terinfeksi segera."),
-            ("merah", "bug", "Wereng Cokelat Meledak",
+            ("merah", "Wereng Cokelat Meledak",
              "Populasi wereng meledak di kondisi lembab berkepanjangan. "
              "Gunakan varietas tahan wereng (VUB BPT) "
              "dan hindari pemupukan N berlebih."),
         ],
     }
 
-    for warna, ikon_key, judul, teks in _DAMPAK.get(enso_cur["fase"], _DAMPAK["Normal"]):
+    for warna, judul, teks in _DAMPAK.get(enso_cur["fase"], _DAMPAK["Normal"]):
         st.markdown(f"""
         <div class="rekom {warna}">
-          <div class="rk-title">{ico(ikon_key)} {judul}</div>
+          <div class="rk-title">{judul}</div>
           <div class="rk-text">{teks}</div>
         </div>
         """, unsafe_allow_html=True)
