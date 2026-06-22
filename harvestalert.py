@@ -1720,8 +1720,8 @@ with tab2:
     </p>
     """, unsafe_allow_html=True)
     with st.container(border=True):
-        st.markdown("""
-          <div style="background-color: #EEFFD3; padding: 20px; border-radius: 12px; border: 1px solid #20965F;">
+    st.markdown("""
+        <div style="background-color: #EEFFD3; padding: 20px; border-radius: 12px; border: 1px solid #20965F;">
             <h3 style="margin-top: 0; font-size: 1.1rem; color: #20965F;">Grafik Tren Indeks Iklim (ONI)</h3>
             <p style="font-size: 0.9rem; color: #57685d; margin-bottom: 15px;">
                 Grafik di bawah memantau suhu permukaan laut (ONI) dalam 2 tahun terakhir. 
@@ -1731,14 +1731,15 @@ with tab2:
             <div style="font-size: 0.8rem; color: #20965F; margin-bottom: 10px; border-bottom: 1px solid #20965F; padding-bottom: 10px;">
                 El Niño (≥ +0.5) · La Niña (≤ -0.5) · Normal · Prediksi bulan depan
             </div>
-        </div>
-        """, unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
     
-        st.plotly_chart(
-            fig_oni_with_forecast(df_for_enso, pred),
-            use_container_width=True,
-            theme=None
-        )
+    st.plotly_chart(
+        fig_oni_with_forecast(df_for_enso, pred),
+        use_container_width=True,
+        theme=None
+    )
+    
+    st.markdown("</div>", unsafe_allow_html=True)
 
     # ── Farming impact section ───────────────────────────────────
     st.markdown('<hr class="divider">', unsafe_allow_html=True)
