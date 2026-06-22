@@ -54,49 +54,48 @@ NAMA_INDO = {
 
 REKOMENDASI = {
     'bacterial_leaf_blight': (
-        'Gunakan bakterisida berbahan aktif tembaga (copper hydroxide). '
-        'Kurangi dosis pupuk nitrogen yang berlebihan. '
-        'Pilih varietas tahan HDB seperti Inpari 13 atau Inpari 30.'
+        'Buang air genangan (drainase) agar lahan tidak lembap. '
+        'Hentikan dulu pemberian pupuk Urea agar daun tidak terlalu lunak. '
+        'Semprot bakterisida berbahan aktif Tembaga Hidroksida sesuai dosis di kemasan.'
     ),
     'brown_spot': (
-        'Semprotkan fungisida berbahan aktif mankozeb atau iprodion. '
-        'Perbaiki drainase sawah dan pastikan pemupukan kalium (K) cukup. '
-        'Hindari kekurangan air pada fase pengisian biji.'
+        'Penyakit ini tanda tanah kurang subur. '
+        'Berikan pupuk KCL untuk memperkuat batang tanaman. '
+        'Semprot fungisida berbahan aktif Mankozeb jika bercak mulai menyebar.'
     ),
     'healthy': (
-        'Tanaman padi Anda dalam kondisi sehat! '
-        'Lanjutkan perawatan rutin dan ikuti jadwal pemupukan NPK. '
+        'Kabar baik, tanaman padi Anda sehat!'
+        'Lanjutkan perawatan rutin, jaga air agar teratur, dan penuhi kebutuhan pupuk sesuai jadwal. '
         'Tetap pantau kondisi tanaman secara berkala.'
     ),
     'leaf_blast': (
-        'Semprotkan fungisida sistemik berbahan aktif tricyclazole atau isoprothiolane. '
-        'Kurangi kelembapan dengan mengatur jarak tanam lebih renggang. '
-        'Hindari pemupukan nitrogen berlebih saat kondisi lembab.'
+        'Tunda pemberian pupuk Urea agar jamur tidak makin cepat menyebar. '
+        'Atur jarak tanam agak renggang agar angin masuk. '
+        'Semprot fungisida berbahan aktif Trisiklazol (Tricyclazole) saat pagi/sore cerah.'
     ),
     'leaf_scald': (
-        'Kurangi genangan air berlebih di sawah. '
-        'Gunakan fungisida berbahan aktif propikonazol atau tebukonazol. '
-        'Pastikan sirkulasi udara di sekitar tanaman baik.'
+        'Pastikan air sawah mengalir dan tidak menggenang terlalu tinggi. '
+        'Bersihkan rumput liar agar udara lancar. '
+        'Gunakan fungisida berbahan aktif Propikonazol untuk mencegah penularan.'
     ),
     'narrow_brown_spot': (
-        'Perbaiki kesuburan tanah dengan pemupukan berimbang (NPK). '
-        'Gunakan fungisida jika serangan sudah merata di seluruh petak. '
-        'Pastikan tanaman tidak kekurangan silika dan kalium.'
+        'Berikan pemupukan NPK berimbang. '
+        'Tanaman yang cukup gizi lebih tahan penyakit. '
+        'Jika serangan sudah merata, semprot dengan fungisida yang umum tersedia di toko tani.'
     ),
     'rice_hispa': (
-        'Potong dan musnahkan daun yang terserang untuk memutus siklus hama. '
-        'Gunakan insektisida berbahan aktif karbofuran atau buprofezin jika serangan berat. '
-        'Pantau jumlah hama — ambang pengendalian 1–2 ekor per rumpun.'
+        'Potong ujung daun yang rusak lalu buang jauh dari sawah. '
+        'Jika hama terlihat banyak, semprot insektisida berbahan aktif Karbofuran atau Buprofezin.'
     ),
     'sheath_blight': (
-        'Semprotkan fungisida berbahan aktif validamycin atau azoksistrobin. '
-        'Jaga jarak tanam dan kurangi genangan air di sekitar batang. '
-        'Hindari pemupukan nitrogen berlebih pada fase anakan.'
+        'Kurangi air genangan agar pangkal batang tidak selalu basah. '
+        'Jaga kebersihan lahan dari rumput. '
+        'Semprotkan fungisida berbahan aktif Azoksistrobin atau Validamisin ke arah pelepah bawah.'
     ),
     'tungro': (
-        'Tidak ada obat langsung untuk virus tungro. '
-        'Kendalikan wereng hijau (vektor penular) dengan insektisida berbahan aktif imidakloprid. '
-        'Cabut dan bakar tanaman yang terinfeksi. Tanam varietas tahan tungro seperti Tukad Petanu.'
+        'Penyakit ini disebabkan virus (bawaan wereng hijau). Tidak ada obat penyembuhnya. '
+        'Segera cabut dan musnahkan tanaman kerdil agar tidak menular. '
+        'Semprot insektisida berbahan aktif Imidakloprid untuk membasmi wereng hijau.'
     ),
 }
 
