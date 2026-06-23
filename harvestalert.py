@@ -2016,32 +2016,39 @@ with tab2:
         """, unsafe_allow_html=True)
 
         st.markdown(f"""
-            <div class="rekom" style="margin-top:10px">
-              <div class="rk-title">{ico("info-circle")} Cara Membaca ILSK</div>
-              <div class="rk-text" style="line-height: 1.6;">
-                Skor ILSK berkisar antara <b>0 hingga 1</b>. Semakin tinggi nilainya, semakin besar potensi risiko atau gangguan yang sedang dihadapi oleh lahan.<br><br>
-            
-                <b>🟢 Tingkat Kerawanan Lahan:</b>
-                <ul style="margin-top: 5px; margin-bottom: 15px; padding-left: 20px;">
-                  <li><b>Di bawah 0.35 — AMAN:</b> Kondisi vegetasi dan air tanah dalam keadaan optimal.</li>
-                  <li><b>0.35 - 0.55 — WASPADA:</b> Mulai muncul indikasi stres pada tanaman atau penurunan pasokan air.</li>
-                  <li><b>Di atas 0.55 — BAHAYA:</b> Risiko tinggi, tanaman mengalami stres berat atau kekeringan ekstrem.</li>
-                </ul>
-            
-                <b>📊 Bagaimana Skor Ini Dihitung?</b><br>
-                Sistem merangkum 3 indikator utama dari satelit secara real-time:
-                <ol style="margin-top: 5px; margin-bottom: 15px; padding-left: 20px;">
-                  <li><b>Kesehatan Tanaman (45%):</b> Dipantau via satelit <i>Sentinel-2 (NDVI)</i> untuk melihat seberapa hijau dan subur daun tanaman.</li>
-                  <li><b>Kadar Air Tanah (30%):</b> Dihitung menggunakan radar menembus awan dari satelit <i>Sentinel-1 VH (SAR)</i> untuk mendeteksi ketersediaan air di lahan.</li>
-                  <li><b>Tekanan Iklim Global (25%):</b> Mengintegrasikan data iklim makro <i>(Indeks ENSO-ONI NOAA)</i> untuk membaca ancaman badai, El Niño, atau La Niña.</li>
-                </ol>
-            
-                <p style="font-size: 0.85rem; color: #57685d; font-style: italic; border-top: 1px solid #e5e7eb; padding-top: 8px; margin-top: 10px;">
-                  *Skor ini dihitung berdasarkan tren rata-rata pergerakan 4 bulanan (rolling z-score) agar sistem tetap objektif melihat gangguan jangka panjang, serta tidak terkecoh oleh fluktuasi cuaca harian yang sifatnya sementara.
-                </p>
-              </div>
-            </div>
-            """, unsafe_allow_html=True)
+        <div class="rekom" style="margin-top:10px">
+          <div class="rk-title"> Cara Membaca ILSK</div>
+          <div class="rk-text" style="line-height: 1.6;">
+            Skor ILSK berkisar antara <b>0 hingga 1</b>. Semakin tinggi nilainya,
+            semakin besar potensi risiko atau gangguan yang sedang dihadapi oleh lahan.<br><br>
+
+            <b>Tingkat Kerawanan Lahan:</b>
+            <ul style="margin-top: 5px; margin-bottom: 15px; padding-left: 20px;">
+              <li><b>Di bawah 0.35 — AMAN:</b> Kondisi vegetasi dan air tanah dalam keadaan optimal.</li>
+              <li><b>0.35 - 0.55 — WASPADA:</b> Mulai muncul indikasi stres pada tanaman atau penurunan pasokan air.</li>
+              <li><b>Di atas 0.55 — BAHAYA:</b> Risiko tinggi, tanaman mengalami stres berat atau kekeringan ekstrem.</li>
+            </ul>
+
+            <b> Bagaimana Skor Ini Dihitung?</b><br>
+            Sistem merangkum 3 indikator utama dari satelit secara real-time:
+            <ol style="margin-top: 5px; margin-bottom: 15px; padding-left: 20px;">
+              <li><b>Kesehatan Tanaman (45%):</b> Dipantau via satelit <i>Sentinel-2 (NDVI)</i>
+                  untuk melihat seberapa hijau dan subur daun tanaman.</li>
+              <li><b>Kadar Air Tanah (30%):</b> Dihitung menggunakan radar menembus awan dari
+                  satelit <i>Sentinel-1 VH (SAR)</i> untuk mendeteksi ketersediaan air di lahan.</li>
+              <li><b>Tekanan Iklim Global (25%):</b> Mengintegrasikan data iklim makro
+                  <i>(Indeks ENSO-ONI NOAA)</i> untuk membaca ancaman badai, El Niño, atau La Niña.</li>
+            </ol>
+
+            <p style="font-size: 0.85rem; color: #57685d; font-style: italic;
+                      border-top: 1px solid #e5e7eb; padding-top: 8px; margin-top: 10px;">
+              *Skor ini dihitung berdasarkan tren rata-rata pergerakan 4 bulanan (rolling z-score)
+              agar sistem tetap objektif melihat gangguan jangka panjang, serta tidak terkecoh
+              oleh fluktuasi cuaca harian yang sifatnya sementara.
+            </p>
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
 
         # ── GRAFIK 1: ILSK Timeline ─────────────────────────────
         st.markdown(
