@@ -2018,36 +2018,18 @@ with tab2:
         st.markdown(f"""
         <div class="rekom" style="margin-top:10px">
           <div class="rk-title">{ico("info-circle")} Cara Membaca ILSK</div>
-          <div class="rk-text" style="line-height:1.7">
-
-            Skor ILSK berkisar antara <b>0 hingga 1</b>. Semakin tinggi nilainya,
-            semakin besar potensi risiko atau gangguan yang sedang dihadapi oleh lahan.<br><br>
-
-            <b> Tingkat Kerawanan Lahan:</b><br>
-            <div style="margin:6px 0 6px 12px">
-               <b>Di bawah 0.35 — AMAN:</b> Kondisi vegetasi dan air tanah dalam keadaan optimal.<br>
-               <b>0.35 - 0.55 — WASPADA:</b> Mulai muncul indikasi stres pada tanaman atau penurunan pasokan air.<br>
-               <b>Di atas 0.55 — BAHAYA:</b> Risiko tinggi, tanaman mengalami stres berat atau kekeringan ekstrem.
-            </div><br>
-
-            <b>Bagaimana Skor Ini Dihitung?</b><br>
-            Sistem merangkum 3 indikator utama dari satelit secara real-time:<br>
-            <div style="margin:6px 0 6px 12px">
-              <b>1. Kesehatan Tanaman (45%):</b> Dipantau via satelit <i>Sentinel-2 (NDVI)</i>
-              untuk melihat seberapa hijau dan subur daun tanaman.<br><br>
-              <b>2. Kadar Air Tanah (30%):</b> Dihitung menggunakan radar menembus awan dari
-              satelit <i>Sentinel-1 VH (SAR)</i> untuk mendeteksi ketersediaan air di lahan.<br><br>
-              <b>3. Tekanan Iklim Global (25%):</b> Mengintegrasikan data iklim makro
-              <i>(Indeks ENSO-ONI NOAA)</i> untuk membaca ancaman badai, El Niño, atau La Niña.
-            </div><br>
-
-            <div style="border-top:1px solid #EEFFD3;padding-top:8px;margin-top:4px;
-                        font-size:0.85rem;font-style:italic;color:#57685d">
-              *Skor ini dihitung berdasarkan tren rata-rata pergerakan 4 bulanan (rolling z-score)
-              agar sistem tetap objektif melihat gangguan jangka panjang, serta tidak terkecoh
-              oleh fluktuasi cuaca harian yang sifatnya sementara.
-            </div>
-
+          <div class="rk-text">
+            ILSK adalah angka antara 0 sampai 1 — semakin tinggi, semakin besar tekanan
+            yang sedang dialami lahan sawah Anda.<br><br>
+            <b>Aman</b> (di bawah 0.35): kondisi lahan normal, tidak ada indikasi gangguan berarti.<br>
+            <b>Waspada</b> (0.35–0.55): mulai ada tanda stres, pantau lahan lebih sering.<br>
+            <b>Bahaya</b> (di atas 0.55): tekanan lahan tinggi, segera periksa irigasi dan kondisi tanaman.<br><br>
+            Angka ini digabung dari tiga sumber data satelit:
+            kesehatan tanaman via NDVI Sentinel-2 (bobot 45%),
+            kadar air tanah via SAR Sentinel-1 (bobot 30%),
+            dan kondisi iklim global via indeks ENSO-ONI NOAA (bobot 25%).
+            Perhitungannya pakai z-score rolling 4 bulan supaya perubahan musiman
+            tidak dianggap sebagai ancaman — yang dilihat adalah tren jangka panjangnya.
           </div>
         </div>
         """, unsafe_allow_html=True)
