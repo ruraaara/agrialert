@@ -2036,11 +2036,8 @@ with tab2:
 
         # ── GRAFIK 1: ILSK Timeline ─────────────────────────────
         st.markdown(
-            f"""
-            <div style="background-color: #EEFFD3; padding: 20px; border-radius: 12px; border: 1px solid #20965F; margin-bottom: 15px;">
-                <h3 style="margin-top: 0; font-size: 1.1rem; color: #20965F;">{ico("chart")} Tren ILSK - Seluruh Periode Data</h3>
-            </div>
-            """,
+            f'<p class="sec-title" style="margin-top:20px">'
+            f'{ico("chart")} Tren ILSK — Seluruh Periode Data</p>',
             unsafe_allow_html=True
         )
 
