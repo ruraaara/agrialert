@@ -43,7 +43,7 @@ CLASS_TO_OPT = {
 
 NAMA_KELAS = [
     'bacterial_leaf_blight', 'brown_spot', 'healthy', 'leaf_blast',
-    'leaf_scald', 'narrow_brown_spot', 'rice_hispa', 'sheath_blight', 'tungro'
+    'leaf_scald', 'narrow_brown_spot'
 ]
 
 NAMA_INDO = {
