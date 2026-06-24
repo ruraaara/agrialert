@@ -12,7 +12,11 @@ import plotly.graph_objects as go
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from streamlit_geolocation import streamlit_geolocation
+import io
 import logging
+import numpy as np
+from PIL import Image
+
 logger = logging.getLogger("agrialert.cnn")
 
 # ----------------------------------------------------------------
