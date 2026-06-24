@@ -609,12 +609,25 @@ df_sar  = load_sar()
 # ================================================================
 @st.cache_resource
 def load_model_cnn():
+    """
+    Load model CNN AgriWarn (ONNX).
+    Input : (1, 224, 224, 3) float32, nilai piksel 0-255
+            Rescaling 1/255 sudah ada DI DALAM graph — jangan normalisasi manual.
+    Output: (1, 6) softmax probability → 6 kelas penyakit.
+    """
     if not MODEL_PATH.exists():
         return None
     try:
         import onnxruntime as ort
-        return ort.InferenceSession(str(MODEL_PATH))
-    except Exception:
+        sess = ort.InferenceSession(
+            str(MODEL_PATH),
+            providers=["CPUExecutionProvider"]
+        )
+        _dummy = np.zeros((1, 224, 224, 3), dtype=np.float32)
+        sess.run(None, {sess.get_inputs()[0].name: _dummy})
+        return sess
+    except Exception as e:
+        logger.error(f"Gagal load model ONNX: {e}")
         return None
 
 model_cnn = load_model_cnn()
@@ -773,38 +786,134 @@ HAMA_CS = [
      "tanaman mengering mendadak seperti terbakar (hopperburn), dan juga vektor virus kerdil rumput/kerdil hampa."),
 ]
 
+@st.cache_resource
+def _load_u2net_session():
+    """
+    Inisialisasi session U2Net via rembg.
+    Model (~176 MB) di-download otomatis ke ~/.u2net/ saat pertama kali dipanggil.
+    Di Streamlit Cloud, ini di-cache antar rerun sehingga tidak re-download.
+    """
+    try:
+        from rembg import new_session
+        sess = new_session("u2net")
+        logger.info("U2Net session berhasil diinisialisasi.")
+        return sess
+    except Exception as e:
+        logger.warning(f"U2Net tidak tersedia ({e}). Fallback ke resize biasa.")
+        return None
+ 
+ 
+def hapus_background_u2net(foto_bytes: bytes) -> np.ndarray:
+    """
+    Hapus background foto daun padi dengan U2Net, ganti dengan putih bersih.
+ 
+    Pipeline:
+        foto_bytes → PIL RGB → rembg(U2Net) → RGBA → composite putih → resize 224x224
+ 
+    Parameter alpha matting:
+        - foreground_threshold = 240  (area terang dianggap foreground)
+        - background_threshold = 10   (area gelap dianggap background)
+        - erode_size           = 10   (ukuran kernel erosi tepi, kurangi ke 5 jika tepi blur)
+ 
+    Catatan perbedaan API vs. notebook training (backgroundremover):
+        backgroundremover  → alpha_matting_erode_structure_size, alpha_matting_base_size
+        rembg 2.0.57       → alpha_matting_erode_size  (nama berbeda, fungsi sama)
+        alpha_matting_base_size TIDAK ada di rembg; rembg handle internally.
+ 
+    Returns:
+        np.ndarray shape (224, 224, 3), dtype float32, nilai 0.0-255.0
+    """
+    u2net_sess = _load_u2net_session()
+ 
+    pil_input = Image.open(io.BytesIO(foto_bytes)).convert("RGB")
+ 
+    # ── FALLBACK: U2Net tidak tersedia ──────────────────────────────────────
+    if u2net_sess is None:
+        img_resized = pil_input.resize((224, 224), Image.LANCZOS)
+        return np.array(img_resized, dtype=np.float32)
+ 
+    # ── U2Net inference ──────────────────────────────────────────────────────
+    try:
+        from rembg import remove as rembg_remove
+ 
+        # PIL → PNG bytes (rembg menerima bytes)
+        buf = io.BytesIO()
+        pil_input.save(buf, format="PNG")
+ 
+        # Inference dengan alpha matting
+        out_bytes = rembg_remove(
+            buf.getvalue(),
+            session=u2net_sess,
+            alpha_matting=True,
+            alpha_matting_foreground_threshold=240,
+            alpha_matting_background_threshold=10,
+            alpha_matting_erode_size=10,
+            bgcolor=(255, 255, 255, 255),  # background → putih langsung dari API
+        )
+ 
+        # Decode RGBA → RGB (bgcolor sudah dihandle, tapi convert untuk kepastian)
+        out_pil = Image.open(io.BytesIO(out_bytes)).convert("RGBA")
+        bg = Image.new("RGBA", out_pil.size, (255, 255, 255, 255))
+        bg.paste(out_pil, mask=out_pil.split()[3])  # alpha channel sebagai mask
+        out_rgb = bg.convert("RGB").resize((224, 224), Image.LANCZOS)
+ 
+        return np.array(out_rgb, dtype=np.float32)
+ 
+    except Exception as e:
+        logger.error(f"U2Net inference error ({e}). Fallback ke resize biasa.")
+        img_resized = pil_input.resize((224, 224), Image.LANCZOS)
+        return np.array(img_resized, dtype=np.float32)
 
 # ================================================================
 #  PREDIKSI GAMBAR
 # ================================================================
-def prediksi_gambar(foto_bytes):
+def prediksi_gambar(foto_bytes: bytes) -> dict | None:
+    """
+    Pipeline penuh: bytes foto → dict hasil prediksi penyakit.
+ 
+    Langkah:
+        1. Hapus background dengan U2Net (fallback: resize langsung)
+        2. Buat batch (1, 224, 224, 3) float32 dengan nilai piksel 0-255
+           ← Rescaling 1/255 dilakukan INTERNAL model ONNX, jangan dobel normalisasi!
+        3. Inferensi ONNX Runtime
+        4. Kembalikan dict hasil
+ 
+    Returns:
+        dict atau None jika foto tidak terbaca / model tidak ada.
+    """
     if model_cnn is None:
         return None
-    import cv2
-
-    arr = np.frombuffer(foto_bytes, np.uint8)
-    img = cv2.imdecode(arr, cv2.IMREAD_COLOR)
-    if img is None:
+ 
+    # Step 1 — preprocessing (U2Net atau fallback)
+    u2net_aktif = _load_u2net_session() is not None
+    img_array   = hapus_background_u2net(foto_bytes)   # (224, 224, 3) float32, 0-255
+ 
+    # Step 2 — susun batch
+    img_batch = np.expand_dims(img_array, axis=0)      # (1, 224, 224, 3)
+ 
+    # Step 3 — inferensi
+    try:
+        input_name  = model_cnn.get_inputs()[0].name
+        output_name = model_cnn.get_outputs()[0].name
+        probs = model_cnn.run([output_name], {input_name: img_batch})[0][0]
+    except Exception as e:
+        logger.error(f"Inferensi ONNX gagal: {e}")
         return None
-
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    img = cv2.resize(img, (128, 128))
-    img_batch = np.expand_dims(img.astype(np.float32), axis=0)
-
-    input_name = model_cnn.get_inputs()[0].name
-    probs = model_cnn.run(None, {input_name: img_batch})[0][0]
-
+ 
+    # Step 4 — decode
     idx   = int(np.argmax(probs))
     kelas = NAMA_KELAS[idx]
-
+ 
     return {
-        "kelas":      kelas,
-        "nama_indo":  NAMA_INDO[kelas],
-        "confidence": float(probs[idx]),
+        "kelas":       kelas,
+        "nama_indo":   NAMA_INDO[kelas],
+        "confidence":  float(probs[idx]),
         "rekomendasi": REKOMENDASI[kelas],
-        "berbahaya":  kelas in BERBAHAYA,
-        "probs":      {NAMA_KELAS[i]: float(probs[i]) for i in range(len(NAMA_KELAS))},
+        "berbahaya":   kelas in BERBAHAYA,
+        "probs":       {NAMA_KELAS[i]: float(probs[i]) for i in range(len(NAMA_KELAS))},
+        "u2net_aktif": u2net_aktif,
     }
+ 
 
 
 # ================================================================
