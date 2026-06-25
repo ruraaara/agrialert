@@ -2529,31 +2529,31 @@ with tab4:
                         </div>
                         """, unsafe_allow_html=True)
 
-    # ── Hasil deteksi normal ─────────────────────────────────
-    else:
-        kls_card = "bahaya" if hasil["berbahaya"] else "waspada"
-        kls_rk   = "merah"  if hasil["berbahaya"] else "kuning"
+                    # ── Hasil deteksi normal ─────────────────────────────────
+                    else:
+                        kls_card = "bahaya" if hasil["berbahaya"] else "waspada"
+                        kls_rk   = "merah"  if hasil["berbahaya"] else "kuning"
 
-        st.markdown(f"""
-        <div class="big-card {kls_card}">
-          <div class="bc-label">Penyakit Terdeteksi</div>
-          <div class="bc-value">{hasil['nama_indo']}</div>
-          <div class="bc-sub">Keyakinan model: <b>{conf_pct}%</b></div>
-        </div>
-        <div class="rekom {kls_rk}">
-          <div class="rk-title">{ico('pill')} Cara Penanganan</div>
-          <div class="rk-text">{hasil['rekomendasi']}</div>
-        </div>
-        """, unsafe_allow_html=True)
+                        st.markdown(f"""
+                        <div class="big-card {kls_card}">
+                            <div class="bc-label">Penyakit Terdeteksi</div>
+                            <div class="bc-value">{hasil['nama_indo']}</div>
+                            <div class="bc-sub">Keyakinan model: <b>{conf_pct}%</b></div>
+                        </div>
+                        <div class="rekom {kls_rk}">
+                            <div class="rk-title">{ico('pill')} Cara Penanganan</div>
+                            <div class="rk-text">{hasil['rekomendasi']}</div>
+                        </div>
+                        """, unsafe_allow_html=True)
 
-        # ── Konsultasi AI — hanya muncul kalau bukan unknown ──
-        st.markdown('<hr class="divider">', unsafe_allow_html=True)
-        st.markdown(f'<p class="sec-title">{ico("bot")} Konsultasi AI — Penanganan</p>',
-                    unsafe_allow_html=True)
+                        # ── Konsultasi AI — hanya muncul kalau bukan unknown ──
+                        st.markdown('<hr class="divider">', unsafe_allow_html=True)
+                        st.markdown(f'<p class="sec-title">{ico("bot")} Konsultasi AI — Penanganan</p>',
+                                    unsafe_allow_html=True)
 
-        opt_id    = CLASS_TO_OPT.get(hasil["kelas"])
-        ds_client = get_ai_client()
-        # ... sisa kode konsultasi AI yang sudah ada tetap di sini ...
+                        opt_id    = CLASS_TO_OPT.get(hasil["kelas"])
+                        ds_client = get_ai_client()
+                        # ... sisa kode konsultasi AI yang sudah ada tetap di sini ...
 
                     # ── Konsultasi AI — gabungan Offline (TaniBot) & Online (AgriAlert AI) ──
                     st.markdown('<hr class="divider">', unsafe_allow_html=True)
