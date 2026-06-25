@@ -36,9 +36,6 @@ CLASS_TO_OPT = {
     'leaf_blast':            'blas',
     'leaf_scald':            'leaf_scald',
     'narrow_brown_spot':     'narrow_brown_spot',
-    'rice_hispa':            'rice_hispa',
-    'sheath_blight':         'sheath_blight',
-    'tungro':                'tungro',
 }
 
 NAMA_KELAS = [
@@ -105,7 +102,7 @@ REKOMENDASI = {
     ),
 }
 
-BERBAHAYA = {'bacterial_leaf_blight', 'leaf_blast', 'sheath_blight', 'tungro', 'rice_hispa'}
+BERBAHAYA = {'bacterial_leaf_blight', 'leaf_blast'}
 
 AI_MODEL = "llama-3.3-70b-versatile"
 
@@ -874,30 +871,19 @@ def hapus_background_u2net(foto_bytes: bytes) -> np.ndarray:
 #  PREDIKSI GAMBAR
 # ================================================================
 def prediksi_gambar(foto_bytes: bytes) -> dict | None:
-    """
-    Pipeline penuh: bytes foto → dict hasil prediksi penyakit.
- 
-    Langkah:
-        1. Hapus background dengan U2Net (fallback: resize langsung)
-        2. Buat batch (1, 224, 224, 3) float32 dengan nilai piksel 0-255
-           ← Rescaling 1/255 dilakukan INTERNAL model ONNX, jangan dobel normalisasi!
-        3. Inferensi ONNX Runtime
-        4. Kembalikan dict hasil
- 
-    Returns:
-        dict atau None jika foto tidak terbaca / model tidak ada.
-    """
     if model_cnn is None:
         return None
- 
-    # Step 1 — preprocessing (U2Net atau fallback)
-    u2net_aktif = _load_u2net_session() is not None
-    img_array   = hapus_background_u2net(foto_bytes)   # (224, 224, 3) float32, 0-255
- 
-    # Step 2 — susun batch
-    img_batch = np.expand_dims(img_array, axis=0)      # (1, 224, 224, 3)
- 
-    # Step 3 — inferensi
+
+    from PIL import Image
+
+    # Resize langsung tanpa background removal
+    # (konsisten dengan pipeline training di agriwarn.py yang tidak pakai BG removal)
+    pil_img    = Image.open(io.BytesIO(foto_bytes)).convert("RGB")
+    img_resized = pil_img.resize((224, 224), Image.LANCZOS)
+    img_array  = np.array(img_resized, dtype=np.float32)  # 0-255, tidak dibagi 255
+
+    img_batch = np.expand_dims(img_array, axis=0)
+
     try:
         input_name  = model_cnn.get_inputs()[0].name
         output_name = model_cnn.get_outputs()[0].name
@@ -905,11 +891,10 @@ def prediksi_gambar(foto_bytes: bytes) -> dict | None:
     except Exception as e:
         logger.error(f"Inferensi ONNX gagal: {e}")
         return None
- 
-    # Step 4 — decode
+
     idx   = int(np.argmax(probs))
     kelas = NAMA_KELAS[idx]
- 
+
     return {
         "kelas":       kelas,
         "nama_indo":   NAMA_INDO[kelas],
@@ -917,7 +902,7 @@ def prediksi_gambar(foto_bytes: bytes) -> dict | None:
         "rekomendasi": REKOMENDASI[kelas],
         "berbahaya":   kelas in BERBAHAYA,
         "probs":       {NAMA_KELAS[i]: float(probs[i]) for i in range(len(NAMA_KELAS))},
-        "u2net_aktif": u2net_aktif,
+        "u2net_aktif": False,
     }
  
 
