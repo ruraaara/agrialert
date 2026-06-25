@@ -874,6 +874,7 @@ def prediksi_gambar(foto_bytes: bytes) -> dict | None:
     if model_cnn is None:
         return None
 
+    import math
     from PIL import Image
 
     pil_img     = Image.open(io.BytesIO(foto_bytes)).convert("RGB")
@@ -893,12 +894,17 @@ def prediksi_gambar(foto_bytes: bytes) -> dict | None:
     confidence = float(probs[idx])
     kelas      = NAMA_KELAS[idx]
 
-    # ── Threshold: kalau confidence < 55%, anggap bukan foto padi ──
-    # Model yang yakin akan output confidence tinggi (>70%).
-    # Gambar random biasanya tersebar merata → confidence rendah (<55%).
-    THRESHOLD = 0.55
+    # ── Deteksi gambar non-padi pakai entropy ───────────────────────
+    # Foto padi → model yakin → entropy rendah, confidence tinggi
+    # Foto random → model bingung → entropy tinggi, confidence tersebar merata
+    entropy       = -sum(p * math.log(p + 1e-9) for p in probs)
+    max_entropy   = math.log(len(probs))
+    entropy_ratio = entropy / max_entropy   # 0=yakin, 1=sangat bingung
 
-    if confidence < THRESHOLD:
+    THRESHOLD_CONF    = 0.30   # confidence minimum — naikkan jika foto random masih lolos
+    THRESHOLD_ENTROPY = 0.85   # entropy maksimum  — turunkan jika foto random masih lolos
+
+    if (confidence < THRESHOLD_CONF) or (entropy_ratio > THRESHOLD_ENTROPY):
         return {
             "kelas":       "unknown",
             "nama_indo":   "Tidak Teridentifikasi",
