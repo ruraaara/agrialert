@@ -876,13 +876,10 @@ def prediksi_gambar(foto_bytes: bytes) -> dict | None:
 
     from PIL import Image
 
-    # Resize langsung tanpa background removal
-    # (konsisten dengan pipeline training di agriwarn.py yang tidak pakai BG removal)
-    pil_img    = Image.open(io.BytesIO(foto_bytes)).convert("RGB")
+    pil_img     = Image.open(io.BytesIO(foto_bytes)).convert("RGB")
     img_resized = pil_img.resize((224, 224), Image.LANCZOS)
-    img_array  = np.array(img_resized, dtype=np.float32)  # 0-255, tidak dibagi 255
-
-    img_batch = np.expand_dims(img_array, axis=0)
+    img_array   = np.array(img_resized, dtype=np.float32)
+    img_batch   = np.expand_dims(img_array, axis=0)
 
     try:
         input_name  = model_cnn.get_inputs()[0].name
@@ -892,13 +889,35 @@ def prediksi_gambar(foto_bytes: bytes) -> dict | None:
         logger.error(f"Inferensi ONNX gagal: {e}")
         return None
 
-    idx   = int(np.argmax(probs))
-    kelas = NAMA_KELAS[idx]
+    idx        = int(np.argmax(probs))
+    confidence = float(probs[idx])
+    kelas      = NAMA_KELAS[idx]
+
+    # ── Threshold: kalau confidence < 55%, anggap bukan foto padi ──
+    # Model yang yakin akan output confidence tinggi (>70%).
+    # Gambar random biasanya tersebar merata → confidence rendah (<55%).
+    THRESHOLD = 0.55
+
+    if confidence < THRESHOLD:
+        return {
+            "kelas":       "unknown",
+            "nama_indo":   "Tidak Teridentifikasi",
+            "confidence":  confidence,
+            "rekomendasi": (
+                "Foto tidak dapat dikenali sebagai tanaman padi atau penyakit padi. "
+                "Pastikan foto diambil dari jarak dekat dengan fokus pada daun, "
+                "batang, atau akar tanaman padi yang menunjukkan gejala. "
+                "Hindari foto yang terlalu gelap, buram, atau berisi banyak objek lain."
+            ),
+            "berbahaya":   False,
+            "probs":       {NAMA_KELAS[i]: float(probs[i]) for i in range(len(NAMA_KELAS))},
+            "u2net_aktif": False,
+        }
 
     return {
         "kelas":       kelas,
         "nama_indo":   NAMA_INDO[kelas],
-        "confidence":  float(probs[idx]),
+        "confidence":  confidence,
         "rekomendasi": REKOMENDASI[kelas],
         "berbahaya":   kelas in BERBAHAYA,
         "probs":       {NAMA_KELAS[i]: float(probs[i]) for i in range(len(NAMA_KELAS))},
@@ -2488,21 +2507,53 @@ with tab4:
                         st.session_state["ai_context"] = hasil
 
                 if hasil:
-                    kls_card = "bahaya" if hasil["berbahaya"] else "waspada"
-                    kls_rk   = "merah"  if hasil["berbahaya"] else "kuning"
                     conf_pct = round(hasil["confidence"] * 100, 1)
 
-                    st.markdown(f"""
-                    <div class="big-card {kls_card}">
-                      <div class="bc-label">Penyakit Terdeteksi</div>
-                      <div class="bc-value">{hasil['nama_indo']}</div>
-                      <div class="bc-sub">Keyakinan model: <b>{conf_pct}%</b></div>
-                    </div>
-                    <div class="rekom {kls_rk}">
-                      <div class="rk-title">{ico('pill')} Cara Penanganan</div>
-                      <div class="rk-text">{hasil['rekomendasi']}</div>
-                    </div>
-                    """, unsafe_allow_html=True)
+                    # ── Foto tidak teridentifikasi sebagai padi ──────────────
+                    if hasil["kelas"] == "unknown":
+                        st.markdown(f"""
+                        <div class="big-card waspada">
+                          <div class="bc-label">Foto Tidak Teridentifikasi</div>
+                          <div class="bc-row">
+                            <span class="bc-dot waspada"></span>
+                            <span class="bc-value" style="font-size:1.2rem;">Bukan Foto Padi</span>
+                          </div>
+                          <div class="bc-sub">
+                                Keyakinan tertinggi model: <b>{conf_pct}%</b> —
+                                terlalu rendah untuk diagnosis yang dapat dipercaya.
+                          </div>
+                        </div>
+                        <div class="rekom kuning">
+                          <div class="rk-title">{ico('camera')} Tips Foto yang Baik</div>
+                          <div class="rk-text">{hasil['rekomendasi']}</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+
+    # ── Hasil deteksi normal ─────────────────────────────────
+    else:
+        kls_card = "bahaya" if hasil["berbahaya"] else "waspada"
+        kls_rk   = "merah"  if hasil["berbahaya"] else "kuning"
+
+        st.markdown(f"""
+        <div class="big-card {kls_card}">
+          <div class="bc-label">Penyakit Terdeteksi</div>
+          <div class="bc-value">{hasil['nama_indo']}</div>
+          <div class="bc-sub">Keyakinan model: <b>{conf_pct}%</b></div>
+        </div>
+        <div class="rekom {kls_rk}">
+          <div class="rk-title">{ico('pill')} Cara Penanganan</div>
+          <div class="rk-text">{hasil['rekomendasi']}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # ── Konsultasi AI — hanya muncul kalau bukan unknown ──
+        st.markdown('<hr class="divider">', unsafe_allow_html=True)
+        st.markdown(f'<p class="sec-title">{ico("bot")} Konsultasi AI — Penanganan</p>',
+                    unsafe_allow_html=True)
+
+        opt_id    = CLASS_TO_OPT.get(hasil["kelas"])
+        ds_client = get_ai_client()
+        # ... sisa kode konsultasi AI yang sudah ada tetap di sini ...
 
                     # ── Konsultasi AI — gabungan Offline (TaniBot) & Online (AgriAlert AI) ──
                     st.markdown('<hr class="divider">', unsafe_allow_html=True)
