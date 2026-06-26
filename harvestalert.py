@@ -185,23 +185,6 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-hide_streamlit_style = """
-<style>
-/* Sembunyikan total semua komponen menu, header, dan footer bawaan */
-#MainMenu {display: none !important;}
-header {display: none !important;}
-footer {display: none !important;}
-.stAppHeader {display: none !important;}
-
-/* Proteksi ekstra untuk elemen footer, dekorasi atas, dan status widget di Streamlit baru */
-div[data-testid="stDecoration"] {display: none !important;}
-div[data-testid="stStatusWidget"] {display: none !important;}
-div[data-testid="stFooter"] {display: none !important;}
-footer a {display: none !important;}
-</style>
-"""
-st.markdown(hide_streamlit_style, unsafe_allow_html=True)
-
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap');
