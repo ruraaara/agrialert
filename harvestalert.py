@@ -791,24 +791,8 @@ HAMA_CS = [
 
 # ================================================================
 #  PREDIKSI GAMBAR
-Sekarang saya punya diagnosis yang sangat jelas. Ini masalah yang sesungguhnya dan solusinya:
-
-Diagnosis Final
-Masalah 1 — leaf_scald (hawar pelepah) tidak pernah terdeteksi:
-Dari test, model ini tidak pernah output leaf_scald pada berbagai input. Probabilitas leaf_scald selalu 0.0%. Ini bukan masalah preprocessing — ini model memang tidak belajar fitur leaf_scald dengan baik. Kemungkinan dataset leaf_scald di training sangat sedikit atau tidak representatif.
-Masalah 2 — brown_spot vs narrow_brown_spot tertukar:
-Dari simulasi, model cenderung output narrow_brown_spot bahkan untuk pola oval (seharusnya brown_spot). Ini juga masalah model, bukan kode.
-Masalah 3 — Daun bawang lolos filter:
-Dari test, simulasi daun bawang (putih + hijau) hanya 28.6% — seharusnya ditolak (di bawah threshold 0.35). Tapi daun bawang asli punya lebih banyak piksel hijau dan mungkin lolos. Perlu naikkan VEG_THRESHOLD.
-
-Solusi — Perbaikan HSV Filter + Post-processing
-Karena masalah leaf_scald dan brown_spot vs narrow_brown_spot ada di model (tidak bisa diperbaiki tanpa retrain), strategi terbaik adalah:
-
-Perbaiki HSV filter — naikkan threshold dan perketat L4 agar daun bawang tidak lolos
-Tambah post-processing koreksi — kalau model output narrow_brown_spot dengan confidence rendah (<0.65), cek apakah lebih mungkin brown_spot berdasarkan distribusi warna coklat
-
-Ini kode prediksi_gambar yang diperbaiki:
-pythondef prediksi_gambar(foto_bytes: bytes) -> dict | None:
+# ================================================================
+def prediksi_gambar(foto_bytes: bytes) -> dict | None:
     """
     Pipeline deteksi penyakit padi dua lapis — diverifikasi empiris.
 
