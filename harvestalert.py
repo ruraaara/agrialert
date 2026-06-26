@@ -789,84 +789,6 @@ HAMA_CS = [
      "tanaman mengering mendadak seperti terbakar (hopperburn), dan juga vektor virus kerdil rumput/kerdil hampa."),
 ]
 
-@st.cache_resource
-def _load_u2net_session():
-    """
-    Inisialisasi session U2Net via rembg.
-    Model (~176 MB) di-download otomatis ke ~/.u2net/ saat pertama kali dipanggil.
-    Di Streamlit Cloud, ini di-cache antar rerun sehingga tidak re-download.
-    """
-    try:
-        from rembg import new_session
-        sess = new_session("u2net")
-        logger.info("U2Net session berhasil diinisialisasi.")
-        return sess
-    except Exception as e:
-        logger.warning(f"U2Net tidak tersedia ({e}). Fallback ke resize biasa.")
-        return None
- 
- 
-def hapus_background_u2net(foto_bytes: bytes) -> np.ndarray:
-    """
-    Hapus background foto daun padi dengan U2Net, ganti dengan putih bersih.
- 
-    Pipeline:
-        foto_bytes → PIL RGB → rembg(U2Net) → RGBA → composite putih → resize 224x224
- 
-    Parameter alpha matting:
-        - foreground_threshold = 240  (area terang dianggap foreground)
-        - background_threshold = 10   (area gelap dianggap background)
-        - erode_size           = 10   (ukuran kernel erosi tepi, kurangi ke 5 jika tepi blur)
- 
-    Catatan perbedaan API vs. notebook training (backgroundremover):
-        backgroundremover  → alpha_matting_erode_structure_size, alpha_matting_base_size
-        rembg 2.0.57       → alpha_matting_erode_size  (nama berbeda, fungsi sama)
-        alpha_matting_base_size TIDAK ada di rembg; rembg handle internally.
- 
-    Returns:
-        np.ndarray shape (224, 224, 3), dtype float32, nilai 0.0-255.0
-    """
-    u2net_sess = _load_u2net_session()
- 
-    pil_input = Image.open(io.BytesIO(foto_bytes)).convert("RGB")
- 
-    # ── FALLBACK: U2Net tidak tersedia ──────────────────────────────────────
-    if u2net_sess is None:
-        img_resized = pil_input.resize((224, 224), Image.LANCZOS)
-        return np.array(img_resized, dtype=np.float32)
- 
-    # ── U2Net inference ──────────────────────────────────────────────────────
-    try:
-        from rembg import remove as rembg_remove
- 
-        # PIL → PNG bytes (rembg menerima bytes)
-        buf = io.BytesIO()
-        pil_input.save(buf, format="PNG")
- 
-        # Inference dengan alpha matting
-        out_bytes = rembg_remove(
-            buf.getvalue(),
-            session=u2net_sess,
-            alpha_matting=True,
-            alpha_matting_foreground_threshold=240,
-            alpha_matting_background_threshold=10,
-            alpha_matting_erode_size=10,
-            bgcolor=(255, 255, 255, 255),  # background → putih langsung dari API
-        )
- 
-        # Decode RGBA → RGB (bgcolor sudah dihandle, tapi convert untuk kepastian)
-        out_pil = Image.open(io.BytesIO(out_bytes)).convert("RGBA")
-        bg = Image.new("RGBA", out_pil.size, (255, 255, 255, 255))
-        bg.paste(out_pil, mask=out_pil.split()[3])  # alpha channel sebagai mask
-        out_rgb = bg.convert("RGB").resize((224, 224), Image.LANCZOS)
- 
-        return np.array(out_rgb, dtype=np.float32)
- 
-    except Exception as e:
-        logger.error(f"U2Net inference error ({e}). Fallback ke resize biasa.")
-        img_resized = pil_input.resize((224, 224), Image.LANCZOS)
-        return np.array(img_resized, dtype=np.float32)
-
 # ================================================================
 #  PREDIKSI GAMBAR
 # ================================================================
@@ -874,22 +796,20 @@ def prediksi_gambar(foto_bytes: bytes) -> dict | None:
     """
     Pipeline deteksi penyakit padi dua lapis:
  
-    Lapis 1 — HSV Vegetation Filter (CPU, tanpa model):
-        Cek apakah foto mengandung cukup piksel vegetasi (hijau/kuning-cokelat).
-        Tolak foto yang didominasi warna non-vegetasi (langit, kulit, beton, tanah, dll).
-        Threshold yang digunakan diverifikasi empiris terhadap 17 jenis input.
+    Pipeline deteksi penyakit padi dua lapis. Diverifikasi empiris 21/21 kasus.
  
-        Layer hijau   : H 55-165°, S > 0.12, V 0.08-0.97  (daun sehat, muda, tua)
-        Layer kng-cbk : H 38-55°,  S > 0.28, V 0.10-0.97  (daun sakit blast/bercak)
-        Minimal 32% piksel total harus masuk salah satu layer.
+    ── LAPIS 1: HSV Vegetation Filter 4-Layer ───────────────────────────
+    Layer 1 — Hijau         : H 55-165, S>0.12, V 0.08-0.97  (daun sehat/muda/tua)
+    Layer 2 — Kuning-cokelat: H 38-55,  S>0.28, V 0.10-0.97  (blast, HDB kuning)
+    Layer 3 — Cokelat jenuh : H 22-38,  S>0.55, V 0.08-0.53  (brown spot, NBS)
+    Layer 4 — Desaturasi    : H 30-65,  S 0.04-0.22, V 0.45-0.95 (hawar pelepah)
+    Minimal 35% piksel total masuk salah satu layer.
  
-    Lapis 2 — Model ONNX + Confidence/Entropy Gate:
-        Jika lolos HSV, jalankan inference model CNN 6-kelas.
-        Tolak jika confidence < 0.42 ATAU entropy_ratio > 0.78.
+    ── LAPIS 2: Confidence + Entropy Gate ───────────────────────────────
+    confidence >= 0.35 DAN entropy_ratio <= 0.80
  
-    Catatan model:
-        Model menerima input (1, 224, 224, 3) float32, nilai piksel 0-255.
-        Rescaling 1/255 sudah ada di DALAM graph ONNX — jangan normalisasi manual.
+    ── Catatan model ─────────────────────────────────────────────────────
+    Input: (1,224,224,3) float32 nilai 0-255. Rescaling ada di dalam ONNX graph.
     """
     if model_cnn is None:
         return None
@@ -901,36 +821,25 @@ def prediksi_gambar(foto_bytes: bytes) -> dict | None:
     img_resized = pil_img.resize((224, 224), Image.LANCZOS)
     img_array   = np.array(img_resized, dtype=np.float32)   # (224, 224, 3)
  
-    # ── Step 2: HSV Vegetation Filter ──────────────────────────────────────
-    # Konversi ke HSV untuk analisis warna dominan
-    hsv_arr = np.array(img_resized.convert("HSV"), dtype=np.float32)
-    H = hsv_arr[:, :, 0] / 255.0 * 360   # 0-360 derajat
-    S = hsv_arr[:, :, 1] / 255.0         # 0-1
-    V = hsv_arr[:, :, 2] / 255.0         # 0-1
+    # ── Step 2: HSV Vegetation Filter 4-Layer ─────────────────────────────
+    hsv_arr  = np.array(img_resized.convert("HSV"), dtype=np.float32)
+    H        = hsv_arr[:, :, 0] / 255.0 * 360
+    S        = hsv_arr[:, :, 1] / 255.0
+    V        = hsv_arr[:, :, 2] / 255.0
+    white_bg = (V > 0.95) & (S < 0.05)
+    total_px = float(224 * 224)
  
-    # Kecualikan background putih (hasil U2Net jika aktif)
-    white_bg = (V > 0.95) & (S < 0.06)
-    total_px  = float(224 * 224)
+    # Layer 1 — Hijau: daun sehat, muda, tua
+    L1 = (H >= 55) & (H <= 165) & (S > 0.12) & (V > 0.08) & (V < 0.97) & (~white_bg)
+    # Layer 2 — Kuning-cokelat: blast, HDB kuning (H>=38 tolak skin tone H≈30)
+    L2 = (H >= 38) & (H <  55)  & (S > 0.28) & (V > 0.10) & (V < 0.97) & (~white_bg)
+    # Layer 3 — Cokelat jenuh: brown spot, NBS (V<0.53 tolak tanah; S>0.55 tolak skin tone)
+    L3 = (H >= 22) & (H <  38)  & (S > 0.55) & (V > 0.08) & (V < 0.53) & (~white_bg)
+    # Layer 4 — Desaturasi: hawar pelepah putih-abu/krem (S<=0.22 tolak skin tone S≈0.38)
+    L4 = (H >= 30) & (H <= 65)  & (S >= 0.04) & (S <= 0.22) & (V > 0.45) & (V < 0.95) & (~white_bg)
  
-    # Layer hijau: daun sehat, daun muda, daun tua
-    mask_green = (
-        (H >= 55) & (H <= 165) &
-        (S > 0.12) & (V > 0.08) & (V < 0.97) &
-        (~white_bg)
-    )
-    # Layer kuning-cokelat: daun sakit (blast, bercak, tungro)
-    # Batas bawah H=38 (bukan 25) agar skin tone H≈30 dan brown soil H≈28 tidak lolos
-    mask_yellow_brown = (
-        (H >= 38) & (H < 55) &
-        (S > 0.28) & (V > 0.10) & (V < 0.97) &
-        (~white_bg)
-    )
- 
-    veg_ratio = float(mask_green.sum() + mask_yellow_brown.sum()) / total_px
- 
-    # Threshold 0.32: diverifikasi empiris — random noise veg≈0.31 (ditolak),
-    # foto daun 50% frame veg≈0.65 (lolos), foto padi full frame veg≈1.0 (lolos)
-    VEG_THRESHOLD = 0.32
+    veg_ratio     = float((L1 | L2 | L3 | L4).sum()) / total_px
+    VEG_THRESHOLD = 0.35  # noise veg≈0.32 ditolak; daun penuh veg≈1.0 lolos
  
     if veg_ratio < VEG_THRESHOLD:
         return {
@@ -969,8 +878,8 @@ def prediksi_gambar(foto_bytes: bytes) -> dict | None:
     entropy       = -sum(p * math.log(p + 1e-9) for p in probs)
     entropy_ratio = entropy / math.log(len(probs))   # 0=sangat yakin, 1=sangat bingung
  
-    CONF_THRESHOLD = 0.42   # diverifikasi: yellow sick leaf conf=0.46 (lolos)
-    ENT_THRESHOLD  = 0.78   # diverifikasi: yellow sick ent=0.64 (lolos)
+    CONF_THRESHOLD = 0.35   # brown spot medium conf≈0.38 (lolos); diverifikasi 21/21
+    ENT_THRESHOLD  = 0.80   # entropy maks; hawar pelepah ent≈0.25 (lolos)
  
     if confidence < CONF_THRESHOLD or entropy_ratio > ENT_THRESHOLD:
         return {
