@@ -187,17 +187,17 @@ st.set_page_config(
 
 hide_streamlit_style = """
 <style>
-/* Menyembunyikan tombol tiga titik dan menu bawaan Streamlit */
-#MainMenu {visibility: hidden;}
+/* Sembunyikan total semua komponen menu, header, dan footer bawaan */
+#MainMenu {display: none !important;}
+header {display: none !important;}
+footer {display: none !important;}
+.stAppHeader {display: none !important;}
 
-/* Menyembunyikan footer 'Hosted with Streamlit' di bawah */
-footer {visibility: hidden;}
-
-/* Menyembunyikan seluruh bar atas termasuk logo GitHub / Fork button */
-header {visibility: hidden;}
-
-/* Menghilangkan jarak kosong di atas setelah header disembunyikan */
-.stAppHeader {display: none;}
+/* Proteksi ekstra untuk elemen footer, dekorasi atas, dan status widget di Streamlit baru */
+div[data-testid="stDecoration"] {display: none !important;}
+div[data-testid="stStatusWidget"] {display: none !important;}
+div[data-testid="stFooter"] {display: none !important;}
+footer a {display: none !important;}
 </style>
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
