@@ -185,6 +185,23 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+hide_streamlit_style = """
+<style>
+/* Menyembunyikan tombol tiga titik dan menu bawaan Streamlit */
+#MainMenu {visibility: hidden;}
+
+/* Menyembunyikan footer 'Hosted with Streamlit' di bawah */
+footer {visibility: hidden;}
+
+/* Menyembunyikan seluruh bar atas termasuk logo GitHub / Fork button */
+header {visibility: hidden;}
+
+/* Menghilangkan jarak kosong di atas setelah header disembunyikan */
+.stAppHeader {display: none;}
+</style>
+"""
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap');
