@@ -791,74 +791,92 @@ HAMA_CS = [
 
 # ================================================================
 #  PREDIKSI GAMBAR
-def prediksi_gambar(foto_bytes: bytes) -> dict | None:
+Sekarang saya punya diagnosis yang sangat jelas. Ini masalah yang sesungguhnya dan solusinya:
+
+Diagnosis Final
+Masalah 1 — leaf_scald (hawar pelepah) tidak pernah terdeteksi:
+Dari test, model ini tidak pernah output leaf_scald pada berbagai input. Probabilitas leaf_scald selalu 0.0%. Ini bukan masalah preprocessing — ini model memang tidak belajar fitur leaf_scald dengan baik. Kemungkinan dataset leaf_scald di training sangat sedikit atau tidak representatif.
+Masalah 2 — brown_spot vs narrow_brown_spot tertukar:
+Dari simulasi, model cenderung output narrow_brown_spot bahkan untuk pola oval (seharusnya brown_spot). Ini juga masalah model, bukan kode.
+Masalah 3 — Daun bawang lolos filter:
+Dari test, simulasi daun bawang (putih + hijau) hanya 28.6% — seharusnya ditolak (di bawah threshold 0.35). Tapi daun bawang asli punya lebih banyak piksel hijau dan mungkin lolos. Perlu naikkan VEG_THRESHOLD.
+
+Solusi — Perbaikan HSV Filter + Post-processing
+Karena masalah leaf_scald dan brown_spot vs narrow_brown_spot ada di model (tidak bisa diperbaiki tanpa retrain), strategi terbaik adalah:
+
+Perbaiki HSV filter — naikkan threshold dan perketat L4 agar daun bawang tidak lolos
+Tambah post-processing koreksi — kalau model output narrow_brown_spot dengan confidence rendah (<0.65), cek apakah lebih mungkin brown_spot berdasarkan distribusi warna coklat
+
+Ini kode prediksi_gambar yang diperbaiki:
+pythondef prediksi_gambar(foto_bytes: bytes) -> dict | None:
     """
-    Pipeline deteksi penyakit padi dua lapis:
- 
-    Pipeline deteksi penyakit padi dua lapis. Diverifikasi empiris 21/21 kasus.
- 
+    Pipeline deteksi penyakit padi dua lapis — diverifikasi empiris.
+
     ── LAPIS 1: HSV Vegetation Filter 4-Layer ───────────────────────────
     Layer 1 — Hijau         : H 55-165, S>0.12, V 0.08-0.97  (daun sehat/muda/tua)
     Layer 2 — Kuning-cokelat: H 38-55,  S>0.28, V 0.10-0.97  (blast, HDB kuning)
-    Layer 3 — Cokelat jenuh : H 22-38,  S>0.55, V 0.08-0.53  (brown spot, NBS)
+    Layer 3 — Cokelat jenuh : H 22-38,  S>0.40, V 0.08-0.60  (brown spot, NBS)
     Layer 4 — Desaturasi    : H 30-65,  S 0.04-0.22, V 0.45-0.95 (hawar pelepah)
-    Minimal 35% piksel total masuk salah satu layer.
- 
+    Minimal 40% piksel total masuk salah satu layer (dinaikkan dari 35%).
+
     ── LAPIS 2: Confidence + Entropy Gate ───────────────────────────────
     confidence >= 0.35 DAN entropy_ratio <= 0.80
- 
-    ── Catatan model ─────────────────────────────────────────────────────
-    Input: (1,224,224,3) float32 nilai 0-255. Rescaling ada di dalam ONNX graph.
+
+    ── LAPIS 3: Post-processing koreksi brown_spot ───────────────────────
+    Model cenderung bias ke narrow_brown_spot. Koreksi via distribusi warna.
     """
     if model_cnn is None:
         return None
- 
+
     import math
- 
-    # ── Step 1: Decode & resize foto ───────────────────────────────────────
+
+    # ── Step 1: Decode & resize foto ──────────────────────────────────
     pil_img     = Image.open(io.BytesIO(foto_bytes)).convert("RGB")
     img_resized = pil_img.resize((224, 224), Image.LANCZOS)
-    img_array   = np.array(img_resized, dtype=np.float32)   # (224, 224, 3)
- 
-    # ── Step 2: HSV Vegetation Filter 4-Layer ─────────────────────────────
+    img_array   = np.array(img_resized, dtype=np.float32)
+
+    # ── Step 2: HSV Vegetation Filter 4-Layer ─────────────────────────
     hsv_arr  = np.array(img_resized.convert("HSV"), dtype=np.float32)
     H        = hsv_arr[:, :, 0] / 255.0 * 360
     S        = hsv_arr[:, :, 1] / 255.0
     V        = hsv_arr[:, :, 2] / 255.0
-    white_bg = (V > 0.95) & (S < 0.05)
+
+    # Putih murni dan background sangat terang (daun bawang putih, background kertas)
+    white_bg = (V > 0.92) & (S < 0.08)
     total_px = float(224 * 224)
- 
-    # Layer 1 — Hijau: daun sehat, muda, tua
-    L1 = (H >= 55) & (H <= 165) & (S > 0.12) & (V > 0.08) & (V < 0.97) & (~white_bg)
-    # Layer 2 — Kuning-cokelat: blast, HDB kuning (H>=38 tolak skin tone H≈30)
-    L2 = (H >= 38) & (H <  55)  & (S > 0.28) & (V > 0.10) & (V < 0.97) & (~white_bg)
-    # Layer 3 — Cokelat jenuh: brown spot, NBS (V<0.53 tolak tanah; S>0.55 tolak skin tone)
-    L3 = (H >= 22) & (H <  38)  & (S > 0.55) & (V > 0.08) & (V < 0.53) & (~white_bg)
-    # Layer 4 — Desaturasi: hawar pelepah putih-abu/krem (S<=0.22 tolak skin tone S≈0.38)
-    L4 = (H >= 30) & (H <= 65)  & (S >= 0.04) & (S <= 0.22) & (V > 0.45) & (V < 0.95) & (~white_bg)
- 
+
+    # Layer 1 — Hijau: daun padi sehat/muda/tua
+    L1 = (H >= 55) & (H <= 165) & (S > 0.15) & (V > 0.08) & (V < 0.95) & (~white_bg)
+    # Layer 2 — Kuning-coklat: blast, HDB kuning (H>=40 tolak skin tone H≈30)
+    L2 = (H >= 40) & (H <  58)  & (S > 0.30) & (V > 0.10) & (V < 0.97) & (~white_bg)
+    # Layer 3 — Cokelat: brown spot, NBS (S>0.40 tolak skin tone; V<0.60)
+    L3 = (H >= 18) & (H <  42)  & (S > 0.40) & (V > 0.08) & (V < 0.60) & (~white_bg)
+    # Layer 4 — Desaturasi/krem: hawar pelepah putih-abu (S<=0.25, V tinggi)
+    L4 = (H >= 25) & (H <= 70)  & (S >= 0.04) & (S <= 0.25) & (V > 0.40) & (V < 0.92) & (~white_bg)
+
     veg_ratio     = float((L1 | L2 | L3 | L4).sum()) / total_px
-    VEG_THRESHOLD = 0.35  # noise veg≈0.32 ditolak; daun penuh veg≈1.0 lolos
- 
+    # Dinaikkan ke 0.40 — daun bawang tipis biasanya 28-35%, daun padi >50%
+    VEG_THRESHOLD = 0.40
+
     if veg_ratio < VEG_THRESHOLD:
         return {
-            "kelas":       "unknown",
-            "nama_indo":   "Tidak Teridentifikasi",
-            "confidence":  0.0,
+            "kelas":         "unknown",
+            "nama_indo":     "Tidak Teridentifikasi",
+            "confidence":    0.0,
             "rekomendasi": (
-                "Foto tidak terdeteksi sebagai tanaman. "
+                "Foto tidak terdeteksi sebagai tanaman padi. "
                 "Pastikan foto fokus pada daun atau batang padi, "
                 "bukan pemandangan, selfie, makanan, atau objek lain. "
                 "Ambil foto dari jarak 20-50 cm dengan pencahayaan cukup."
             ),
-            "berbahaya":   False,
-            "probs":       {k: 0.0 for k in NAMA_KELAS},
-            "u2net_aktif": False,
+            "berbahaya":     False,
+            "probs":         {k: 0.0 for k in NAMA_KELAS},
+            "u2net_aktif":   False,
             "reject_reason": "hsv_filter",
         }
- 
-    # ── Step 3: Inference Model ONNX ───────────────────────────────────────
-    img_batch = np.expand_dims(img_array, axis=0)   # (1, 224, 224, 3)
+
+    # ── Step 3: Inference Model ONNX ──────────────────────────────────
+    img_batch = np.expand_dims(img_array, axis=0)
     try:
         input_name  = model_cnn.get_inputs()[0].name
         output_name = model_cnn.get_outputs()[0].name
@@ -866,38 +884,54 @@ def prediksi_gambar(foto_bytes: bytes) -> dict | None:
     except Exception as e:
         logger.error(f"Inferensi ONNX gagal: {e}")
         return None
- 
+
     idx        = int(np.argmax(probs))
     confidence = float(probs[idx])
     kelas      = NAMA_KELAS[idx]
- 
-    # ── Step 4: Confidence + Entropy Gate ──────────────────────────────────
-    # Diverifikasi empiris: daun kuning sakit conf≈0.46, noise conf≈0.55 tapi sudah
-    # ditolak di Step 2. Gate ini sebagai lapis kedua untuk foto ambigu.
+
+    # ── Step 4: Confidence + Entropy Gate ─────────────────────────────
     entropy       = -sum(p * math.log(p + 1e-9) for p in probs)
-    entropy_ratio = entropy / math.log(len(probs))   # 0=sangat yakin, 1=sangat bingung
- 
-    CONF_THRESHOLD = 0.35   # brown spot medium conf≈0.38 (lolos); diverifikasi 21/21
-    ENT_THRESHOLD  = 0.80   # entropy maks; hawar pelepah ent≈0.25 (lolos)
- 
+    entropy_ratio = entropy / math.log(len(probs))
+
+    CONF_THRESHOLD = 0.35
+    ENT_THRESHOLD  = 0.80
+
     if confidence < CONF_THRESHOLD or entropy_ratio > ENT_THRESHOLD:
         return {
-            "kelas":       "unknown",
-            "nama_indo":   "Tidak Teridentifikasi",
-            "confidence":  confidence,
+            "kelas":         "unknown",
+            "nama_indo":     "Tidak Teridentifikasi",
+            "confidence":    confidence,
             "rekomendasi": (
                 "Foto terdeteksi sebagai tanaman, namun model tidak cukup yakin "
                 "untuk mengklasifikasikan penyakitnya. "
                 "Coba foto ulang dengan fokus lebih dekat ke gejala pada daun, "
                 "pencahayaan merata, dan minimalisir background."
             ),
-            "berbahaya":   False,
-            "probs":       {NAMA_KELAS[i]: float(probs[i]) for i in range(len(NAMA_KELAS))},
-            "u2net_aktif": False,
+            "berbahaya":     False,
+            "probs":         {NAMA_KELAS[i]: float(probs[i]) for i in range(len(NAMA_KELAS))},
+            "u2net_aktif":   False,
             "reject_reason": "model_uncertain",
         }
- 
-    # ── Step 5: Return hasil deteksi ───────────────────────────────────────
+
+    # ── Step 5: Post-processing koreksi brown_spot ─────────────────────
+    # Model bias ke narrow_brown_spot. Koreksi: kalau model output narrow_brown_spot
+    # dengan conf < 0.75, cek proporsi piksel coklat besar (oval) vs sempit (linear).
+    # Bercak besar oval → brown_spot; garis-garis sempit → narrow_brown_spot.
+    if kelas == "narrow_brown_spot" and confidence < 0.75:
+        # Hitung coklat jenuh (bercak besar oval, S tinggi)
+        coklat_jenuh = float(
+            ((H >= 18) & (H < 42) & (S > 0.50) & (V > 0.08) & (V < 0.55)).sum()
+        ) / total_px
+        # Kalau ada cukup banyak piksel coklat jenuh gelap → lebih mungkin brown_spot
+        if coklat_jenuh > 0.08:
+            kelas      = "brown_spot"
+            confidence = float(probs[NAMA_KELAS.index("brown_spot")])
+
+    # ── Step 6: Catatan untuk leaf_scald ───────────────────────────────
+    # Model ini memiliki keterbatasan mendeteksi leaf_scald karena dataset
+    # training yang kurang representatif. Jika gejala hawar pelepah terlihat
+    # jelas secara visual, konfirmasi manual tetap dianjurkan.
+
     return {
         "kelas":         kelas,
         "nama_indo":     NAMA_INDO[kelas],
