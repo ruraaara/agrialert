@@ -495,8 +495,10 @@ button[data-baseweb="tab"]:hover:not([aria-selected="true"]) { background: rgba(
     .mc-val { font-size: 1.05rem !important; }
     .mc-label { font-size: 0.65rem !important; }
     .mc-sub { font-size: 0.7rem !important; }
-    .status-row { grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; }
-    .chip { font-size: 0.75rem !important; padding: 6px 10px !important; }
+    .status-row { grid-template-columns: 1fr !important; gap: 8px !important; }
+    .chip { width: 100% !important; justify-content: center !important; font-size: 0.75rem !important; padding: 6px 10px !important; }
+    .divider { margin: 10px 0 !important; }
+    .sec-title { margin: 12px 0 8px !important; }
 }
 .tbot-chat {
     background: #FFFFFF; border: 1.5px solid var(--c-border); border-radius: var(--radius-md);
@@ -1922,7 +1924,6 @@ div:has(> [data-testid="stCustomComponentV1"]) {{
     """, unsafe_allow_html=True)
 
 
-    st.markdown('<hr class="divider">', unsafe_allow_html=True)
     st.markdown(f'<p class="sec-title">{ico("lightbulb")} Yang Harus Dilakukan</p>', unsafe_allow_html=True)
 
     st.markdown(f"""
