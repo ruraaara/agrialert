@@ -225,35 +225,35 @@ st.markdown("""
 :root {
     color-scheme: light;
     /* ── Palet utama — sesuai desain Figma AgriAlert ── */
-    --c-primary: #20965F;          /* hijau utama — header, tombol, shape gelap */
-    --c-primary-dark: #20965F;
+    --c-primary: #669B49;          /* hijau utama — header, tombol, shape gelap */
+    --c-primary-dark: #669B49;
     --c-primary-darker: #176e47;
     --c-primary-light: #EEFFD3;    /* hijau muda — base card terang */
     --c-sage: #6f8f78;
 
     --c-tab-active-text: #EEFFD3;  /* font tab yang sedang aktif */
-    --c-tab-inactive-text: #20965F;/* font tab yang tidak aktif */
+    --c-tab-inactive-text: #669B49;/* font tab yang tidak aktif */
 
     --c-bg: #FFFFFF;               /* base warna web paling dasar — PUTIH */
     --c-surface: #ffffff;
     --c-border: #c8d6c9;            /* border sedikit lebih jelas di bg putih */
     --c-text: #1c2620;
     --c-text-muted: #57685d;
-    --c-text-on-light: #20965F;
+    --c-text-on-light: #669B49;
     --c-muted-on-surface: #57685d;
-    --c-accent-text: #20965F;
+    --c-accent-text: #669B49;
 
     /* ── Status (kondisi cuaca / iklim) — hijau=aman, kuning=waspada, merah=bahaya ── */
-    --c-aman-bg: #EEFFD3;     --c-aman-border:#20965F;   --c-aman-text:#20965F;   --c-aman-dot:#00EA7D;
-    --c-waspada-bg:#EEFFD3;   --c-waspada-border:#20965F; --c-waspada-text:#20965F; --c-waspada-dot:#F3FF0F;
-    --c-bahaya-bg:#EEFFD3;    --c-bahaya-border:#20965F; --c-bahaya-text:#20965F;  --c-bahaya-dot:#FF0505;
-    --c-info-bg:#EEFFD3;      --c-info-border:#20965F;   --c-info-text:#20965F;
+    --c-aman-bg: #EEFFD3;     --c-aman-border:#669B49;   --c-aman-text:#669B49;   --c-aman-dot:#00EA7D;
+    --c-waspada-bg:#EEFFD3;   --c-waspada-border:#669B49; --c-waspada-text:#669B49; --c-waspada-dot:#F3FF0F;
+    --c-bahaya-bg:#EEFFD3;    --c-bahaya-border:#669B49; --c-bahaya-text:#669B49;  --c-bahaya-dot:#FF0505;
+    --c-info-bg:#EEFFD3;      --c-info-border:#669B49;   --c-info-text:#669B49;
 
     --radius-sm: 8px;
     --radius-md: 15px;
     --radius-lg: 40px;
-    --shadow-sm: 0 1px 3px rgba(32,150,95,0.08);
-    --shadow-md: 0 4px 14px rgba(32,150,95,0.12);
+    --shadow-sm: 0 1px 3px rgba(102,155,73,0.08);
+    --shadow-md: 0 4px 14px rgba(102,155,73,0.12);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -273,7 +273,7 @@ html, body, [class*="css"] {
 /* ── Section divider — garis pemisah antar section ── */
 .section-divider {
     border: none;
-    border-top: 2px solid #20965F;
+    border-top: 2px solid #669B49;
     opacity: 0.2;
     margin: 28px 0;
 }
@@ -282,14 +282,14 @@ html, body, [class*="css"] {
     margin-bottom: 24px;
 }
 /* ── HEADER — mask group sesuai Figma ──
-   Dua Rectangle hijau (#20965F, radius 40px) bertumpuk sebagai latar,
+   Dua Rectangle hijau (#669B49, radius 40px) bertumpuk sebagai latar,
    mascot.png di-mask/diposisikan di kanan-atas, judul+sub di kiri. */
 .ha-header {
     position: relative;
     width: 100%;
     min-height: 260px;
     border-radius: var(--radius-lg);
-    background: #20965F;
+    background: #669B49;
     overflow: hidden;
     margin-top: 60px;
     margin-bottom: 20px;
@@ -329,13 +329,13 @@ html, body, [class*="css"] {
 }
 .gps-box b { color: var(--c-accent-text); }
 
-/* ── Tombol GPS — Rectangle 16: 376x65, bg 20965F, radius 15 ──
+/* ── Tombol GPS — Rectangle 16: 376x65, bg 669B49, radius 15 ──
    Catatan: streamlit_geolocation merender iframe pihak ketiga, jadi kita
    styling kontainernya saja (bentuk, warna dasar, radius); teks/tombol di
    dalam iframe mengikuti style bawaan komponen tersebut. */
 .gps-trigger-wrap {
     margin-bottom: 14px;
-    background: #20965F;
+    background: #669B49;
     border-radius: 15px;
     min-height: 65px;
     display: flex; align-items: center; justify-content: center;
@@ -344,7 +344,7 @@ html, body, [class*="css"] {
 }
 .gps-trigger-wrap.aktif {
     background: #ffffff;
-    border: 1.5px solid #20965F;
+    border: 1.5px solid #669B49;
 }
 .gps-trigger-wrap iframe { width: 100%; }
 
@@ -355,33 +355,33 @@ html, body, [class*="css"] {
     padding: 14px 18px; margin-bottom: 14px; box-shadow: var(--shadow-sm);
 }
 .gps-info-row.below-gps-btn { margin-top: -30px; }
-.gps-info-icon { width: 28px; height: 28px; flex-shrink: 0; color: #20965F; }
+.gps-info-icon { width: 28px; height: 28px; flex-shrink: 0; color: #669B49; }
 .gps-info-icon img { width: 100%; height: 100%; object-fit: contain; }
-.gps-info-text { font-family: 'Poppins', sans-serif; font-weight: 400; font-size: 0.82rem; line-height: 1.5; color: #20965F; }
+.gps-info-text { font-family: 'Poppins', sans-serif; font-weight: 400; font-size: 0.82rem; line-height: 1.5; color: #669B49; }
 
-/* ── Big-card "Kondisi Cuaca Hari Ini" — base EEFFD3, font 20965F ── */
+/* ── Big-card "Kondisi Cuaca Hari Ini" — base EEFFD3, font 669B49 ── */
 .big-card { border-radius: var(--radius-md); padding: 18px 22px; margin-bottom: 16px; border: 1.5px solid #d4edda; box-shadow: var(--shadow-sm); background: #EEFFD3; }
 .big-card.aman, .big-card.waspada, .big-card.bahaya, .big-card.info { background: #EEFFD3; border: 1.5px solid #d4edda; }
-.bc-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #20965F; margin-bottom: 8px; }
+.bc-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #669B49; margin-bottom: 8px; }
 .bc-row   { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
-.bc-icon  { font-size: 2rem; line-height: 1; flex-shrink: 0; color: #20965F; }
-.bc-value { font-size: 1.5rem; font-weight: 800; color: #20965F; line-height: 1.15; }
-.bc-sub   { font-size: 0.88rem; color: #20965F; margin-top: 6px; line-height: 1.55; }
-.big-card .bc-value, .big-card .bc-label, .big-card .bc-sub { color: #20965F; }
+.bc-icon  { font-size: 2rem; line-height: 1; flex-shrink: 0; color: #669B49; }
+.bc-value { font-size: 1.5rem; font-weight: 800; color: #669B49; line-height: 1.15; }
+.bc-sub   { font-size: 0.88rem; color: #669B49; margin-top: 6px; line-height: 1.55; }
+.big-card .bc-value, .big-card .bc-label, .big-card .bc-sub { color: #669B49; }
 /* Titik status — hijau aman / kuning waspada / merah bahaya */
 .bc-dot { display:inline-block; width:24px; height:24px; border-radius:50%; margin-right:8px; vertical-align:middle; flex-shrink:0; }
 .bc-dot.aman    { background:#00C96B; }
 .bc-dot.waspada { background:#EAB308; }
 .bc-dot.bahaya  { background:#FF0505; }
 
-/* ── Metric cards (suhu/kelembapan/curah hujan/iklim) — selalu hijau 20965F, font putih ── */
+/* ── Metric cards (suhu/kelembapan/curah hujan/iklim) — selalu hijau 669B49, font putih ── */
 .metric-grid {
     display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px;
 }
 @media (max-width: 900px) { .metric-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
 @media (max-width: 480px) { .metric-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; } }
-.metric-card { border-radius: var(--radius-md); padding: 16px 18px; border: none; background: #20965F; box-shadow: var(--shadow-sm); min-width: 0; }
-.metric-card.aman, .metric-card.waspada, .metric-card.bahaya, .metric-card.info { background: #20965F; border: none; }
+.metric-card { border-radius: var(--radius-md); padding: 16px 18px; border: none; background: #669B49; box-shadow: var(--shadow-sm); min-width: 0; }
+.metric-card.aman, .metric-card.waspada, .metric-card.bahaya, .metric-card.info { background: #669B49; border: none; }
 .mc-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #ffffff; margin-bottom: 6px; }
 .mc-val   { font-size: 1.35rem; font-weight: 800; color: #ffffff; line-height: 1.15; }
 .mc-sub   { font-size: 0.76rem; color: #ffffff; margin-top: 4px; opacity: 0.9; }
@@ -390,36 +390,36 @@ html, body, [class*="css"] {
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
 @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; gap: 12px; } }
 
-/* ── Rekom (Saran Tanam, Kondisi Iklim, dll) — base EEFFD3, font 20965F ── */
+/* ── Rekom (Saran Tanam, Kondisi Iklim, dll) — base EEFFD3, font 669B49 ── */
 .rekom { background: #EEFFD3; border-radius: var(--radius-md); border: 1.5px solid #d4edda; padding: 16px 18px; margin-bottom: 16px; box-shadow: var(--shadow-sm); }
 .rekom.kuning, .rekom.merah, .rekom.biru { background: #EEFFD3; border: 1.5px solid #d4edda; }
-.rk-title { font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #20965F; margin-bottom: 8px; }
-.rekom .rk-title, .rekom.kuning .rk-title, .rekom.merah .rk-title, .rekom.biru .rk-title { color: #20965F; }
-.rk-text { font-size: 0.92rem; color: #20965F; line-height: 1.65; }
+.rk-title { font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #669B49; margin-bottom: 8px; }
+.rekom .rk-title, .rekom.kuning .rk-title, .rekom.merah .rk-title, .rekom.biru .rk-title { color: #669B49; }
+.rk-text { font-size: 0.92rem; color: #669B49; line-height: 1.65; }
 .hama-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 8px; }
 @media (max-width: 640px) { .hama-grid { grid-template-columns: 1fr; gap: 10px; } }
 .hama-card { background: #EEFFD3; border: 1.5px solid #d4edda; border-radius: var(--radius-md); padding: 14px 16px; display: flex; align-items: flex-start; gap: 12px; box-shadow: var(--shadow-sm); }
-.hama-icon { font-size: 1.8rem; line-height: 1; flex-shrink: 0; margin-top: 2px; color: #20965F; }
-.hama-nama { font-size: 0.98rem; font-weight: 700; color: #20965F; margin-bottom: 4px; }
-.hama-ciri { font-size: 0.85rem; color: #20965F; line-height: 1.55; }
+.hama-icon { font-size: 1.8rem; line-height: 1; flex-shrink: 0; margin-top: 2px; color: #669B49; }
+.hama-nama { font-size: 0.98rem; font-weight: 700; color: #669B49; margin-bottom: 4px; }
+.hama-ciri { font-size: 0.85rem; color: #669B49; line-height: 1.55; }
 .hama-card-v { background: #EEFFD3; border: 1.5px solid #d4edda; border-radius: var(--radius-md); padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 10px; box-shadow: var(--shadow-sm); }
-.hama-card-v .hama-nama { display: flex; align-items: center; gap: 8px; margin-bottom: 0; color: #20965F; }
+.hama-card-v .hama-nama { display: flex; align-items: center; gap: 8px; margin-bottom: 0; color: #669B49; }
 .hama-img-wrap { width: 100%; aspect-ratio: 4/3; border-radius: var(--radius-sm); overflow: hidden; border: 1px solid #d4edda; }
 .hama-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.hama-img-ph { width: 100%; aspect-ratio: 4/3; border-radius: var(--radius-sm); border: 1.5px dashed #20965F; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; color: #20965F; text-align: center; padding: 10px; background: rgba(32,150,95,0.03); }
-.hama-img-ph-path { font-family: monospace; font-size: 0.65rem; opacity: 0.7; word-break: break-all; color: #20965F; }
-.sec-title { font-size: 1.05rem; font-weight: 700; color: #20965F; margin: 18px 0 10px; display: flex; align-items: center; gap: 8px; padding-bottom: 6px; border-bottom: 1px solid rgba(32,150,95,0.12); }
-.divider { border: none; border-top: 1.5px solid #20965F; opacity: 0.2; margin: 16px 0; }
+.hama-img-ph { width: 100%; aspect-ratio: 4/3; border-radius: var(--radius-sm); border: 1.5px dashed #669B49; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; color: #669B49; text-align: center; padding: 10px; background: rgba(102,155,73,0.03); }
+.hama-img-ph-path { font-family: monospace; font-size: 0.65rem; opacity: 0.7; word-break: break-all; color: #669B49; }
+.sec-title { font-size: 1.05rem; font-weight: 700; color: #669B49; margin: 18px 0 10px; display: flex; align-items: center; gap: 8px; padding-bottom: 6px; border-bottom: 1px solid rgba(102,155,73,0.12); }
+.divider { border: none; border-top: 1.5px solid #669B49; opacity: 0.2; margin: 16px 0; }
 .status-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
-.chip { border-radius: 30px; padding: 7px 14px; font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; border: 1.5px solid #d4edda; background: #EEFFD3; color: #20965F; }
-.chip.aman, .chip.waspada, .chip.bahaya, .chip.info { background: #EEFFD3; border: 1.5px solid #d4edda; color: #20965F; }
+.chip { border-radius: 30px; padding: 7px 14px; font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; border: 1.5px solid #d4edda; background: #EEFFD3; color: #669B49; }
+.chip.aman, .chip.waspada, .chip.bahaya, .chip.info { background: #EEFFD3; border: 1.5px solid #d4edda; color: #669B49; }
 /* ── TAB NAVIGATION — bg putih dengan outline hijau ── */
-div[data-baseweb="tab-list"] { background: #FFFFFF !important; border: 2px solid #20965F !important; border-radius: var(--radius-md) !important; padding: 5px !important; gap: 4px !important; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(32,150,95,0.10); }
-button[data-baseweb="tab"] { font-family: 'Poppins', sans-serif !important; font-size: 0.9rem !important; font-weight: 600 !important; border-radius: var(--radius-sm) !important; padding: 10px 14px !important; color: #20965F !important; border: 1.5px solid transparent !important; transition: all 0.2s ease; }
-button[data-baseweb="tab"] p { color: #20965F !important; font-family: 'Poppins', sans-serif !important; font-weight: 600 !important; }
-button[data-baseweb="tab"][aria-selected="true"] { background: #20965F !important; border-color: #20965F !important; }
-button[data-baseweb="tab"][aria-selected="true"] p { color: #FFFFFF !important; }
-button[data-baseweb="tab"]:hover:not([aria-selected="true"]) { background: rgba(32,150,95,0.08) !important; border-color: rgba(32,150,95,0.25) !important; }
+div[data-baseweb="tab-list"] { background: #FFFFFF !important; border: 2px solid #669B49 !important; border-radius: var(--radius-md) !important; padding: 5px !important; gap: 4px !important; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(102,155,73,0.10); }
+button[data-baseweb="tab"] { font-family: 'Poppins', sans-serif !important; font-size: 0.9rem !important; font-weight: 600 !important; border-radius: var(--radius-sm) !important; padding: 10px 14px !important; color: #669B49 !important; border: 1.5px solid transparent !important; transition: all 0.2s ease; }
+button[data-baseweb="tab"] p { color: #669B49 !important; font-family: 'Poppins', sans-serif !important; font-weight: 600 !important; }
+button[data-baseweb="tab"][aria-selected="true"] { background: #FFE0AD !important; border-color: #FFE0AD !important; }
+button[data-baseweb="tab"][aria-selected="true"] p { color: #DF8107 !important; }
+button[data-baseweb="tab"]:hover:not([aria-selected="true"]) { background: rgba(102,155,73,0.08) !important; border-color: rgba(102,155,73,0.25) !important; }
 /* ── Sidebar ── */
 [data-testid="stSidebar"] { background: #FFFFFF !important; border-right: 2px solid #e8f5e9 !important; padding: 1rem !important; }
 [data-testid="stSidebar"] .block-container { padding: 0.5rem !important; }
@@ -456,7 +456,7 @@ button[data-baseweb="tab"]:hover:not([aria-selected="true"]) { background: rgba(
 .prob-label span { color: #1c2620 !important; }
 .prob-bar-bg { background: #e8f5e9; border-radius: 8px; height: 10px; overflow: hidden; }
 .prob-bar-fill { height: 100%; border-radius: 8px; background: #6f8f78; transition: width 0.4s ease; }
-.prob-bar-fill.top { background: #20965F; }
+.prob-bar-fill.top { background: #669B49; }
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-thumb { background: var(--c-border); border-radius: 6px; }
 /* ── Responsive: Tablet ── */
@@ -465,7 +465,7 @@ button[data-baseweb="tab"]:hover:not([aria-selected="true"]) { background: rgba(
     .ha-title { font-size: 2.6rem !important; }
     .ha-sub { font-size: 0.82rem !important; }
     .ha-mascot { width: 110px !important; height: 145px !important; right: 12px !important; bottom: 0 !important; }
-    .block-container { padding: 0.75rem 1rem 2rem !important; }
+    .block-container { padding: 0.75rem 1.15rem 2rem !important; }
     .sec-title { font-size: 0.98rem !important; margin: 18px 0 10px !important; }
     .big-card { padding: 14px 16px !important; }
     .rekom { padding: 14px 16px !important; }
@@ -479,6 +479,8 @@ button[data-baseweb="tab"]:hover:not([aria-selected="true"]) { background: rgba(
     .ha-mascot { width: 75px !important; height: 100px !important; right: 6px !important; bottom: 0 !important; }
     .bc-value { font-size: 1.2rem !important; }
     .bc-label { font-size: 0.7rem !important; }
+    .big-card { padding: 14px 16px !important; }
+    .rekom { padding: 14px 16px !important; }
     .sec-title { font-size: 0.92rem !important; margin: 16px 0 8px !important; }
     .rk-text { font-size: 0.86rem !important; }
     .rk-title { font-size: 0.7rem !important; }
@@ -490,12 +492,12 @@ button[data-baseweb="tab"]:hover:not([aria-selected="true"]) { background: rgba(
     .hama-card-v { padding: 12px 14px !important; }
     .hama-nama { font-size: 0.88rem !important; }
     .hama-ciri { font-size: 0.8rem !important; }
-    .block-container { padding: 0.5rem 0.75rem 1.5rem !important; }
+    .block-container { padding: 0.5rem 1.1rem 1.5rem !important; }
     .metric-card { padding: 10px 12px !important; }
     .mc-val { font-size: 1.05rem !important; }
     .mc-label { font-size: 0.65rem !important; }
     .mc-sub { font-size: 0.7rem !important; }
-    .status-row { grid-template-columns: 1fr !important; gap: 8px !important; }
+    .status-row { grid-template-columns: 1fr !important; gap: 6px !important; }
     .chip { width: 100% !important; justify-content: center !important; font-size: 0.75rem !important; padding: 6px 10px !important; }
     .divider { margin: 10px 0 !important; }
     .sec-title { margin: 12px 0 8px !important; }
@@ -508,30 +510,30 @@ button[data-baseweb="tab"]:hover:not([aria-selected="true"]) { background: rgba(
 .tbot-row { display: flex; align-items: flex-end; gap: 8px; }
 .tbot-row.bot  { flex-direction: row; }
 .tbot-row.user { flex-direction: row-reverse; }
-.tbot-av { font-size: 1.2rem; flex-shrink: 0; color: #20965F; }
+.tbot-av { font-size: 1.2rem; flex-shrink: 0; color: #669B49; }
 .tbot-bbl { padding: 10px 14px; font-size: 0.88rem; line-height: 1.6; max-width: 82%; word-break: break-word; }
 .tbot-bbl.bot  { background:#FFFFFF; border:1.5px solid #e8f5e9; border-radius:4px 14px 14px 14px; color:var(--c-text); }
 .tbot-bbl.user { background:var(--c-aman-bg); border:1.5px solid var(--c-aman-border); border-radius:14px 4px 14px 14px; color:var(--c-aman-text); }
 .tbot-hint { font-size:0.78rem; color:var(--c-muted-on-surface); margin:6px 0 4px; }
 
-/* ── Unggah foto (Cek Hama) — base EEFFD3, tombol 20965F font putih ── */
+/* ── Unggah foto (Cek Hama) — base EEFFD3, tombol 669B49 font putih ── */
 [data-testid="stFileUploader"] {
     background: #EEFFD3 !important; border: 1.5px solid #d4edda !important; border-radius: var(--radius-md) !important;
     padding: 12px !important;
 }
 [data-testid="stFileUploaderDropzone"] {
-    background: #EEFFD3 !important; border: 1.5px dashed #20965F !important; border-radius: var(--radius-sm) !important;
+    background: #EEFFD3 !important; border: 1.5px dashed #669B49 !important; border-radius: var(--radius-sm) !important;
 }
 [data-testid="stFileUploaderDropzone"] button {
-    background: #20965F !important; color: #ffffff !important; border: none !important;
+    background: #669B49 !important; color: #ffffff !important; border: none !important;
     border-radius: var(--radius-sm) !important; font-weight: 700 !important;
 }
-[data-testid="stFileUploaderDropzone"] * { color: #20965F; }
+[data-testid="stFileUploaderDropzone"] * { color: #669B49; }
 [data-testid="stFileUploaderDropzone"] button * { color: #ffffff !important; }
 
 /* ── Form & select widgets — selaraskan dengan palet ── */
 div[data-baseweb="select"] > div, .stTextInput input, .stTextArea textarea, .stNumberInput input {
-    border-color: #20965F !important; border-radius: var(--radius-sm) !important;
+    border-color: #669B49 !important; border-radius: var(--radius-sm) !important;
     border-width: 1.5px !important;
 }
 [data-testid="stForm"] { background: #EEFFD3; border: 1.5px solid #d4edda; border-radius: var(--radius-md); padding: 16px 18px; }
@@ -549,7 +551,7 @@ div[data-baseweb="select"] > div > div {
     background-color: #ffffff !important;
     color: #1c2620 !important;
 }
-div[data-baseweb="select"] svg { fill: #20965F !important; }
+div[data-baseweb="select"] svg { fill: #669B49 !important; }
 /* Popover dropdown options */
 ul[role="listbox"] li,
 div[data-baseweb="menu"] *,
@@ -575,7 +577,7 @@ div[data-baseweb="popover"] li {
 [data-testid="stAlert"] { color: #1c2620 !important; }
 /* File uploader inner text */
 [data-testid="stFileUploaderDropzone"] small,
-[data-testid="stFileUploaderDropzone"] span { color: #20965F !important; }
+[data-testid="stFileUploaderDropzone"] span { color: #669B49 !important; }
 /* Probabilitas bar labels */
 .prob-label span { color: #1c2620 !important; }
 
@@ -591,7 +593,7 @@ div[data-baseweb="popover"] li {
 /* Chat input box */
 [data-testid="stChatInput"] {
     background-color: #f0f7f4 !important;
-    border: 1.5px solid #20965F !important;
+    border: 1.5px solid #669B49 !important;
     border-radius: 15px !important;
 }
 [data-testid="stChatInput"] textarea {
@@ -599,7 +601,7 @@ div[data-baseweb="popover"] li {
     color: #1c2620 !important;
     caret-color: #1c2620 !important;
 }
-[data-testid="stChatInput"] button { background-color: #20965F !important; }
+[data-testid="stChatInput"] button { background-color: #669B49 !important; }
 [data-testid="stChatInput"] button svg path { stroke: #ffffff !important; }
 
 /* Chat messages */
@@ -613,7 +615,7 @@ div[data-baseweb="popover"] li {
 
 /* ── GPS button — container jadi tombol hijau, iframe di dalamnya jadi click target ── */
 div:has(> [data-testid="stCustomComponentV1"]) {
-    background-color: #20965F !important;
+    background-color: #669B49 !important;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12Z'/%3E%3Ccircle cx='12' cy='10' r='2.3'/%3E%3C%2Fsvg%3E") !important;
     background-repeat: no-repeat !important;
     background-position: 20px center !important;
@@ -624,7 +626,7 @@ div:has(> [data-testid="stCustomComponentV1"]) {
     margin-bottom: 16px !important;
     position: relative !important;
     overflow: hidden !important;
-    box-shadow: 0 2px 8px rgba(32,150,95,0.18) !important;
+    box-shadow: 0 2px 8px rgba(102,155,73,0.18) !important;
     cursor: pointer !important;
 }
 div:has(> [data-testid="stCustomComponentV1"])::before {
@@ -1796,7 +1798,7 @@ with tab1:
     # CSS halaman tidak bisa menjangkau ke dalam iframe komponen pihak ketiga.
     _gps_aktif = st.session_state.get("gps_aktif", False)
     _label_teks = "GPS ANDA AKTIF" if _gps_aktif else "KLIK UNTUK AKTIFKAN GPS"
-    _btn_bg = "#1e8a55" if _gps_aktif else "#20965F"
+    _btn_bg = "#1e8a55" if _gps_aktif else "#669B49"
     st.markdown(f"""<style>
 div:has(> [data-testid="stCustomComponentV1"])::before {{
     content: "{_label_teks}" !important;
@@ -2181,7 +2183,7 @@ with tab2:
     # ================================================================
     st.markdown('<hr class="divider">', unsafe_allow_html=True)
     st.markdown(
-        f'<p class="sec-title" style="font-weight:900;color:#20965F;">'
+        f'<p class="sec-title" style="font-weight:900;color:#669B49;">'
         f'Pantauan Cuaca & Iklim (ENSO)</p>',
         unsafe_allow_html=True
     )
@@ -2265,7 +2267,7 @@ with tab2:
     pred_cols_html = "".join(pred_cards)
     st.markdown(
         f'<div style="margin:8px 0 4px;font-size:0.78rem;font-weight:700;'
-        f'color:#20965F;text-transform:uppercase;letter-spacing:0.8px;">'
+        f'color:#669B49;text-transform:uppercase;letter-spacing:0.8px;">'
         f'{ico("chart")} Proyeksi LSTM 3 Bulan ke Depan</div>'
         f'<div class="metric-grid" style="grid-template-columns:repeat(3,1fr);'
         f'margin-bottom:10px;">{pred_cols_html}</div>',
@@ -2312,14 +2314,14 @@ with tab2:
     """, unsafe_allow_html=True)
     with st.container(border=True):
         st.markdown("""
-          <div style="padding: 20px; border-radius: 12px; border: 1px solid #20965F;">
-            <h3 style="margin-top: 0; font-size: 1.1rem; color: #20965F;">Grafik Tren Indeks Iklim (ONI)</h3>
+          <div style="padding: 20px; border-radius: 12px; border: 1px solid #669B49;">
+            <h3 style="margin-top: 0; font-size: 1.1rem; color: #669B49;">Grafik Tren Indeks Iklim (ONI)</h3>
             <p style="font-size: 0.9rem; color: #57685d; margin-bottom: 15px;">
                 Grafik di bawah memantau suhu permukaan laut (ONI) dalam 2 tahun terakhir. 
                 Ini membantu kita melihat apakah sedang terjadi El Niño (kemarau ekstrem) 
                 atau La Niña (basah berlebih). Diamond ◆ = prediksi LSTM 3 bulan ke depan.
             </p>
-            <div style="font-size: 0.8rem; color: #20965F; margin-bottom: 10px; border-bottom: 1px solid #20965F; padding-bottom: 10px;">
+            <div style="font-size: 0.8rem; color: #669B49; margin-bottom: 10px; border-bottom: 1px solid #669B49; padding-bottom: 10px;">
                 El Niño (≥ +0.5) · La Niña (≤ -0.5) · Normal · Prediksi LSTM 3 bulan ◆
             </div>
         </div>
@@ -2421,7 +2423,7 @@ with tab2:
     # ================================================================
     st.markdown('<hr class="divider">', unsafe_allow_html=True)
     st.markdown(
-        f'<p class="sec-title" style="font-weight:900;color:#20965F;">'
+        f'<p class="sec-title" style="font-weight:900;color:#669B49;">'
         f' Indeks Lahan Stres Komposit (ILSK)</p>',
         unsafe_allow_html=True
     )
@@ -2589,7 +2591,7 @@ with tab2:
         # Area fill
         fig_ilsk.add_trace(go.Scatter(
             x=df_ilsk["Tanggal"], y=df_ilsk["ILSK_smooth"],
-            fill="tozeroy", fillcolor="rgba(32,150,95,0.07)",
+            fill="tozeroy", fillcolor="rgba(102,155,73,0.07)",
             line=dict(color="rgba(0,0,0,0)"),
             showlegend=False, hoverinfo="skip"
         ))
@@ -2603,7 +2605,7 @@ with tab2:
             x=df_ilsk["Tanggal"], y=df_ilsk["ILSK"],
             mode="lines+markers",
             name="ILSK (nilai aktual)",
-            line=dict(color="#20965F", width=1.5),
+            line=dict(color="#669B49", width=1.5),
             marker=dict(size=6, color=ilsk_colors,
                         line=dict(color="white", width=1)),
             hovertemplate="<b>%{x|%d %b %Y}</b><br>ILSK: %{y:.3f}<extra></extra>"
