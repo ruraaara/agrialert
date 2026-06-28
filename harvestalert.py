@@ -146,6 +146,67 @@ _SEAS_MONTH  = {
     "JJA":8, "JAS":9, "ASO":10, "SON":11, "OND":12, "NDJ":1,
 }
 
+# ── Knowledge base dari SQLite untuk system prompt LLM ──────────────
+@st.cache_data
+def load_knowledge_prompt() -> str:
+    try:
+        conn = sqlite3.connect(DB_TANIBOT)
+        c = conn.cursor()
+
+        # Agens hayati + dosis
+        agens = c.execute(
+            "SELECT nama, target_opt, dosis, waktu_efektif FROM agens_hayati"
+        ).fetchall()
+
+        # Rekomendasi dengan dosis (yang tidak null saja)
+        rekom = c.execute("""
+            SELECT o.nama_lokal, r.fase, r.metode, r.langkah, r.detail, r.dosis
+            FROM rekomendasi r JOIN opt o ON r.opt_id = o.id
+            WHERE r.dosis IS NOT NULL
+            ORDER BY o.id, r.fase, r.prioritas
+        """).fetchall()
+
+        # Varietas tahan
+        var = c.execute(
+            "SELECT o.nama_lokal, v.nama_varietas, v.ketahanan "
+            "FROM varietas_tahan v JOIN opt o ON v.opt_id = o.id"
+        ).fetchall()
+
+        # Ambang pengendalian
+        ambang = c.execute(
+            "SELECT nama_lokal, ambang_pengendalian FROM opt WHERE ambang_pengendalian IS NOT NULL"
+        ).fetchall()
+
+        conn.close()
+
+        baris = ["=== PENGETAHUAN RESMI (BBPOPT Kementan RI) ===\n"]
+
+        baris.append("## AGENS HAYATI DAN DOSIS")
+        for nama, target, dosis, waktu in agens:
+            dosis_str = dosis if dosis else "sesuai label"
+            baris.append(f"- {nama} → target: {target} | dosis: {dosis_str} | waktu: {waktu}")
+
+        baris.append("\n## REKOMENDASI DENGAN DOSIS SPESIFIK")
+        for nama_lokal, fase, metode, langkah, detail, dosis in rekom:
+            baris.append(f"- [{nama_lokal}/{fase}] {langkah}: {detail} (dosis: {dosis})")
+
+        baris.append("\n## VARIETAS TAHAN")
+        for nama_lokal, varietas, ketahanan in var:
+            baris.append(f"- {varietas}: {ketahanan} ({nama_lokal})")
+
+        baris.append("\n## AMBANG PENGENDALIAN")
+        for nama_lokal, ambang_val in ambang:
+            baris.append(f"- {nama_lokal}: {ambang_val}")
+
+        baris.append("\n=== AKHIR PENGETAHUAN ===")
+        baris.append("Gunakan angka di atas. Jangan mengarang dosis yang tidak tercantum.")
+
+        return "\n".join(baris)
+
+    except Exception:
+        return ""
+
+KNOWLEDGE_PROMPT = load_knowledge_prompt()
 
 # ----------------------------------------------------------------
 #  IKON SVG (line-icon, profesional — pengganti emoji)
@@ -3112,6 +3173,9 @@ with tab4:
                                 "Jika menyarankan pestisida/kimia, selalu sarankan pencegahan alami atau mekanis terlebih dahulu."
                                 "Jawab dalam Bahasa Indonesia yang mudah dipahami petani biasa. "
                                 "Berikan saran praktis dan berbasis ilmu pertanian yang valid."
+                                "Gunakan bahasa sehari-hari — hindari istilah ilmiah tanpa penjelasan. "
+                                "Kalau terpaksa pakai nama latin atau istilah teknis, langsung jelaskan artinya dalam kurung. "
+                                "Contoh: 'semprot Beauveria bassiana (jamur pengendali serangga)'. "
                             )
                             if kls_ctx != "healthy":
                                 sys_prompt += (
