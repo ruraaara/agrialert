@@ -24,11 +24,44 @@ logger = logging.getLogger("agrialert.cnn")
 # ----------------------------------------------------------------
 DATA_DIR      = Path(os.environ.get("DATA_DIR", str(Path(__file__).parent)))
 ASSET_DIR     = Path(__file__).parent   # mascot.png/gps.png/maps.png/sun.png ada di root repo, selalu di sebelah file ini — tidak ikut DATA_DIR yang bisa dioverride env var
-CSV_ENSO      = DATA_DIR / "el-nino-southern-oscillation-enso-el-nino-and-la-nina-events.csv"
-CSV_NDVI      = DATA_DIR / "2_Data_Sentinel2_Indonesia.csv"        # Struktur baru: kolom Tanggal, S2_NDVI
-CSV_SENTINEL1 = DATA_DIR / "3_Data_Sentinel1_Indonesia.csv"        # Struktur baru: kolom Tanggal, SAR_VH, SAR_VV
 MODEL_PATH    = DATA_DIR / "model_agriwarn.onnx"
 DB_TANIBOT    = DATA_DIR / "tanibot_offline.db"
+
+
+def _resolve_csv(*candidates: str) -> Path | None:
+    """
+    Cari file CSV pertama yang benar-benar ada di DATA_DIR dari daftar nama
+    kandidat (mendukung variasi nama seperti '..._1_.csv', '..(1).csv', dll
+    yang sering muncul akibat re-upload/duplikasi file).
+    Jika tidak ada yang cocok eksak, jatuh ke glob pattern berbasis prefix
+    sebagai fallback terakhir supaya tetap ketemu walau namanya sedikit beda.
+    """
+    for name in candidates:
+        p = DATA_DIR / name
+        if p.exists():
+            return p
+    # fallback: glob berbasis kata kunci utama (3 kata pertama nama file)
+    if candidates:
+        stem_key = candidates[0].split(".")[0].split("_")[0:3]
+        pattern = "*" + "*".join(stem_key) + "*"
+        hits = sorted(DATA_DIR.glob(pattern))
+        if hits:
+            return hits[0]
+    return None
+
+
+CSV_ENSO = _resolve_csv(
+    "el-nino-southern-oscillation-enso-el-nino-and-la-nina-events.csv",
+    "el-nino-southern-oscillation-enso-el-nino-and-la-nina-events__1_.csv",
+)
+CSV_NDVI = _resolve_csv(                                            # Struktur baru: kolom Tanggal, S2_NDVI
+    "2_Data_Sentinel2_Indonesia.csv",
+    "2_Data_Sentinel2_Indonesia__1_.csv",
+)
+CSV_SENTINEL1 = _resolve_csv(                                        # Struktur baru: kolom Tanggal, SAR_VH, SAR_VV
+    "3_Data_Sentinel1_Indonesia.csv",
+    "3_Data_Sentinel1_Indonesia__1_.csv",
+)
 
 CLASS_TO_OPT = {
     'bacterial_leaf_blight': 'hdb',
@@ -572,65 +605,161 @@ div:has(> [data-testid="stCustomComponentV1"])::before {
 
 # ================================================================
 #  LOAD DATA CSV
+#  Catatan penting soal caching:
+#  st.cache_data men-cache berdasarkan ARGUMEN fungsi. Karena load_enso()/
+#  load_ndvi()/load_sar() dipanggil tanpa argumen, begitu file CSV di
+#  DATA_DIR diperbarui (mis. ditambah baris bulan terbaru), Streamlit akan
+#  TETAP mengembalikan hasil lama dari cache sampai proses di-restart.
+#  Untuk menghindari ini, kita sisipkan mtime (waktu modifikasi file) dan
+#  ukuran file sebagai argumen — begitu file berubah, cache otomatis
+#  dianggap "miss" dan data dibaca ulang.
 # ================================================================
+def _file_fingerprint(path: Path | None):
+    """(mtime, size) file — dipakai sebagai cache key dinamis."""
+    if path is None or not path.exists():
+        return (0.0, 0)
+    stat = path.stat()
+    return (stat.st_mtime, stat.st_size)
+
+
+def _today_ts() -> pd.Timestamp:
+    """Tanggal 'hari ini' menurut jam sistem — dipakai untuk semua filter
+    rentang waktu dinamis, supaya tidak pernah hardcode ke 2024/2025."""
+    return pd.Timestamp.now().normalize()
+
+
 @st.cache_data
-def load_enso():
-    if not CSV_ENSO.exists():
+def _load_enso_cached(_fingerprint):
+    if not CSV_ENSO or not CSV_ENSO.exists():
+        # Fallback dummy hanya dipakai jika file ENSO benar-benar tidak ada,
+        # supaya bagian lain aplikasi tidak crash.
         return pd.DataFrame({
             "date": pd.date_range("2022-01-01", periods=52, freq="MS"),
             "ONI":  np.random.default_rng(42).uniform(-2.0, 2.0, 52)
         })
     df = pd.read_csv(CSV_ENSO)
-    df["date"] = pd.to_datetime(df["date"])
-    return df[["date","ANOM"]].rename(columns={"ANOM":"ONI"})
+    df["date"] = pd.to_datetime(df["date"], errors="coerce")
+    df = df.dropna(subset=["date"]).sort_values("date").reset_index(drop=True)
+    return df[["date", "ANOM"]].rename(columns={"ANOM": "ONI"})
+
+
+def load_enso():
+    return _load_enso_cached(_file_fingerprint(CSV_ENSO))
+
 
 @st.cache_data
-def load_ndvi():
+def _load_ndvi_cached(_fingerprint):
     """
     Mendukung dua struktur CSV NDVI:
-    - Baru (2_Data_Sentinel2_Indonesia.csv): kolom 'Tanggal' + 'S2_NDVI' (nilai 0-1)
+    - Baru (2_Data_Sentinel2_Indonesia*.csv): kolom 'Tanggal' + 'S2_NDVI' (nilai 0-1)
     - Lama (Data_NDVI_Indonesia_2022_2026.csv): kolom 'Tanggal' + 'Rata_rata_NDVI' + 'Rata_rata_EVI' (nilai ÷10000)
-    Output selalu berformat: Tanggal, NDVI, EVI
+    Output selalu berformat: Tanggal, NDVI, EVI — terurut tanggal, tanpa NaN,
+    dan otomatis mencakup hingga data terbaru yang tersedia di file (tidak
+    difilter ke rentang tahun tertentu).
     """
-    if not CSV_NDVI.exists():
+    if CSV_NDVI is None or not CSV_NDVI.exists():
         return None
-    df = pd.read_csv(CSV_NDVI)
-    df["Tanggal"] = pd.to_datetime(df["Tanggal"])
+    try:
+        df = pd.read_csv(CSV_NDVI)
+    except (pd.errors.EmptyDataError, pd.errors.ParserError):
+        return None
+    if df.empty or "Tanggal" not in df.columns:
+        return None
+
+    # Parsing tanggal yang aman — baris dengan tanggal tak valid dibuang,
+    # bukan membuat seluruh dataframe gagal.
+    df["Tanggal"] = pd.to_datetime(df["Tanggal"], errors="coerce")
+    df = df.dropna(subset=["Tanggal"])
+    if df.empty:
+        return None
 
     # ── Deteksi otomatis format kolom ──────────────────────────────────
     if "S2_NDVI" in df.columns:
-        # Format baru: S2_NDVI sudah dalam skala 0-1
         df = df.rename(columns={"S2_NDVI": "NDVI"})
         if "EVI" not in df.columns:
             df["EVI"] = df["NDVI"] * 0.85   # estimasi EVI dari NDVI jika tidak ada
     elif "Rata_rata_NDVI" in df.columns:
-        # Format lama: nilai harus dibagi 10000
         df["NDVI"] = df["Rata_rata_NDVI"] / 10000.0
-        df["EVI"]  = df["Rata_rata_EVI"]  / 10000.0 if "Rata_rata_EVI" in df.columns else df["NDVI"] * 0.85
+        df["EVI"]  = df["Rata_rata_EVI"] / 10000.0 if "Rata_rata_EVI" in df.columns else df["NDVI"] * 0.85
     else:
         return None
 
     df = df.sort_values("Tanggal").reset_index(drop=True)
-    return df[["Tanggal", "NDVI", "EVI"]]
+    df = df[["Tanggal", "NDVI", "EVI"]]
+
+    # NDVI/EVI harus berupa angka; nilai non-numerik jadi NaN dulu
+    df["NDVI"] = pd.to_numeric(df["NDVI"], errors="coerce")
+    df["EVI"]  = pd.to_numeric(df["EVI"], errors="coerce")
+
+    # ── Handling NaN: interpolasi linier berbasis waktu, lalu isi sisa
+    #    celah di ujung (awal/akhir) dengan forward/backward-fill, supaya
+    #    satu-dua bulan kosong tidak membuat seluruh baris ter-drop. ──
+    if df["NDVI"].isna().any() or df["EVI"].isna().any():
+        df = df.set_index("Tanggal")
+        df[["NDVI", "EVI"]] = (
+            df[["NDVI", "EVI"]]
+            .interpolate(method="time", limit_direction="both")
+            .ffill()
+            .bfill()
+        )
+        df = df.reset_index()
+
+    # Jika setelah semua penanganan masih ada baris kosong total, baru di-drop
+    df = df.dropna(subset=["NDVI", "EVI"]).reset_index(drop=True)
+    return df if not df.empty else None
+
+
+def load_ndvi():
+    return _load_ndvi_cached(_file_fingerprint(CSV_NDVI))
+
 
 @st.cache_data
-def load_sar():
+def _load_sar_cached(_fingerprint):
     """
-    Mendukung dua struktur CSV Sentinel-1:
-    - Baru (3_Data_Sentinel1_Indonesia.csv): kolom 'Tanggal', 'SAR_VH', 'SAR_VV'
-    - Lama: kolom tambahan 'system:index' dan '.geo' (diabaikan secara otomatis)
-    Output selalu berformat: Tanggal, SAR_VH, SAR_VV
+    Mendukung struktur CSV Sentinel-1 baru: kolom 'Tanggal', 'SAR_VH', 'SAR_VV'.
+    Output selalu berformat: Tanggal, SAR_VH, SAR_VV — terurut tanggal,
+    NaN ditangani via interpolasi waktu, dan mencakup hingga record
+    terbaru yang ada di file (tidak difilter ke rentang tahun tertentu).
     """
-    if not CSV_SENTINEL1.exists():
+    if CSV_SENTINEL1 is None or not CSV_SENTINEL1.exists():
         return None
-    df = pd.read_csv(CSV_SENTINEL1)
-    df["Tanggal"] = pd.to_datetime(df["Tanggal"])
-    # Pastikan kolom yang diperlukan ada
+    try:
+        df = pd.read_csv(CSV_SENTINEL1)
+    except (pd.errors.EmptyDataError, pd.errors.ParserError):
+        return None
+    if df.empty or "Tanggal" not in df.columns:
+        return None
+
+    df["Tanggal"] = pd.to_datetime(df["Tanggal"], errors="coerce")
+    df = df.dropna(subset=["Tanggal"])
+    if df.empty:
+        return None
+
     for col in ["SAR_VH", "SAR_VV"]:
         if col not in df.columns:
             return None
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+
     df = df.sort_values("Tanggal").reset_index(drop=True)
-    return df[["Tanggal", "SAR_VH", "SAR_VV"]]
+    df = df[["Tanggal", "SAR_VH", "SAR_VV"]]
+
+    if df[["SAR_VH", "SAR_VV"]].isna().any().any():
+        df = df.set_index("Tanggal")
+        df[["SAR_VH", "SAR_VV"]] = (
+            df[["SAR_VH", "SAR_VV"]]
+            .interpolate(method="time", limit_direction="both")
+            .ffill()
+            .bfill()
+        )
+        df = df.reset_index()
+
+    df = df.dropna(subset=["SAR_VH", "SAR_VV"]).reset_index(drop=True)
+    return df if not df.empty else None
+
+
+def load_sar():
+    return _load_sar_cached(_file_fingerprint(CSV_SENTINEL1))
+
 
 df_enso = load_enso()
 df_ndvi = load_ndvi()
@@ -1774,6 +1903,43 @@ with tab2:
     import plotly.graph_objects as go
     from plotly.subplots import make_subplots
 
+    def _sinkronkan_satelit(df_ndvi_in, df_sar_in, freq="MS"):
+        """
+        Sinkronkan NDVI & SAR ke timeline bersama dengan membulatkan tanggal
+        ke periode tetap (default 'MS' = awal bulan; ganti ke '10D' untuk
+        dekadian/10-harian bila datanya sudah sebening itu).
+
+        Ini menggantikan pendekatan merge_asof murni dengan langkah yang
+        lebih eksplisit: setiap sumber di-resample ke periode yang sama
+        dahulu (mean per periode), baru kemudian di-join. Hasilnya lebih
+        stabil ketika tanggal akuisisi NDVI & SAR sedikit berbeda
+        (mis. NDVI tanggal 1, SAR tanggal 3) — keduanya akan jatuh ke
+        bucket bulan yang sama.
+
+        Fallback: titik yang kosong di salah satu sisi diisi interpolasi
+        waktu lebih dulu, baru ffill/bfill untuk sisa celah di ujung data,
+        supaya tidak ada baris yang hilang total.
+        """
+        n = (df_ndvi_in[["Tanggal", "NDVI"]]
+             .set_index("Tanggal")
+             .resample(freq).mean())
+        s = (df_sar_in[["Tanggal", "SAR_VH"]]
+             .set_index("Tanggal")
+             .resample(freq).mean())
+
+        merged = n.join(s, how="outer").sort_index()
+
+        # Interpolasi waktu dulu (mengisi celah di tengah secara proporsional),
+        # baru forward/backward-fill untuk celah di ujung awal/akhir timeline.
+        merged[["NDVI", "SAR_VH"]] = (
+            merged[["NDVI", "SAR_VH"]]
+            .interpolate(method="time", limit_direction="both")
+            .ffill()
+            .bfill()
+        )
+        merged = merged.dropna(subset=["NDVI", "SAR_VH"])
+        return merged.reset_index().rename(columns={"index": "Tanggal"})
+
     def hitung_ilsk(df_ndvi_in, df_sar_in, df_enso_in):
         """
         Menggabungkan tiga sumber data satelit + iklim menjadi satu skor
@@ -1784,49 +1950,46 @@ with tab2:
           Komponen B (bobot 30%) : SAR Dryness      — anomali kelembapan tanah vs. baseline
           Komponen C (bobot 25%) : ENSO Pressure    — tekanan iklim makro dari ONI
 
-        Seluruh join antar-dataset dilakukan via merge_asof (safe untuk
-        dataset dengan panjang dan timestamp berbeda-beda).
+        NDVI & SAR disinkronkan dulu ke timeline bulanan bersama lewat
+        _sinkronkan_satelit() (lihat fungsi di atas), baru komponen ENSO
+        digabung via merge_asof — aman untuk dataset dengan panjang dan
+        timestamp yang berbeda-beda.
         """
-        WINDOW = 8        # biweekly x8 ~ 4 bulan rolling baseline
+        WINDOW = 4        # bulanan x4 ~ 4 bulan rolling baseline
         W_NDVI = 0.45
         W_SAR  = 0.30
         W_ENSO = 0.25
 
-        # ── Komponen A: NDVI Anomaly Score ──────────────────────────
-        df_n = (df_ndvi_in[["Tanggal", "NDVI"]]
-                .copy()
-                .sort_values("Tanggal")
-                .reset_index(drop=True))
+        # ── Sinkronisasi NDVI + SAR ke timeline bulanan bersama ─────
+        df_sync = _sinkronkan_satelit(df_ndvi_in, df_sar_in, freq="MS")
+        if df_sync.empty:
+            return pd.DataFrame()  # tidak ada overlap sama sekali
 
-        df_n["ndvi_baseline"] = (df_n["NDVI"]
-                                  .rolling(WINDOW, min_periods=4).mean()
-                                  .bfill())
-        df_n["ndvi_roll_std"] = (df_n["NDVI"]
-                                  .rolling(WINDOW, min_periods=4).std()
-                                  .bfill()
-                                  .replace(0, 0.01))
-        df_n["ndvi_z"]       = ((df_n["NDVI"] - df_n["ndvi_baseline"])
-                                 / df_n["ndvi_roll_std"])
+        # ── Komponen A: NDVI Anomaly Score ──────────────────────────
+        df_sync["ndvi_baseline"] = (df_sync["NDVI"]
+                                     .rolling(WINDOW, min_periods=2).mean()
+                                     .bfill())
+        df_sync["ndvi_roll_std"] = (df_sync["NDVI"]
+                                     .rolling(WINDOW, min_periods=2).std()
+                                     .bfill()
+                                     .replace(0, 0.01))
+        df_sync["ndvi_z"] = ((df_sync["NDVI"] - df_sync["ndvi_baseline"])
+                              / df_sync["ndvi_roll_std"])
         # z negatif = di bawah baseline = stres; skor 0=sehat, 1=kritis
-        df_n["ndvi_stress"]  = ((-df_n["ndvi_z"]).clip(-3, 3) + 3) / 6
+        df_sync["ndvi_stress"] = ((-df_sync["ndvi_z"]).clip(-3, 3) + 3) / 6
 
         # ── Komponen B: SAR Dryness Anomaly Score ───────────────────
-        df_s = (df_sar_in[["Tanggal", "SAR_VH"]]
-                .copy()
-                .sort_values("Tanggal")
-                .reset_index(drop=True))
-
-        df_s["sar_baseline"] = (df_s["SAR_VH"]
-                                 .rolling(WINDOW, min_periods=4).mean()
-                                 .bfill())
-        df_s["sar_roll_std"] = (df_s["SAR_VH"]
-                                 .rolling(WINDOW, min_periods=4).std()
-                                 .bfill()
-                                 .replace(0, 0.5))
-        df_s["sar_z"]        = ((df_s["SAR_VH"] - df_s["sar_baseline"])
-                                 / df_s["sar_roll_std"])
+        df_sync["sar_baseline"] = (df_sync["SAR_VH"]
+                                    .rolling(WINDOW, min_periods=2).mean()
+                                    .bfill())
+        df_sync["sar_roll_std"] = (df_sync["SAR_VH"]
+                                    .rolling(WINDOW, min_periods=2).std()
+                                    .bfill()
+                                    .replace(0, 0.5))
+        df_sync["sar_z"] = ((df_sync["SAR_VH"] - df_sync["sar_baseline"])
+                             / df_sync["sar_roll_std"])
         # SAR VH lebih positif (dB kurang negatif) = lahan lebih kering = stres lebih tinggi
-        df_s["sar_stress"]   = (df_s["sar_z"].clip(-3, 3) + 3) / 6
+        df_sync["sar_stress"] = (df_sync["sar_z"].clip(-3, 3) + 3) / 6
 
         # ── Komponen C: ENSO Pressure Score ─────────────────────────
         df_e = df_enso_in.copy()
@@ -1836,40 +1999,21 @@ with tab2:
         df_e["oni_drought"]   = df_e["ONI"].clip(0, 3) / 3.0
         df_e["oni_flood"]     = (-df_e["ONI"]).clip(0, 3) / 3.0
         df_e["enso_pressure"] = df_e[["oni_drought", "oni_flood"]].max(axis=1)
+        df_e = df_e.sort_values("Tanggal")
 
-        # ── Gabung: semua via merge_asof (aman meski panjang berbeda) ─
-        # Master timeline = NDVI (data terlengkap)
-        df_merge = df_n[["Tanggal", "NDVI", "ndvi_baseline",
-                          "ndvi_z", "ndvi_stress"]].copy()
-
-        # Join SAR — toleransi ±30 hari agar tetap cocok meski jadwal akuisisi beda
+        # Join ENSO ke timeline NDVI+SAR — bulanan ke bulanan via backward fill
         df_merge = pd.merge_asof(
-            df_merge.sort_values("Tanggal"),
-            df_s[["Tanggal", "SAR_VH", "sar_baseline",
-                  "sar_stress"]].sort_values("Tanggal"),
-            on="Tanggal",
-            direction="nearest",
-            tolerance=pd.Timedelta("30D")
-        )
-
-        # Isi NaN SAR (periode di luar jangkauan data) dengan skor netral
-        sar_vh_median = df_s["SAR_VH"].median()
-        df_merge["SAR_VH"]      = df_merge["SAR_VH"].fillna(sar_vh_median)
-        df_merge["sar_baseline"] = df_merge["sar_baseline"].fillna(sar_vh_median)
-        df_merge["sar_stress"]   = df_merge["sar_stress"].fillna(0.5)
-
-        # Join ENSO — bulanan ke biweekly via backward fill
-        df_merge = pd.merge_asof(
-            df_merge.sort_values("Tanggal"),
+            df_sync.sort_values("Tanggal"),
             df_e[["Tanggal", "ONI", "enso_pressure",
-                  "oni_drought", "oni_flood"]].sort_values("Tanggal"),
+                  "oni_drought", "oni_flood"]],
             on="Tanggal",
             direction="backward"
         )
-        df_merge["ONI"]           = df_merge["ONI"].fillna(0.0)
-        df_merge["enso_pressure"] = df_merge["enso_pressure"].fillna(0.0)
-        df_merge["oni_drought"]   = df_merge["oni_drought"].fillna(0.0)
-        df_merge["oni_flood"]     = df_merge["oni_flood"].fillna(0.0)
+        # Fallback bila titik ENSO terbaru belum ada (mis. ONI bulan ini
+        # belum dirilis NOAA): pakai nilai ENSO valid terakhir, bukan 0,
+        # supaya tekanan iklim tidak tiba-tiba terlihat "netral".
+        for col in ["ONI", "enso_pressure", "oni_drought", "oni_flood"]:
+            df_merge[col] = df_merge[col].ffill().fillna(0.0)
 
         # ── Skor Komposit ILSK ───────────────────────────────────────
         df_merge["ILSK"] = (
@@ -1895,12 +2039,21 @@ with tab2:
         return df_merge.reset_index(drop=True)
 
     # ================================================================
-    #  HITUNG ILSK (hanya jika kedua data satelit tersedia)
+    #  HITUNG ILSK (hanya jika kedua data satelit tersedia & ada overlap)
     # ================================================================
-    data_lengkap = (df_ndvi is not None) and (df_sar is not None)
+    data_lengkap = (
+        df_ndvi is not None and not df_ndvi.empty
+        and df_sar is not None and not df_sar.empty
+    )
 
     if data_lengkap:
         df_ilsk = hitung_ilsk(df_ndvi, df_sar, df_enso)
+        # _sinkronkan_satelit bisa menghasilkan dataframe kosong jika
+        # rentang tanggal NDVI & SAR sama sekali tidak beririsan —
+        # turunkan flag agar UI jatuh ke pesan fallback, bukan crash.
+        data_lengkap = not df_ilsk.empty
+
+    if data_lengkap:
         ilsk_terkini      = float(df_ilsk["ILSK"].iloc[-1])
         status_terkini    = df_ilsk["status"].iloc[-1]
         tanggal_terakhir  = df_ilsk["Tanggal"].iloc[-1].strftime("%d %b %Y")
@@ -2205,10 +2358,23 @@ with tab2:
     )
 
     if not data_lengkap:
-        st.warning(
-            "Data satelit NDVI atau SAR belum tersedia. "
-            "ILSK akan tampil setelah kedua dataset dimuat."
-        )
+        if df_ndvi is None or df_ndvi.empty:
+            st.warning(
+                "Data NDVI Sentinel-2 belum tersedia atau kosong/tidak valid. "
+                "ILSK akan tampil setelah file NDVI berhasil dimuat."
+            )
+        elif df_sar is None or df_sar.empty:
+            st.warning(
+                "Data SAR Sentinel-1 belum tersedia atau kosong/tidak valid. "
+                "ILSK akan tampil setelah file SAR berhasil dimuat."
+            )
+        else:
+            st.warning(
+                "Data NDVI dan SAR tersedia, tetapi rentang tanggalnya tidak "
+                "beririsan sama sekali sehingga belum bisa disinkronkan. "
+                f"NDVI: {df_ndvi['Tanggal'].min():%b %Y} – {df_ndvi['Tanggal'].max():%b %Y}, "
+                f"SAR: {df_sar['Tanggal'].min():%b %Y} – {df_sar['Tanggal'].max():%b %Y}."
+            )
     else:
         # ── Banner Peringatan Utama ─────────────────────────────
         tren_txt = (
