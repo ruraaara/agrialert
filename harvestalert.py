@@ -1661,11 +1661,28 @@ with st.sidebar:
 
     st.markdown("---")
     st.markdown(f'<h3 style="display:flex;align-items:center;gap:8px;color:var(--c-accent-text);">{ico("chart")} Status Data</h3>', unsafe_allow_html=True)
-    st.write(f"ENSO  : {'Tersedia' if CSV_ENSO.exists() else 'Tidak ada'} ({len(df_enso)} baris)")
-    st.write(f"NDVI  : {'Tersedia' if df_ndvi is not None else 'Tidak ada'}")
-    st.write(f"SAR   : {'Tersedia' if df_sar  is not None else 'Tidak ada'}")
+    st.write(f"ENSO  : {'Tersedia' if (CSV_ENSO and CSV_ENSO.exists()) else 'Tidak ada'} ({len(df_enso)} baris)")
+    if df_ndvi is not None and not df_ndvi.empty:
+        st.write(
+            f"NDVI  : Tersedia ({len(df_ndvi)} baris, "
+            f"{df_ndvi['Tanggal'].min():%b %Y} – {df_ndvi['Tanggal'].max():%b %Y}) "
+            f"— file: `{CSV_NDVI.name if CSV_NDVI else '?'}`"
+        )
+    else:
+        st.write(f"NDVI  : Tidak ada — file dicari: `{CSV_NDVI.name if CSV_NDVI else '(tidak ditemukan)'}`")
+    if df_sar is not None and not df_sar.empty:
+        st.write(
+            f"SAR   : Tersedia ({len(df_sar)} baris, "
+            f"{df_sar['Tanggal'].min():%b %Y} – {df_sar['Tanggal'].max():%b %Y}) "
+            f"— file: `{CSV_SENTINEL1.name if CSV_SENTINEL1 else '?'}`"
+        )
+    else:
+        st.write(f"SAR   : Tidak ada — file dicari: `{CSV_SENTINEL1.name if CSV_SENTINEL1 else '(tidak ditemukan)'}`")
     st.write(f"Model : {'Siap' if model_cnn is not None else 'Tidak ditemukan'}")
     st.write(f"TaniBot: {'Siap' if tanibot is not None else 'Bangun DB dulu'}")
+    if st.button("🔄 Muat ulang data CSV (clear cache)"):
+        st.cache_data.clear()
+        st.rerun()
     st.markdown("---")
     st.caption("Data: BMKG · NOAA · Sentinel-1/2\nAgriAlert v1.0 · Satria Data 2026")
 
@@ -2181,27 +2198,32 @@ with tab2:
     """, unsafe_allow_html=True)
 
     # ── Kartu 3-bulan prediksi LSTM ──────────────────────────────
-    pred_cols_html = ""
+    # PENTING: setiap kartu dibangun sebagai SATU baris HTML tanpa newline
+    # internal. Streamlit/CommonMark dapat "lepas" dari mode raw-HTML saat
+    # ada baris baru/baris kosong di tengah blok <div> yang digabung lewat
+    # konkatenasi string — efeknya markup SVG ikon malah tercetak sebagai
+    # teks mentah di halaman (bukan ter-render sebagai ikon).
+    pred_cards = []
     for i, p in enumerate(preds_list):
         ep = info_enso(p["oni"])
-        pred_cols_html += f"""
-        <div class="metric-card {ep['kelas']}" style="text-align:center;">
-          <div class="mc-label">{ico('calendar')} {p['date'].strftime('%B %Y')}</div>
-          <div class="mc-val">{p['oni']:+.2f}°C</div>
-          <div class="mc-sub">
-            {ep['fase']}<br>
-            Tren: {p['tren']}<br>
-            {p['oni_low']:+.1f} ~ {p['oni_high']:+.1f}
-          </div>
-        </div>"""
-    st.markdown(f"""
-    <div style="margin:8px 0 4px;font-size:0.78rem;font-weight:700;color:#20965F;text-transform:uppercase;letter-spacing:0.8px;">
-      {ico('chart')} Proyeksi LSTM 3 Bulan ke Depan
-    </div>
-    <div class="metric-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:10px;">
-      {pred_cols_html}
-    </div>
-    """, unsafe_allow_html=True)
+        pred_cards.append(
+            f'<div class="metric-card {ep["kelas"]}" style="text-align:center;">'
+            f'<div class="mc-label">{ico("calendar")} {p["date"].strftime("%B %Y")}</div>'
+            f'<div class="mc-val">{p["oni"]:+.2f}°C</div>'
+            f'<div class="mc-sub">{ep["fase"]}<br>'
+            f'Tren: {p["tren"]}<br>'
+            f'{p["oni_low"]:+.1f} ~ {p["oni_high"]:+.1f}</div>'
+            f'</div>'
+        )
+    pred_cols_html = "".join(pred_cards)
+    st.markdown(
+        f'<div style="margin:8px 0 4px;font-size:0.78rem;font-weight:700;'
+        f'color:#20965F;text-transform:uppercase;letter-spacing:0.8px;">'
+        f'{ico("chart")} Proyeksi LSTM 3 Bulan ke Depan</div>'
+        f'<div class="metric-grid" style="grid-template-columns:repeat(3,1fr);'
+        f'margin-bottom:10px;">{pred_cols_html}</div>',
+        unsafe_allow_html=True
+    )
 
     # ── Kotak Metrik Akurasi LSTM ────────────────────────────────
     _r2_badge = (
@@ -3097,21 +3119,19 @@ with tab4:
                     st.markdown(f'<p class="sec-title" style="margin-top:16px;">{ico("chart")} Probabilitas Semua Kelas</p>',
                                 unsafe_allow_html=True)
                     probs_sorted = sorted(hasil["probs"].items(), key=lambda x: x[1], reverse=True)
-                    bars_html = ""
+                    bars = []
                     for kls, prob in probs_sorted:
                         pct  = round(prob * 100, 1)
                         top  = "top" if kls == hasil["kelas"] else ""
                         nama = NAMA_INDO[kls]
-                        bars_html += f"""
-                        <div class="prob-bar-wrap">
-                          <div class="prob-label">
-                            <span>{nama}</span><span><b>{pct}%</b></span>
-                          </div>
-                          <div class="prob-bar-bg">
-                            <div class="prob-bar-fill {top}" style="width:{pct}%"></div>
-                          </div>
-                        </div>"""
-                    st.markdown(bars_html, unsafe_allow_html=True)
+                        bars.append(
+                            f'<div class="prob-bar-wrap">'
+                            f'<div class="prob-label"><span>{nama}</span><span><b>{pct}%</b></span></div>'
+                            f'<div class="prob-bar-bg">'
+                            f'<div class="prob-bar-fill {top}" style="width:{pct}%"></div>'
+                            f'</div></div>'
+                        )
+                    st.markdown("".join(bars), unsafe_allow_html=True)
 
     else:
         st.info("Belum tahu ciri-ciri hama & penyakit padi? Lihat tab "
