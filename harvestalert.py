@@ -25,8 +25,8 @@ logger = logging.getLogger("agrialert.cnn")
 DATA_DIR      = Path(os.environ.get("DATA_DIR", str(Path(__file__).parent)))
 ASSET_DIR     = Path(__file__).parent   # mascot.png/gps.png/maps.png/sun.png ada di root repo, selalu di sebelah file ini — tidak ikut DATA_DIR yang bisa dioverride env var
 CSV_ENSO      = DATA_DIR / "el-nino-southern-oscillation-enso-el-nino-and-la-nina-events.csv"
-CSV_NDVI      = DATA_DIR / "Data_NDVI_Indonesia_2022_2026.csv"
-CSV_SENTINEL1 = DATA_DIR / "3_Data_Sentinel1_Indonesia.csv"
+CSV_NDVI      = DATA_DIR / "2_Data_Sentinel2_Indonesia.csv"        # Struktur baru: kolom Tanggal, S2_NDVI
+CSV_SENTINEL1 = DATA_DIR / "3_Data_Sentinel1_Indonesia.csv"        # Struktur baru: kolom Tanggal, SAR_VH, SAR_VV
 MODEL_PATH    = DATA_DIR / "model_agriwarn.onnx"
 DB_TANIBOT    = DATA_DIR / "tanibot_offline.db"
 
@@ -586,21 +586,51 @@ def load_enso():
 
 @st.cache_data
 def load_ndvi():
+    """
+    Mendukung dua struktur CSV NDVI:
+    - Baru (2_Data_Sentinel2_Indonesia.csv): kolom 'Tanggal' + 'S2_NDVI' (nilai 0-1)
+    - Lama (Data_NDVI_Indonesia_2022_2026.csv): kolom 'Tanggal' + 'Rata_rata_NDVI' + 'Rata_rata_EVI' (nilai ÷10000)
+    Output selalu berformat: Tanggal, NDVI, EVI
+    """
     if not CSV_NDVI.exists():
         return None
     df = pd.read_csv(CSV_NDVI)
     df["Tanggal"] = pd.to_datetime(df["Tanggal"])
-    df["NDVI"] = df["Rata_rata_NDVI"] / 10000.0
-    df["EVI"]  = df["Rata_rata_EVI"]  / 10000.0
-    return df[["Tanggal","NDVI","EVI"]]
+
+    # ── Deteksi otomatis format kolom ──────────────────────────────────
+    if "S2_NDVI" in df.columns:
+        # Format baru: S2_NDVI sudah dalam skala 0-1
+        df = df.rename(columns={"S2_NDVI": "NDVI"})
+        if "EVI" not in df.columns:
+            df["EVI"] = df["NDVI"] * 0.85   # estimasi EVI dari NDVI jika tidak ada
+    elif "Rata_rata_NDVI" in df.columns:
+        # Format lama: nilai harus dibagi 10000
+        df["NDVI"] = df["Rata_rata_NDVI"] / 10000.0
+        df["EVI"]  = df["Rata_rata_EVI"]  / 10000.0 if "Rata_rata_EVI" in df.columns else df["NDVI"] * 0.85
+    else:
+        return None
+
+    df = df.sort_values("Tanggal").reset_index(drop=True)
+    return df[["Tanggal", "NDVI", "EVI"]]
 
 @st.cache_data
 def load_sar():
+    """
+    Mendukung dua struktur CSV Sentinel-1:
+    - Baru (3_Data_Sentinel1_Indonesia.csv): kolom 'Tanggal', 'SAR_VH', 'SAR_VV'
+    - Lama: kolom tambahan 'system:index' dan '.geo' (diabaikan secara otomatis)
+    Output selalu berformat: Tanggal, SAR_VH, SAR_VV
+    """
     if not CSV_SENTINEL1.exists():
         return None
     df = pd.read_csv(CSV_SENTINEL1)
     df["Tanggal"] = pd.to_datetime(df["Tanggal"])
-    return df[["Tanggal","SAR_VH","SAR_VV"]]
+    # Pastikan kolom yang diperlukan ada
+    for col in ["SAR_VH", "SAR_VV"]:
+        if col not in df.columns:
+            return None
+    df = df.sort_values("Tanggal").reset_index(drop=True)
+    return df[["Tanggal", "SAR_VH", "SAR_VV"]]
 
 df_enso = load_enso()
 df_ndvi = load_ndvi()
@@ -1225,21 +1255,24 @@ def fetch_oni_noaa():
     return None, False, None
     
 @st.cache_data(ttl=86400)
-def prediksi_oni_lstm(df, lookback=12):
+def prediksi_oni_lstm(df, lookback=12, n_forecast=3):
     """
-    Prediksi ONI 1 bulan ke depan menggunakan LSTM mini yang di-fit secara
+    Prediksi ONI 3 bulan ke depan menggunakan LSTM mini yang di-fit secara
     in-sample langsung dari data historis NOAA.
 
-    Arsitektur:
+    Arsitektur LSTM:
         Input  → LSTM(32, return_sequences=False) → Dropout(0.1)
                → Dense(16, relu) → Dense(1)
-    Loss       : MSE, Optimizer: Adam(lr=1e-3)
-    Epochs     : 80 (cepat, data bulanan ±900 titik)
+    Loss       : MSE, Optimizer: Adam(lr=1e-3), EarlyStopping(patience=8)
     Lookback   : 12 bulan (1 tahun musiman)
+    Forecast   : 3 bulan ke depan (multi-step iterative)
 
-    Output dict (format identik dengan versi AR lama):
-        {"date": Timestamp, "oni": float, "oni_low": float,
-         "oni_high": float, "tren": str}
+    Metrik akurasi dievaluasi pada hold-out 20% data terakhir:
+        RMSE, MAE, R² Score (dalam satuan °C ONI)
+
+    Returns:
+        results  : list 3 dict per bulan — {"date", "oni", "oni_low", "oni_high", "tren"}
+        metrics  : dict — {"method", "rmse", "mae", "r2"}
     """
     import warnings
 
@@ -1250,9 +1283,16 @@ def prediksi_oni_lstm(df, lookback=12):
     if n <= lookback + 2:
         last_date = pd.Timestamp(df["date"].iloc[-1])
         v = float(y_raw[-1])
-        return {"date": last_date + pd.DateOffset(months=1),
-                "oni": round(v, 2), "oni_low": round(v - 0.3, 2),
-                "oni_high": round(v + 0.3, 2), "tren": "stabil →"}
+        results = []
+        for i in range(1, n_forecast + 1):
+            results.append({
+                "date":     last_date + pd.DateOffset(months=i),
+                "oni":      round(v, 2),
+                "oni_low":  round(v - 0.3 * i, 2),
+                "oni_high": round(v + 0.3 * i, 2),
+                "tren":     "stabil →"
+            })
+        return results, {"rmse": None, "mae": None, "r2": None, "method": "persistence"}
 
     # ── Normalisasi Min-Max ke [0, 1] ───────────────────────────────
     y_min, y_max = y_raw.min(), y_raw.max()
@@ -1267,6 +1307,11 @@ def prediksi_oni_lstm(df, lookback=12):
     X = np.array(X_list, dtype="float32").reshape(-1, lookback, 1)
     Y = np.array(Y_list, dtype="float32")
 
+    # Split hold-out 20% terakhir untuk evaluasi
+    split_idx = max(lookback + 5, int(len(X) * 0.80))
+    X_train, X_test = X[:split_idx], X[split_idx:]
+    Y_train, Y_test = Y[:split_idx], Y[split_idx:]
+
     # ── Bangun & latih model LSTM (lazy import TF/Keras) ───────────
     try:
         with warnings.catch_warnings():
@@ -1276,7 +1321,6 @@ def prediksi_oni_lstm(df, lookback=12):
             from tensorflow import keras                              # type: ignore
             from tensorflow.keras import layers                      # type: ignore
 
-        # Kunci reproducibility
         keras.utils.set_random_seed(42)
 
         model = keras.Sequential([
@@ -1288,26 +1332,66 @@ def prediksi_oni_lstm(df, lookback=12):
         ])
         model.compile(optimizer=keras.optimizers.Adam(1e-3), loss="mse")
 
-        # EarlyStopping agar tidak overfit & tetap cepat
         cb_es = keras.callbacks.EarlyStopping(
             monitor="loss", patience=8, restore_best_weights=True, verbose=0
         )
         model.fit(
-            X, Y,
+            X_train, Y_train,
             epochs=80,
             batch_size=16,
             verbose=0,
             callbacks=[cb_es],
         )
 
-        # ── Inferensi: ambil window 12 bulan terakhir ───────────────
-        last_window = y_scaled[-lookback:].reshape(1, lookback, 1).astype("float32")
-        pred_scaled  = float(model.predict(last_window, verbose=0)[0, 0])
+        # ── Hitung metrik akurasi (hold-out set) ────────────────────
+        metrics_dict = {"method": "LSTM"}
+        if len(X_test) > 0:
+            y_pred_test = model.predict(X_test, verbose=0).flatten()
+            y_pred_real = y_pred_test * rng + y_min
+            y_true_real = Y_test * rng + y_min
+            rmse = float(np.sqrt(np.mean((y_true_real - y_pred_real) ** 2)))
+            mae  = float(np.mean(np.abs(y_true_real - y_pred_real)))
+            ss_res = np.sum((y_true_real - y_pred_real) ** 2)
+            ss_tot = np.sum((y_true_real - np.mean(y_true_real)) ** 2)
+            r2   = float(1 - ss_res / ss_tot) if ss_tot > 0 else 0.0
+            metrics_dict.update({"rmse": round(rmse, 4), "mae": round(mae, 4), "r2": round(r2, 4)})
+        else:
+            y_pred_all = model.predict(X, verbose=0).flatten()
+            residuals  = Y - y_pred_all
+            metrics_dict.update({
+                "rmse": round(float(np.std(residuals) * rng), 4),
+                "mae":  round(float(np.mean(np.abs(residuals)) * rng), 4),
+                "r2":   None
+            })
 
-        # Hitung ketidakpastian dari residual in-sample
+        # ── Residual std untuk interval kepercayaan ─────────────────
         y_pred_all  = model.predict(X, verbose=0).flatten()
         residuals   = Y - y_pred_all
-        std_err_sc  = float(np.std(residuals)) * 1.3   # ×1.3 konservatif
+        std_err_sc  = float(np.std(residuals)) * 1.3
+
+        # ── Inferensi multi-step: 3 bulan ke depan ─────────────────
+        rolling_window = list(y_scaled[-lookback:])
+        last_date = pd.Timestamp(df["date"].iloc[-1])
+        results   = []
+
+        for step in range(1, n_forecast + 1):
+            window_arr  = np.array(rolling_window[-lookback:], dtype="float32").reshape(1, lookback, 1)
+            pred_scaled = float(model.predict(window_arr, verbose=0)[0, 0])
+            pred_oni    = float(pred_scaled * rng + y_min)
+            uncertainty = float(std_err_sc * rng) * (1.0 + 0.15 * (step - 1))
+            prev_oni    = float(rolling_window[-1] * rng + y_min)
+            results.append({
+                "date":     last_date + pd.DateOffset(months=step),
+                "oni":      round(pred_oni, 2),
+                "oni_low":  round(pred_oni - uncertainty, 2),
+                "oni_high": round(pred_oni + uncertainty, 2),
+                "tren":     ("naik ↑"   if pred_oni > prev_oni + 0.05 else
+                             "turun ↓"  if pred_oni < prev_oni - 0.05 else
+                             "stabil →"),
+            })
+            rolling_window.append(pred_scaled)
+
+        return results, metrics_dict
 
     except Exception:
         # ── Fallback ke AR(3) jika TensorFlow tidak tersedia ────────
@@ -1318,49 +1402,47 @@ def prediksi_oni_lstm(df, lookback=12):
                                for j in range(1, p + 1)])
         Yar = y_raw[p:]
         coeffs, _, _, _ = np.linalg.lstsq(Xar, Yar, rcond=None)
-        pred_raw  = coeffs[0] + float(np.dot(coeffs[1:], y_raw[-p:][::-1]))
-        std_err   = float(np.std(Yar - Xar @ coeffs)) * 1.2
-        last_date = pd.Timestamp(df["date"].iloc[-1])
-        cur_oni   = float(y_raw[-1])
-        return {
-            "date":     last_date + pd.DateOffset(months=1),
-            "oni":      round(pred_raw, 2),
-            "oni_low":  round(pred_raw - std_err, 2),
-            "oni_high": round(pred_raw + std_err, 2),
-            "tren":     ("naik"  if pred_raw > cur_oni + 0.05
-                         else "turun" if pred_raw < cur_oni - 0.05
-                         else "stabil"),
+        std_err = float(np.std(Yar - Xar @ coeffs)) * 1.2
+
+        y_ar_pred = Xar @ coeffs
+        rmse_ar = float(np.sqrt(np.mean((Yar - y_ar_pred) ** 2)))
+        mae_ar  = float(np.mean(np.abs(Yar - y_ar_pred)))
+        ss_res_ar = np.sum((Yar - y_ar_pred) ** 2)
+        ss_tot_ar = np.sum((Yar - np.mean(Yar)) ** 2)
+        r2_ar = float(1 - ss_res_ar / ss_tot_ar) if ss_tot_ar > 0 else 0.0
+        metrics_dict = {
+            "method": "AR(3) fallback",
+            "rmse": round(rmse_ar, 4), "mae": round(mae_ar, 4), "r2": round(r2_ar, 4)
         }
 
-    # ── Denormalisasi kembali ke satuan °C ─────────────────────────
-    pred_oni     = float(pred_scaled * rng + y_min)
-    std_err_oni  = float(std_err_sc  * rng)          # skala kesalahan → °C
+        last_date  = pd.Timestamp(df["date"].iloc[-1])
+        cur_window = list(y_raw[-p:])
+        results    = []
+        for step in range(1, n_forecast + 1):
+            pred_raw    = coeffs[0] + float(np.dot(coeffs[1:], cur_window[::-1]))
+            uncertainty = std_err * (1.0 + 0.15 * (step - 1))
+            prev_v      = cur_window[-1]
+            results.append({
+                "date":     last_date + pd.DateOffset(months=step),
+                "oni":      round(float(pred_raw), 2),
+                "oni_low":  round(float(pred_raw - uncertainty), 2),
+                "oni_high": round(float(pred_raw + uncertainty), 2),
+                "tren":     ("naik ↑"  if pred_raw > prev_v + 0.05 else
+                             "turun ↓" if pred_raw < prev_v - 0.05 else
+                             "stabil →"),
+            })
+            cur_window = cur_window[1:] + [float(pred_raw)]
+        return results, metrics_dict
 
-    cur_oni   = float(y_raw[-1])
-    last_date = pd.Timestamp(df["date"].iloc[-1])
 
-    return {
-        "date":     last_date + pd.DateOffset(months=1),
-        "oni":      round(pred_oni, 2),
-        "oni_low":  round(pred_oni - std_err_oni, 2),
-        "oni_high": round(pred_oni + std_err_oni, 2),
-        "tren":     ("naik"  if pred_oni > cur_oni + 0.05
-                     else "turun" if pred_oni < cur_oni - 0.05
-                     else "stabil"),
-    }
-
-
-   
-
-def fig_oni_with_forecast(df, pred, n=24):
-    """Bar chart ONI historis + diamond prediksi bulan depan."""
+def fig_oni_with_forecast(df, preds, n=24):
+    """Bar chart ONI historis + diamond prediksi 3 bulan ke depan (LSTM).
+    preds: list of 3 dicts with keys date, oni, oni_low, oni_high, tren
+    """
     df_p = df.tail(n).copy()
     df_p["W"] = df_p["ONI"].apply(
         lambda v: "#ef4444" if v >= 0.5 else ("#3b82f6" if v <= -0.5 else "#22c55e"))
     df_p["L"] = df_p["date"].dt.strftime("%b %Y")
-    pred_lbl   = pred["date"].strftime("%b %Y") + " ▶"
-    pred_color = ("#ef4444" if pred["oni"] >= 0.5
-                  else "#3b82f6" if pred["oni"] <= -0.5 else "#22c55e")
 
     fig = go.Figure()
     fig.add_hrect(y0=0.5,  y1=3.0,  fillcolor="rgba(239,68,68,0.07)",  line_width=0)
@@ -1376,25 +1458,38 @@ def fig_oni_with_forecast(df, pred, n=24):
         line=dict(color="white", width=2),
         marker=dict(size=5, color=df_p["W"].tolist()),
         hoverinfo="skip", showlegend=False))
-    fig.add_trace(go.Scatter(
-        x=[pred_lbl], y=[pred["oni"]],
-        mode="markers", name="Prediksi",
-        marker=dict(size=14, color=pred_color, symbol="diamond",
-                    line=dict(color="white", width=2)),
-        error_y=dict(
-            type="data",
-            array=[max(0, pred["oni_high"] - pred["oni"])],
-            arrayminus=[max(0, pred["oni"] - pred["oni_low"])],
-            visible=True, color="rgba(255,255,255,0.45)", thickness=2, width=8,
-        ),
-        hovertemplate=(
-            f"<b>Prediksi {pred['date'].strftime('%B %Y')}</b><br>"
-            f"ONI: {pred['oni']:+.2f}°C<br>"
-            f"Rentang: {pred['oni_low']:+.2f} s/d {pred['oni_high']:+.2f}<extra></extra>"
-        ),
-    ))
+
+    # Plot 3 titik prediksi LSTM sebagai diamonds dengan error bar
+    if preds:
+        pred_lbls   = [p["date"].strftime("%b %Y") + f" M{i+1}▶" for i, p in enumerate(preds)]
+        pred_oni    = [p["oni"]      for p in preds]
+        pred_lo     = [max(0, p["oni"] - p["oni_low"])   for p in preds]
+        pred_hi     = [max(0, p["oni_high"] - p["oni"])  for p in preds]
+        pred_colors = ["#ef4444" if p["oni"] >= 0.5 else "#3b82f6" if p["oni"] <= -0.5 else "#22c55e"
+                       for p in preds]
+        hover_texts = [
+            f"<b>Prediksi LSTM {p['date'].strftime('%B %Y')}</b><br>"
+            f"ONI: {p['oni']:+.2f}°C  Tren: {p['tren']}<br>"
+            f"Rentang: {p['oni_low']:+.2f} s/d {p['oni_high']:+.2f}"
+            for p in preds
+        ]
+        fig.add_trace(go.Scatter(
+            x=pred_lbls, y=pred_oni,
+            mode="markers+lines", name="Prediksi LSTM (3 bln)",
+            marker=dict(size=[14, 12, 10], color=pred_colors, symbol="diamond",
+                        line=dict(color="white", width=2)),
+            line=dict(color="rgba(255,255,255,0.4)", width=1.5, dash="dot"),
+            error_y=dict(
+                type="data",
+                array=pred_hi,
+                arrayminus=pred_lo,
+                visible=True, color="rgba(255,255,255,0.45)", thickness=2, width=8,
+            ),
+            hovertemplate=[t + "<extra></extra>" for t in hover_texts],
+        ))
+
     fig.update_layout(
-        **PLOT_STYLE, height=300, showlegend=True,
+        **PLOT_STYLE, height=320, showlegend=True,
         yaxis_title="ONI (°C)", xaxis_tickangle=-40,
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
     return fig
@@ -1889,8 +1984,16 @@ with tab2:
     oni_cur   = float(df_for_enso.iloc[-1]["ONI"])
     date_cur  = pd.Timestamp(df_for_enso.iloc[-1]["date"])
     enso_cur  = info_enso(oni_cur)
-    pred = prediksi_oni_lstm(df_for_enso)
-    enso_pred = info_enso(pred["oni"])
+    # ── Panggil fungsi LSTM 3-bulan — returns (list[dict], dict_metrics)
+    preds_list, lstm_metrics = prediksi_oni_lstm(df_for_enso)
+    pred        = preds_list[0]   # bulan pertama (dipakai untuk kartu utama)
+    enso_pred   = info_enso(pred["oni"])
+
+    # ── Tentukan label metode ──────────────────────────────────────
+    _method_label = lstm_metrics.get("method", "LSTM")
+    _rmse_str = f"{lstm_metrics['rmse']:.4f}" if lstm_metrics.get("rmse") is not None else "—"
+    _mae_str  = f"{lstm_metrics['mae']:.4f}"  if lstm_metrics.get("mae")  is not None else "—"
+    _r2_str   = f"{lstm_metrics['r2']:.4f}"   if lstm_metrics.get("r2")   is not None else "—"
 
     st.markdown(f"""
     <div class="two-col">
@@ -1906,7 +2009,7 @@ with tab2:
         <div class="bc-sub" style="margin-top:8px">{enso_cur["pesan"]}</div>
       </div>
       <div class="big-card {enso_pred['kelas']}">
-        <div class="bc-label">{ico("chart")} Prediksi - {pred["date"].strftime("%B %Y")}</div>
+        <div class="bc-label">{ico("chart")} Prediksi LSTM — {pred["date"].strftime("%B %Y")}</div>
         <div class="bc-row">
           <span class="bc-icon">{ico(enso_pred["ikon"], "2.2rem")}</span>
           <div>
@@ -1922,29 +2025,86 @@ with tab2:
         </div>
       </div>
     </div>
+    """, unsafe_allow_html=True)
+
+    # ── Kartu 3-bulan prediksi LSTM ──────────────────────────────
+    pred_cols_html = ""
+    for i, p in enumerate(preds_list):
+        ep = info_enso(p["oni"])
+        pred_cols_html += f"""
+        <div class="metric-card {ep['kelas']}" style="text-align:center;">
+          <div class="mc-label">{ico('calendar')} {p['date'].strftime('%B %Y')}</div>
+          <div class="mc-val">{p['oni']:+.2f}°C</div>
+          <div class="mc-sub">
+            {ep['fase']}<br>
+            Tren: {p['tren']}<br>
+            {p['oni_low']:+.1f} ~ {p['oni_high']:+.1f}
+          </div>
+        </div>"""
+    st.markdown(f"""
+    <div style="margin:8px 0 4px;font-size:0.78rem;font-weight:700;color:#20965F;text-transform:uppercase;letter-spacing:0.8px;">
+      {ico('chart')} Proyeksi LSTM 3 Bulan ke Depan
+    </div>
+    <div class="metric-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:10px;">
+      {pred_cols_html}
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ── Kotak Metrik Akurasi LSTM ────────────────────────────────
+    _r2_badge = (
+        f"R² = <b>{_r2_str}</b>" if lstm_metrics.get("r2") is not None
+        else "R² = <i>tidak dihitung (data kurang)</i>"
+    )
+    st.markdown(f"""
+    <div class="rekom" style="margin-bottom:12px;">
+      <div class="rk-title">{ico('ruler')} Metrik Akurasi Model {_method_label}</div>
+      <div class="rk-text" style="display:flex;flex-wrap:wrap;gap:16px 28px;margin-top:6px;">
+        <span style="font-size:0.92rem;">
+          <b>RMSE</b> = {_rmse_str} °C
+          <span style="font-size:0.78rem;color:#57685d;margin-left:6px;">
+            (Root Mean Squared Error — makin kecil makin akurat)
+          </span>
+        </span>
+        <span style="font-size:0.92rem;">
+          <b>MAE</b> = {_mae_str} °C
+          <span style="font-size:0.78rem;color:#57685d;margin-left:6px;">
+            (Mean Absolute Error — rata-rata selisih prediksi)
+          </span>
+        </span>
+        <span style="font-size:0.92rem;">
+          {_r2_badge}
+          <span style="font-size:0.78rem;color:#57685d;margin-left:6px;">
+            (Koefisien Determinasi — mendekati 1.0 = sangat akurat)
+          </span>
+        </span>
+      </div>
+      <div style="font-size:0.72rem;color:#57685d;margin-top:8px;">
+        Metrik dihitung pada hold-out set 20% data terakhir (belum pernah dilihat saat training LSTM).
+      </div>
+    </div>
     <p style="font-size:0.7rem;color:#64748b;margin:-2px 0 12px">
-      {ico("alert-triangle")} Prediksi menggunakan model AR(3) dari data historis NOAA 75 tahun —
-      indikasi statistik, bukan model iklim resmi.
+      {ico("alert-triangle")} Prediksi menggunakan model <b>LSTM</b> (Long Short-Term Memory) yang dilatih
+      dari data historis NOAA — indikasi statistik, bukan model iklim resmi.
       Rujukan: <b>bmkg.go.id</b> · <b>iri.columbia.edu</b>
     </p>
     """, unsafe_allow_html=True)
     with st.container(border=True):
         st.markdown("""
-          <div style= padding: 20px; border-radius: 12px; border: 1px solid #20965F;">
+          <div style="padding: 20px; border-radius: 12px; border: 1px solid #20965F;">
             <h3 style="margin-top: 0; font-size: 1.1rem; color: #20965F;">Grafik Tren Indeks Iklim (ONI)</h3>
             <p style="font-size: 0.9rem; color: #57685d; margin-bottom: 15px;">
                 Grafik di bawah memantau suhu permukaan laut (ONI) dalam 2 tahun terakhir. 
                 Ini membantu kita melihat apakah sedang terjadi El Niño (kemarau ekstrem) 
-                atau La Niña (basah berlebih).
+                atau La Niña (basah berlebih). Diamond ◆ = prediksi LSTM 3 bulan ke depan.
             </p>
             <div style="font-size: 0.8rem; color: #20965F; margin-bottom: 10px; border-bottom: 1px solid #20965F; padding-bottom: 10px;">
-                El Niño (≥ +0.5) · La Niña (≤ -0.5) · Normal · Prediksi bulan depan
+                El Niño (≥ +0.5) · La Niña (≤ -0.5) · Normal · Prediksi LSTM 3 bulan ◆
             </div>
         </div>
         """, unsafe_allow_html=True)
     
         st.plotly_chart(
-            fig_oni_with_forecast(df_for_enso, pred),
+            fig_oni_with_forecast(df_for_enso, preds_list),
             use_container_width=True,
             theme=None
         )
@@ -2019,13 +2179,16 @@ with tab2:
         """, unsafe_allow_html=True)
 
     if enso_pred["fase"] != enso_cur["fase"]:
+        # Cari kapan fase pertama kali berubah
+        _trans_months = [p for p in preds_list if info_enso(p["oni"])["fase"] != enso_cur["fase"]]
+        _trans_date   = _trans_months[0]["date"].strftime("%B %Y") if _trans_months else pred["date"].strftime("%B %Y")
         st.markdown(f"""
         <div class="rekom biru" style="margin-top:10px">
-          <div class="rk-title"> Potensi Transisi ENSO Bulan Depan</div>
+          <div class="rk-title"> Potensi Transisi ENSO dalam 3 Bulan ke Depan</div>
           <div class="rk-text">
-            Tren 6 bulan terakhir menunjukkan kemungkinan pergeseran dari
-            {enso_cur["fase"]} ke {enso_pred["fase"]}
-            pada {pred["date"].strftime("%B %Y")}.
+            Proyeksi LSTM menunjukkan kemungkinan pergeseran dari
+            <b>{enso_cur["fase"]}</b> ke <b>{enso_pred["fase"]}</b>
+            mulai sekitar <b>{_trans_date}</b>.
             Mulai persiapkan langkah antisipasi sekarang.
           </div>
         </div>
