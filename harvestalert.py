@@ -263,7 +263,7 @@ html, body, [class*="css"] {
     font-size: 17px;
     color: var(--c-text);
 }
-.stApp { background: var(--c-bg) !important; }
+.stApp { background: var(--c-bg) !important; padding-top: 64px !important; }
 /* ── Layout container — padding konsisten ── */
 .block-container {
     max-width: 1100px !important;
@@ -287,11 +287,12 @@ html, body, [class*="css"] {
 .ha-header {
     position: relative;
     width: 100%;
-    min-height: 220px;
+    min-height: 260px;
     border-radius: var(--radius-lg);
     background: #20965F;
     overflow: hidden;
-    margin-bottom: 24px;
+    margin-top: 60px;
+    margin-bottom: 20px;
     box-shadow: var(--shadow-md);
     padding: 20px 24px;
     display: flex; align-items: center; justify-content: space-between;
@@ -323,7 +324,7 @@ html, body, [class*="css"] {
 }
 .gps-box {
     background: var(--c-surface); border: 1.5px solid var(--c-border); border-radius: var(--radius-md);
-    padding: 12px 16px; margin-bottom: 14px; font-size: 0.88rem; color: var(--c-muted-on-surface);
+    padding: 12px 16px; margin-bottom: 16px; font-size: 0.88rem; color: var(--c-muted-on-surface);
     line-height: 1.7; display: flex; flex-wrap: wrap; gap: 4px 18px; box-shadow: var(--shadow-sm);
 }
 .gps-box b { color: var(--c-accent-text); }
@@ -359,7 +360,7 @@ html, body, [class*="css"] {
 .gps-info-text { font-family: 'Poppins', sans-serif; font-weight: 400; font-size: 0.82rem; line-height: 1.5; color: #20965F; }
 
 /* ── Big-card "Kondisi Cuaca Hari Ini" — base EEFFD3, font 20965F ── */
-.big-card { border-radius: var(--radius-md); padding: 18px 22px; margin-bottom: 14px; border: 1.5px solid #d4edda; box-shadow: var(--shadow-sm); background: #EEFFD3; }
+.big-card { border-radius: var(--radius-md); padding: 18px 22px; margin-bottom: 16px; border: 1.5px solid #d4edda; box-shadow: var(--shadow-sm); background: #EEFFD3; }
 .big-card.aman, .big-card.waspada, .big-card.bahaya, .big-card.info { background: #EEFFD3; border: 1.5px solid #d4edda; }
 .bc-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #20965F; margin-bottom: 8px; }
 .bc-row   { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
@@ -375,7 +376,7 @@ html, body, [class*="css"] {
 
 /* ── Metric cards (suhu/kelembapan/curah hujan/iklim) — selalu hijau 20965F, font putih ── */
 .metric-grid {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 14px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px;
 }
 @media (max-width: 900px) { .metric-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
 @media (max-width: 480px) { .metric-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; } }
@@ -386,11 +387,11 @@ html, body, [class*="css"] {
 .mc-sub   { font-size: 0.76rem; color: #ffffff; margin-top: 4px; opacity: 0.9; }
 .metric-card .mc-val, .metric-card .mc-label, .metric-card .mc-sub { color: #ffffff; }
 @media (max-width: 480px) { .metric-card { padding: 12px 14px; } .mc-val { font-size: 1.15rem; } .mc-sub { font-size: 0.7rem; } }
-.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
 @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; gap: 12px; } }
 
 /* ── Rekom (Saran Tanam, Kondisi Iklim, dll) — base EEFFD3, font 20965F ── */
-.rekom { background: #EEFFD3; border-radius: var(--radius-md); border: 1.5px solid #d4edda; padding: 16px 18px; margin-bottom: 14px; box-shadow: var(--shadow-sm); }
+.rekom { background: #EEFFD3; border-radius: var(--radius-md); border: 1.5px solid #d4edda; padding: 16px 18px; margin-bottom: 16px; box-shadow: var(--shadow-sm); }
 .rekom.kuning, .rekom.merah, .rekom.biru { background: #EEFFD3; border: 1.5px solid #d4edda; }
 .rk-title { font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #20965F; margin-bottom: 8px; }
 .rekom .rk-title, .rekom.kuning .rk-title, .rekom.merah .rk-title, .rekom.biru .rk-title { color: #20965F; }
@@ -407,9 +408,9 @@ html, body, [class*="css"] {
 .hama-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .hama-img-ph { width: 100%; aspect-ratio: 4/3; border-radius: var(--radius-sm); border: 1.5px dashed #20965F; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; color: #20965F; text-align: center; padding: 10px; background: rgba(32,150,95,0.03); }
 .hama-img-ph-path { font-family: monospace; font-size: 0.65rem; opacity: 0.7; word-break: break-all; color: #20965F; }
-.sec-title { font-size: 1.05rem; font-weight: 700; color: #20965F; margin: 22px 0 12px; display: flex; align-items: center; gap: 8px; padding-bottom: 6px; border-bottom: 1px solid rgba(32,150,95,0.12); }
-.divider { border: none; border-top: 1.5px solid #20965F; opacity: 0.2; margin: 18px 0; }
-.status-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.sec-title { font-size: 1.05rem; font-weight: 700; color: #20965F; margin: 18px 0 10px; display: flex; align-items: center; gap: 8px; padding-bottom: 6px; border-bottom: 1px solid rgba(32,150,95,0.12); }
+.divider { border: none; border-top: 1.5px solid #20965F; opacity: 0.2; margin: 16px 0; }
+.status-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
 .chip { border-radius: 30px; padding: 7px 14px; font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; border: 1.5px solid #d4edda; background: #EEFFD3; color: #20965F; }
 .chip.aman, .chip.waspada, .chip.bahaya, .chip.info { background: #EEFFD3; border: 1.5px solid #d4edda; color: #20965F; }
 /* ── TAB NAVIGATION — bg putih dengan outline hijau ── */
@@ -460,7 +461,7 @@ button[data-baseweb="tab"]:hover:not([aria-selected="true"]) { background: rgba(
 ::-webkit-scrollbar-thumb { background: var(--c-border); border-radius: 6px; }
 /* ── Responsive: Tablet ── */
 @media (max-width: 768px) {
-    .ha-header { min-height: 160px !important; padding: 14px 16px !important; margin-bottom: 16px !important; }
+    .ha-header { min-height: 160px !important; padding: 14px 16px !important; margin-top: 48px !important; margin-bottom: 16px !important; }
     .ha-title { font-size: 2.6rem !important; }
     .ha-sub { font-size: 0.82rem !important; }
     .ha-mascot { width: 110px !important; height: 145px !important; right: 12px !important; bottom: 0 !important; }
@@ -471,7 +472,7 @@ button[data-baseweb="tab"]:hover:not([aria-selected="true"]) { background: rgba(
 }
 /* ── Responsive: Mobile ── */
 @media (max-width: 480px) {
-    .ha-header { min-height: 130px !important; padding: 10px 12px !important; padding-right: 90px !important; margin-bottom: 12px !important; }
+    .ha-header { min-height: 130px !important; padding: 10px 12px !important; padding-right: 90px !important; margin-top: 40px !important; margin-bottom: 12px !important; }
     .ha-title { font-size: 2rem !important; letter-spacing: 0 !important; }
     .ha-sub { font-size: 0.75rem !important; }
     .ha-badge { font-size: 0.72rem !important; padding: 4px 10px !important; }
@@ -494,6 +495,8 @@ button[data-baseweb="tab"]:hover:not([aria-selected="true"]) { background: rgba(
     .mc-val { font-size: 1.05rem !important; }
     .mc-label { font-size: 0.65rem !important; }
     .mc-sub { font-size: 0.7rem !important; }
+    .status-row { grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; }
+    .chip { font-size: 0.75rem !important; padding: 6px 10px !important; }
 }
 .tbot-chat {
     background: #FFFFFF; border: 1.5px solid var(--c-border); border-radius: var(--radius-md);
@@ -1303,30 +1306,30 @@ def oni_now():
 
 def info_enso(oni):
     if oni >= 1.5:
-        return {"fase":"El Niño Kuat","level":"AWAS KEKERINGAN","kelas":"bahaya","ikon":"sun",
+        return {"fase":"El Niño Kuat","level":"Awas Kekeringan","kelas":"bahaya","ikon":"sun",
                 "pesan":"Hujan sangat berkurang 40–60%. Siapkan irigasi cadangan. Pilih bibit tahan kering seperti Inpari 32."}
     elif oni >= 0.5:
-        return {"fase":"El Niño","level":"WASPADA KERING","kelas":"waspada","ikon":"cloud-sun",
+        return {"fase":"El Niño","level":"Waspada Kering","kelas":"waspada","ikon":"cloud-sun",
                 "pesan":"Kemarau lebih lama dari biasanya. Hemat air irigasi dan pantau kondisi lahan."}
     elif oni >= -0.5:
-        return {"fase":"Normal","level":"IKLIM NORMAL","kelas":"aman","ikon":"cloud",
+        return {"fase":"Normal","level":"Iklim Normal","kelas":"aman","ikon":"cloud",
                 "pesan":"Pola hujan dan kemarau berjalan normal. Ikuti kalender tanam biasa."}
     elif oni >= -1.5:
-        return {"fase":"La Niña","level":"WASPADA BANJIR","kelas":"waspada","ikon":"cloud-rain",
+        return {"fase":"La Niña","level":"Waspada Banjir","kelas":"waspada","ikon":"cloud-rain",
                 "pesan":"Hujan lebih sering dan lebih deras. Periksa saluran air agar sawah tidak tergenang."}
     else:
-        return {"fase":"La Niña Kuat","level":"AWAS BANJIR","kelas":"bahaya","ikon":"storm",
+        return {"fase":"La Niña Kuat","level":"Awas Banjir","kelas":"bahaya","ikon":"storm",
                 "pesan":"Curah hujan sangat tinggi. Risiko banjir besar. Waspada serangan wereng dan tungro."}
 
 def info_cuaca(tmax, ch):
     if tmax > 34.0 or ch > 50.0:
-        return {"level":"CUACA EKSTREM","kelas":"bahaya",
+        return {"level":"Cuaca Ekstrem","kelas":"bahaya",
                 "ikon":"thermometer" if tmax>34 else "wave",
                 "pesan":"Cuaca sangat berbahaya! Segera panen jika sudah waktunya. Aktifkan pompa drainase."}
     elif tmax > 32.0 or ch > 30.0 or ch < 2.0:
-        return {"level":"PERLU PERHATIAN","kelas":"waspada","ikon":"alert-triangle",
+        return {"level":"Perlu Perhatian","kelas":"waspada","ikon":"alert-triangle",
                 "pesan":"Cek saluran air dan kondisi tanaman. Tambah pengairan jika hujan sangat sedikit."}
-    return {"level":"CUACA BAIK","kelas":"aman","ikon":"cloud-sun",
+    return {"level":"Cuaca Baik","kelas":"aman","ikon":"cloud-sun",
             "pesan":"Cuaca hari ini bagus untuk padi. Waktu yang tepat untuk pemupukan NPK."}
 
 def musim_bln(b):
@@ -1917,21 +1920,7 @@ div:has(> [data-testid="stCustomComponentV1"]) {{
       </div>
     </div>
     """, unsafe_allow_html=True)
-    st.markdown("""
-    <style>
-    .metric-grid {
-        display: flex !important;
-        justify-content: center !important;
-        flex-wrap: wrap !important;
-        gap: 15px !important;
-    }
-    .metric-card {
-        text-align: center !important;
-        flex: 1 1 150px !important;
-        max-width: 200px !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+
 
     st.markdown('<hr class="divider">', unsafe_allow_html=True)
     st.markdown(f'<p class="sec-title">{ico("lightbulb")} Yang Harus Dilakukan</p>', unsafe_allow_html=True)
