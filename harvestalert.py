@@ -294,7 +294,7 @@ html, body, [class*="css"] {
     margin-top: 60px;
     margin-bottom: 20px;
     box-shadow: var(--shadow-md);
-    padding: 20px 24px;
+    padding: 20px 28px;
     display: flex; align-items: center; justify-content: space-between;
     flex-wrap: wrap; gap: 10px;
 }
@@ -461,7 +461,7 @@ button[data-baseweb="tab"]:hover:not([aria-selected="true"]) { background: rgba(
 ::-webkit-scrollbar-thumb { background: var(--c-border); border-radius: 6px; }
 /* ── Responsive: Tablet ── */
 @media (max-width: 768px) {
-    .ha-header { min-height: 160px !important; padding: 14px 16px !important; margin-top: 48px !important; margin-bottom: 16px !important; }
+    .ha-header { min-height: 160px !important; padding: 16px 22px !important; margin-top: 48px !important; margin-bottom: 16px !important; }
     .ha-title { font-size: 2.6rem !important; }
     .ha-sub { font-size: 0.82rem !important; }
     .ha-mascot { width: 110px !important; height: 145px !important; right: 12px !important; bottom: 0 !important; }
@@ -472,7 +472,7 @@ button[data-baseweb="tab"]:hover:not([aria-selected="true"]) { background: rgba(
 }
 /* ── Responsive: Mobile ── */
 @media (max-width: 480px) {
-    .ha-header { min-height: 130px !important; padding: 10px 12px !important; padding-right: 90px !important; margin-top: 40px !important; margin-bottom: 12px !important; }
+    .ha-header { min-height: 130px !important; padding: 14px 20px !important; padding-right: 100px !important; margin-top: 40px !important; margin-bottom: 12px !important; }
     .ha-title { font-size: 2rem !important; letter-spacing: 0 !important; }
     .ha-sub { font-size: 0.75rem !important; }
     .ha-badge { font-size: 0.72rem !important; padding: 4px 10px !important; }
