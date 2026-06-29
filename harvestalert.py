@@ -475,10 +475,10 @@ html, body, [class*="css"] {
 .chip { border-radius: 30px; padding: 7px 14px; font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; border: 1.5px solid #d4edda; background: #EEFFD3; color: #669B49; }
 .chip.aman, .chip.waspada, .chip.bahaya, .chip.info { background: #EEFFD3; border: 1.5px solid #d4edda; color: #669B49; }
 /* ── TAB NAVIGATION — bg putih dengan outline hijau ── */
-div[data-baseweb="tab-list"] { background: #FFFFFF !important; border: 2px solid #669B49 !important; border-radius: var(--radius-md) !important; padding: 5px !important; gap: 4px !important; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(102,155,73,0.10); }
-button[data-baseweb="tab"] { font-family: 'Poppins', sans-serif !important; font-size: 0.9rem !important; font-weight: 600 !important; border-radius: var(--radius-sm) !important; padding: 10px 14px !important; color: #669B49 !important; border: 1.5px solid transparent !important; transition: all 0.2s ease; }
+div[data-baseweb="tab-list"] { background: #FFFFFF !important; border: 2px solid #669B49 !important; border-radius: var(--radius-md) !important; padding: 5px !important; gap: 4px !important; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(102,155,73,0.10); display: flex !important; width: 100% !important; }
+button[data-baseweb="tab"] { font-family: 'Poppins', sans-serif !important; font-size: 0.9rem !important; font-weight: 600 !important; border-radius: var(--radius-sm) !important; padding: 10px 14px !important; color: #669B49 !important; border: 1.5px solid transparent !important; transition: all 0.2s ease; flex: 1 !important; text-align: center !important; }
 button[data-baseweb="tab"] p { color: #669B49 !important; font-family: 'Poppins', sans-serif !important; font-weight: 600 !important; }
-button[data-baseweb="tab"][aria-selected="true"] { background: #FFE0AD !important; border-color: #FFE0AD !important; }
+button[data-baseweb="tab"][aria-selected="true"] { background: #FFE0AD !important; border-color: #DF8107 !important; border-bottom: 3px solid #DF8107 !important; }
 button[data-baseweb="tab"][aria-selected="true"] p { color: #DF8107 !important; }
 button[data-baseweb="tab"]:hover:not([aria-selected="true"]) { background: rgba(102,155,73,0.08) !important; border-color: rgba(102,155,73,0.25) !important; }
 /* ── Sidebar ── */
@@ -1996,7 +1996,7 @@ with tab1:
     # CSS halaman tidak bisa menjangkau ke dalam iframe komponen pihak ketiga.
     _gps_aktif = st.session_state.get("gps_aktif", False)
     _label_teks = "GPS ANDA AKTIF" if _gps_aktif else "KLIK UNTUK AKTIFKAN GPS"
-    _btn_bg = "#1e8a55" if _gps_aktif else "#669B49"
+    _btn_bg = "#FFE0AD" if _gps_aktif else "#669B49"
     st.markdown(f"""<style>
 div:has(> [data-testid="stCustomComponentV1"])::before {{
     content: "{_label_teks}" !important;
