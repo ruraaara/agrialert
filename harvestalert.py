@@ -2861,7 +2861,7 @@ with tab2:
         fig_decomp = make_subplots(
             rows=3, cols=1,
             shared_xaxes=True,
-            vertical_spacing=0.07,
+            vertical_spacing=0.12,
             subplot_titles=[
                 "Komponen A : Skor Stres Vegetasi (NDVI Sentinel-2)",
                 "Komponen B : Skor Anomali Kelembapan Tanah (SAR Sentinel-1 VH)",
