@@ -1994,7 +1994,7 @@ with tab1:
     # Karena itu komponennya harus selalu ada di halaman (bukan di dalam if),
     # dan teks status Figma (merah/hijau) ditampilkan di luar iframe karena
     # CSS halaman tidak bisa menjangkau ke dalam iframe komponen pihak ketiga.
-_gps_aktif = st.session_state.get("gps_aktif", False)
+    _gps_aktif = st.session_state.get("gps_aktif", False)
     _label_teks = "GPS ANDA AKTIF" if _gps_aktif else "KLIK UNTUK AKTIFKAN GPS"
     _btn_bg = "#FFE0AD" if _gps_aktif else "#669B49"
     _font_color = "#DF8107" if _gps_aktif else "#ffffff"
