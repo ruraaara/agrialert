@@ -758,8 +758,8 @@ details > summary {
     border-color: #20965F !important;
 }
 [data-testid="stRadio"] [aria-checked="true"] > div:first-child {
-    background-color: #20965F !important;
-    border-color: #20965F !important;
+    background-color: #DF8107 !important;
+    border-color: #DF8107 !important;
 }
 
 /* Selectbox / dropdown container */
