@@ -1828,6 +1828,85 @@ def prediksi_oni_lstm(df, lookback=12, n_forecast=3):
         return results, metrics_dict
 
 
+# =====================================================================
+# BARU — load model & scaler yang sudah dilatih SEKALI di Colab.
+# Kalau file belum diupload, balik (None, None, None) supaya kode
+# pemanggil otomatis fallback ke prediksi_oni_lstm() yang lama (retrain).
+# =====================================================================
+@st.cache_resource
+def load_oni_artifacts():
+    import os, json, joblib
+    model_path   = DATA_DIR / "oni_lstm.keras"
+    scaler_path  = DATA_DIR / "oni_scaler.pkl"
+    metrics_path = DATA_DIR / "oni_metrics.json"
+
+    if not (model_path.exists() and scaler_path.exists()):
+        return None, None, None
+
+    from tensorflow import keras
+    model  = keras.models.load_model(model_path)
+    scaler = joblib.load(scaler_path)
+
+    metrics = {"method": "LSTM (artifact)"}
+    if metrics_path.exists():
+        with open(metrics_path) as f:
+            metrics = json.load(f)
+
+    return model, scaler, metrics
+
+
+def predict_next_3_months(model, history_data, scaler, lookback=12, n_forecast=3):
+    """
+    Prediksi ONI 3 bulan ke depan, pakai model + scaler yang SUDAH
+    dilatih sekali di Colab (bukan dilatih ulang di sini).
+
+    history_data : DataFrame kolom ['date', 'ONI'], boleh berisi
+                   seluruh histori — fungsi ini sendiri yang mengambil
+                   `lookback` baris TERAKHIR (data paling baru).
+    """
+    from collections import deque
+
+    df_h = (history_data.dropna(subset=["date", "ONI"])
+                          .sort_values("date").reset_index(drop=True))
+    if len(df_h) < lookback:
+        raise ValueError(f"Butuh minimal {lookback} bulan data historis.")
+
+    # 1) Ambil PERSIS `lookback` baris terakhir (data paling baru yang ada)
+    window_actual = df_h.tail(lookback).reset_index(drop=True)
+    last_date     = pd.Timestamp(window_actual["date"].iloc[-1])
+
+    # Scaling pakai scaler yang SAMA dengan training (bukan dihitung ulang)
+    scaled_window = scaler.transform(window_actual[["ONI"]].values).flatten()
+    rolling = deque(scaled_window.tolist(), maxlen=lookback)  # tak bisa membengkak
+
+    results = []
+    for step in range(1, n_forecast + 1):
+        X_in        = np.asarray(rolling, dtype="float32").reshape(1, lookback, 1)
+        pred_scaled = float(model.predict(X_in, verbose=0)[0, 0])
+
+        # 2) Inverse transform pakai scaler yang sama
+        pred_oni = float(scaler.inverse_transform([[pred_scaled]])[0, 0])
+        prev_oni = float(scaler.inverse_transform([[rolling[-1]]])[0, 0])
+
+        # Tanggal dipaksa ke tanggal 1 supaya tidak ada index/month shifting
+        target_date = (last_date + pd.DateOffset(months=step)).replace(day=1)
+        uncertainty  = 0.25 * step
+
+        results.append({
+            "date":     target_date,
+            "oni":      round(pred_oni, 2),
+            "oni_low":  round(pred_oni - uncertainty, 2),
+            "oni_high": round(pred_oni + uncertainty, 2),
+            "tren":     ("naik ↑"  if pred_oni > prev_oni + 0.05 else
+                         "turun ↓" if pred_oni < prev_oni - 0.05 else
+                         "stabil →"),
+        })
+        # 3) Append hasil SCALED (bukan nilai asli) -> autoregressive yang benar
+        rolling.append(pred_scaled)
+
+    return results
+
+
 def fig_oni_with_forecast(df, preds, n=24):
     """Bar chart ONI historis + diamond prediksi 3 bulan ke depan (LSTM).
     preds: list of 3 dicts with keys date, oni, oni_low, oni_high, tren
@@ -2405,8 +2484,17 @@ with tab2:
     oni_cur   = float(df_for_enso.iloc[-1]["ONI"])
     date_cur  = pd.Timestamp(df_for_enso.iloc[-1]["date"])
     enso_cur  = info_enso(oni_cur)
-    # ── Panggil fungsi LSTM 3-bulan — returns (list[dict], dict_metrics)
-    preds_list, lstm_metrics = prediksi_oni_lstm(df_for_enso)
+    # ── Panggil fungsi LSTM 3-bulan ─────────────────────────────────
+    # BARU: coba load model+scaler yang sudah dilatih sekali di Colab.
+    # Kalau file belum ada (belum diupload), fallback otomatis ke
+    # prediksi_oni_lstm() yang lama (retrain tiap kali) — jadi app
+    # tidak crash sebelum file model diupload ke server.
+    _oni_model, _oni_scaler, _oni_metrics = load_oni_artifacts()
+    if _oni_model is not None:
+        preds_list   = predict_next_3_months(_oni_model, df_for_enso[["date", "ONI"]], _oni_scaler)
+        lstm_metrics = _oni_metrics
+    else:
+        preds_list, lstm_metrics = prediksi_oni_lstm(df_for_enso)
     pred        = preds_list[0]   # bulan pertama (dipakai untuk kartu utama)
     enso_pred   = info_enso(pred["oni"])
 
