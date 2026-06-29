@@ -463,11 +463,11 @@ html, body, [class*="css"] {
 .hama-icon { font-size: 1.8rem; line-height: 1; flex-shrink: 0; margin-top: 2px; color: #669B49; }
 .hama-nama { font-size: 0.98rem; font-weight: 700; color: #669B49; margin-bottom: 4px; }
 .hama-ciri { font-size: 0.85rem; color: #669B49; line-height: 1.55; }
-.hama-card-v { background: #EEFFD3; border: none; border-radius: var(--radius-md); padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 10px; box-shadow: var(--shadow-sm); }
-.hama-card-v .hama-nama { display: flex; align-items: center; gap: 8px; margin-bottom: 0; color: #20965F; }
-.hama-img-wrap { width: 100%; aspect-ratio: 4/3; border-radius: var(--radius-sm); overflow: hidden; border: none; }
+.hama-card-v { background: #EEFFD3; border: none; border-radius: var(--radius-md); padding: 14px 16px 16px; display: flex; flex-direction: row; align-items: flex-start; gap: 12px; box-shadow: var(--shadow-sm); }
+.hama-card-v .hama-nama { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; color: #20965F; font-size: 0.92rem; }
+.hama-img-wrap { width: 110px; min-width: 110px; aspect-ratio: 1/1; border-radius: var(--radius-sm); overflow: hidden; border: none; flex-shrink: 0; }
 .hama-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.hama-img-ph { width: 100%; aspect-ratio: 4/3; border-radius: var(--radius-sm); border: 1.5px dashed #20965F; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: #20965F; text-align: center; padding: 10px; }
+.hama-img-ph { width: 110px; min-width: 110px; aspect-ratio: 1/1; border-radius: var(--radius-sm); border: 1.5px dashed #20965F; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #20965F; text-align: center; padding: 8px; flex-shrink: 0; }
 .hama-img-ph-path { font-family: monospace; font-size: 0.65rem; opacity: 0.7; word-break: break-all; color: #669B49; }
 .sec-title { font-size: 1.05rem; font-weight: 700; color: #669B49; margin: 18px 0 10px; display: flex; align-items: center; gap: 8px; padding-bottom: 6px; border-bottom: 1px solid rgba(102,155,73,0.12); }
 .divider { border: none; border-top: 1.5px solid #669B49; opacity: 0.2; margin: 16px 0; }
@@ -1163,9 +1163,11 @@ def render_hama_grid(items):
     for img_file, ikon, nama, ciri in items:
         st.markdown(f"""
         <div class="hama-card-v">
-          <div class="hama-nama">{ico(ikon, '1.3rem')} {nama}</div>
           {gambar_hama_html(img_file, nama)}
-          <div class="hama-ciri">{ciri}</div>
+          <div style="flex:1;min-width:0;">
+            <div class="hama-nama">{ico(ikon, '1.1rem')} {nama}</div>
+            <div class="hama-ciri">{ciri}</div>
+          </div>
         </div>
         """, unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
