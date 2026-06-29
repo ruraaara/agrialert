@@ -755,7 +755,7 @@ details > summary {
 [data-testid="stRadio"] span { color: #1c2620 !important; }
 [data-testid="stRadio"] [data-baseweb="radio"] > div:first-child {
     background-color: #ffffff !important;
-    border-color: #20965F !important;
+    border-color: #DF8107 !important;
 }
 [data-testid="stRadio"] [aria-checked="true"] > div:first-child {
     background-color: #DF8107 !important;
