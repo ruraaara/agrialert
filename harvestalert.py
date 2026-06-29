@@ -471,16 +471,6 @@ html, body, [class*="css"] {
 .hama-img-ph-path { font-family: monospace; font-size: 0.65rem; opacity: 0.7; word-break: break-all; color: #669B49; }
 .sec-title { font-size: 1.05rem; font-weight: 700; color: #669B49; margin: 18px 0 10px; display: flex; align-items: center; gap: 8px; padding-bottom: 6px; border-bottom: 1px solid rgba(102,155,73,0.12); }
 .divider { border: none; border-top: 1.5px solid #669B49; opacity: 0.2; margin: 16px 0; }
-/* Tabel HTML manual — paksa warna light */
-table { border-collapse: collapse; width: 100%; }
-table td, table th {
-    padding: 9px 12px;
-    text-align: left;
-    color: #1c2620;
-    border-bottom: 1px solid #e8f5e9;
-    background: #ffffff;
-}
-table tr:hover td { background: #f4fdf6 !important; }
 .status-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
 .chip { border-radius: 30px; padding: 7px 14px; font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; border: 1.5px solid #d4edda; background: #EEFFD3; color: #669B49; }
 .chip.aman, .chip.waspada, .chip.bahaya, .chip.info { background: #EEFFD3; border: 1.5px solid #d4edda; color: #669B49; }
