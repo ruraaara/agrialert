@@ -3023,7 +3023,7 @@ with tab2:
     with st.expander("Lihat Data Mentah Satelit"):
         st.markdown(
             f'<p class="sec-title" style="margin-top:0">'
-            f'{ico("leaf")} NDVI Sentinel-2 — Nilai Asli</p>',
+            f'NDVI Sentinel-2 (Nilai Asli)</p>',
             unsafe_allow_html=True
         )
         if df_ndvi is not None:
@@ -3035,7 +3035,7 @@ with tab2:
 
         st.markdown(
             f'<p class="sec-title">'
-            f'{ico("satellite")} SAR Sentinel-1 VH — Nilai Asli (dB)</p>',
+            f'SAR Sentinel-1 VH (Nilai Asli (dB))</p>',
             unsafe_allow_html=True
         )
         if df_sar is not None:
@@ -3050,7 +3050,7 @@ with tab2:
 
         st.markdown(
             f'<p class="sec-title">'
-            f'{ico("wave")} ENSO-ONI — Nilai Asli</p>',
+            f'ENSO-ONI (Nilai Asli)</p>',
             unsafe_allow_html=True
         )
         st.caption(
@@ -3173,7 +3173,7 @@ with tab4:
 
                     # ── Konsultasi AI — gabungan Offline (TaniBot) & Online (AgriAlert AI) ──
                     st.markdown('<hr class="divider">', unsafe_allow_html=True)
-                    st.markdown(f'<p class="sec-title">{ico("bot")} Konsultasi AI — Penanganan</p>',
+                    st.markdown(f'<p class="sec-title">{ico("bot")} Konsultasi AI dan Penanganan Lanjutan</p>',
                                 unsafe_allow_html=True)
 
                     opt_id    = CLASS_TO_OPT.get(hasil["kelas"])
@@ -3196,8 +3196,8 @@ with tab4:
                             mode = st.radio(
                                 "Pilih mode konsultasi:",
                                 mode_pilihan,
-                                format_func=lambda m: "Offline — TaniBot (tanpa internet)"
-                                    if m == "offline" else "Online — AgriAlert AI (lebih detail)",
+                                format_func=lambda m: "Mode Offline: TaniBot (tanpa koneksi internet)"
+                                    if m == "offline" else "Mode Online: AgriAlert AI (analisis lebih detail)",
                                 horizontal=True,
                                 index=mode_pilihan.index(st.session_state[mode_key]),
                                 key=f"{mode_key}_radio",
