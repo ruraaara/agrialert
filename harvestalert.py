@@ -2511,7 +2511,7 @@ with tab2:
     </div>
     <p style="font-size:0.7rem;color:#64748b;margin:-2px 0 12px">
       {ico("alert-triangle")} Prediksi menggunakan model <b>LSTM</b> (Long Short-Term Memory) yang dilatih
-      dari data historis NOAA — indikasi statistik, bukan model iklim resmi.
+      dari data historis NOAA, indikasi statistik, bukan model iklim resmi.
       Rujukan: <b>bmkg.go.id</b> · <b>iri.columbia.edu</b>
     </p>
     """, unsafe_allow_html=True)
@@ -2864,9 +2864,9 @@ with tab2:
             shared_xaxes=True,
             vertical_spacing=0.07,
             subplot_titles=[
-                "Komponen A — Skor Stres Vegetasi (NDVI Sentinel-2)",
-                "Komponen B — Skor Anomali Kelembapan Tanah (SAR Sentinel-1 VH)",
-                "Komponen C — Skor Tekanan Iklim Makro (ENSO-ONI NOAA)"
+                "Komponen A : Skor Stres Vegetasi (NDVI Sentinel-2)",
+                "Komponen B : Skor Anomali Kelembapan Tanah (SAR Sentinel-1 VH)",
+                "Komponen C : Skor Tekanan Iklim Makro (ENSO-ONI NOAA)"
             ]
         )
 
