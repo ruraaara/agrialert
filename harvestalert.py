@@ -2950,66 +2950,66 @@ with tab2:
         )
         st.plotly_chart(fig_dist, use_container_width=True, theme=None)
 
-        # ── Tabel Top-5 Periode Risiko Tertinggi ───────────────
-st.markdown('<p class="sec-title">5 Periode Risiko Tertinggi</p>', unsafe_allow_html=True)
+                # ── Tabel Top-5 Periode Risiko Tertinggi ───────────────
+        st.markdown('<p class="sec-title">5 Periode Risiko Tertinggi</p>', unsafe_allow_html=True)
 
-top5 = (df_ilsk.nlargest(5, "ILSK")
-    [["Tanggal", "NDVI", "SAR_VH", "ONI", "ILSK", "status"]]
-    .copy())
-top5["Tanggal"] = top5["Tanggal"].dt.strftime("%d %b %Y")
+        top5 = (df_ilsk.nlargest(5, "ILSK")
+            [["Tanggal", "NDVI", "SAR_VH", "ONI", "ILSK", "status"]]
+            .copy())
+        top5["Tanggal"] = top5["Tanggal"].dt.strftime("%d %b %Y")
 
-top5 = top5.rename(columns={
-    "Tanggal": "Tanggal Observasi",
-    "NDVI": "NDVI",
-    "SAR_VH": "SAR VH (dB)",
-    "ONI": "ONI",
-    "ILSK": "Skor ILSK",
-    "status": "Status"
-})
+        top5 = top5.rename(columns={
+            "Tanggal": "Tanggal Observasi",
+            "NDVI": "NDVI",
+            "SAR_VH": "SAR VH (dB)",
+            "ONI": "ONI",
+            "ILSK": "Skor ILSK",
+            "status": "Status"
+        })
 
-def _warna_status_html(val):
-    if val == "Bahaya":
-        return "background:#fef2f2; color:#b91c1c; font-weight:700;"
-    elif val == "Waspada":
-        return "background:#fefce8; color:#92400e; font-weight:700;"
-    return "background:#f0fdf4; color:#15803d; font-weight:700;"
+        def _warna_status_html(val):
+            if val == "Bahaya":
+                return "background:#fef2f2; color:#b91c1c; font-weight:700;"
+            elif val == "Waspada":
+                return "background:#fefce8; color:#92400e; font-weight:700;"
+            return "background:#f0fdf4; color:#15803d; font-weight:700;"
 
-# 1. Bikin baris tabel tanpa triple quotes
-rows_html = ""
-for _, row in top5.iterrows():
-    status_style = _warna_status_html(row["Status"])
-    rows_html += (
-        "<tr>"
-        f"<td style='padding:9px 12px; color:#1c2620; border-bottom:1px solid #e8f5e9;'>{row['Tanggal Observasi']}</td>"
-        f"<td style='padding:9px 12px; color:#1c2620; border-bottom:1px solid #e8f5e9;'>{float(row['NDVI']):.3f}</td>"
-        f"<td style='padding:9px 12px; color:#1c2620; border-bottom:1px solid #e8f5e9;'>{float(row['SAR VH (dB)']):.1f}</td>"
-        f"<td style='padding:9px 12px; color:#1c2620; border-bottom:1px solid #e8f5e9;'>{float(row['ONI']):+.2f}</td>"
-        f"<td style='padding:9px 12px; color:#1c2620; border-bottom:1px solid #e8f5e9;'>{float(row['Skor ILSK']):.3f}</td>"
-        f"<td style='{status_style} padding:9px 12px; border-bottom:1px solid #e8f5e9;'>{row['Status']}</td>"
-        "</tr>"
-    )
+        # 1. Bikin baris tabel tanpa triple quotes
+        rows_html = ""
+        for _, row in top5.iterrows():
+            status_style = _warna_status_html(row["Status"])
+            rows_html += (
+                "<tr>"
+                f"<td style='padding:9px 12px; color:#1c2620; border-bottom:1px solid #e8f5e9;'>{row['Tanggal Observasi']}</td>"
+                f"<td style='padding:9px 12px; color:#1c2620; border-bottom:1px solid #e8f5e9;'>{float(row['NDVI']):.3f}</td>"
+                f"<td style='padding:9px 12px; color:#1c2620; border-bottom:1px solid #e8f5e9;'>{float(row['SAR VH (dB)']):.1f}</td>"
+                f"<td style='padding:9px 12px; color:#1c2620; border-bottom:1px solid #e8f5e9;'>{float(row['ONI']):+.2f}</td>"
+                f"<td style='padding:9px 12px; color:#1c2620; border-bottom:1px solid #e8f5e9;'>{float(row['Skor ILSK']):.3f}</td>"
+                f"<td style='{status_style} padding:9px 12px; border-bottom:1px solid #e8f5e9;'>{row['Status']}</td>"
+                "</tr>"
+            )
 
-# 2. Bikin bungkus tabel tanpa triple quotes (kebal spasi berantakan)
-tabel_html = (
-    "<div style='overflow-x:auto; margin-bottom:16px; background:#ffffff; border-radius:12px; padding:2px;'>"
-    "<table style='width:100%; border-collapse:collapse; font-family:sans-serif; font-size:0.85rem; background:#ffffff;'>"
-    "<thead>"
-    "<tr style='background:#f0faf3;'>"
-    "<th style='padding:10px 12px; text-align:left; color:#20965F; font-weight:700; border-bottom:2px solid #d4edda;'>Tanggal</th>"
-    "<th style='padding:10px 12px; text-align:left; color:#20965F; font-weight:700; border-bottom:2px solid #d4edda;'>NDVI</th>"
-    "<th style='padding:10px 12px; text-align:left; color:#20965F; font-weight:700; border-bottom:2px solid #d4edda;'>SAR VH (dB)</th>"
-    "<th style='padding:10px 12px; text-align:left; color:#20965F; font-weight:700; border-bottom:2px solid #d4edda;'>ONI</th>"
-    "<th style='padding:10px 12px; text-align:left; color:#20965F; font-weight:700; border-bottom:2px solid #d4edda;'>Skor ILSK</th>"
-    "<th style='padding:10px 12px; text-align:left; color:#20965F; font-weight:700; border-bottom:2px solid #d4edda;'>Status</th>"
-    "</tr>"
-    "</thead>"
-    f"<tbody>{rows_html}</tbody>"
-    "</table>"
-    "</div>"
-)
+        # 2. Bikin bungkus tabel tanpa triple quotes
+        tabel_html = (
+            "<div style='overflow-x:auto; margin-bottom:16px; background:#ffffff; border-radius:12px; padding:2px;'>"
+            "<table style='width:100%; border-collapse:collapse; font-family:sans-serif; font-size:0.85rem; background:#ffffff;'>"
+            "<thead>"
+            "<tr style='background:#f0faf3;'>"
+            "<th style='padding:10px 12px; text-align:left; color:#20965F; font-weight:700; border-bottom:2px solid #d4edda;'>Tanggal</th>"
+            "<th style='padding:10px 12px; text-align:left; color:#20965F; font-weight:700; border-bottom:2px solid #d4edda;'>NDVI</th>"
+            "<th style='padding:10px 12px; text-align:left; color:#20965F; font-weight:700; border-bottom:2px solid #d4edda;'>SAR VH (dB)</th>"
+            "<th style='padding:10px 12px; text-align:left; color:#20965F; font-weight:700; border-bottom:2px solid #d4edda;'>ONI</th>"
+            "<th style='padding:10px 12px; text-align:left; color:#20965F; font-weight:700; border-bottom:2px solid #d4edda;'>Skor ILSK</th>"
+            "<th style='padding:10px 12px; text-align:left; color:#20965F; font-weight:700; border-bottom:2px solid #d4edda;'>Status</th>"
+            "</tr>"
+            "</thead>"
+            f"<tbody>{rows_html}</tbody>"
+            "</table>"
+            "</div>"
+        )
 
-# 3. Tampilkan
-st.markdown(tabel_html, unsafe_allow_html=True)
+        # 3. Tampilkan
+        st.markdown(tabel_html, unsafe_allow_html=True)
 
 #Section4DataMentah
     st.markdown('<hr class="divider">', unsafe_allow_html=True)
