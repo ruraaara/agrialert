@@ -465,9 +465,15 @@ html, body, [class*="css"] {
 .hama-ciri { font-size: 0.85rem; color: #669B49; line-height: 1.55; }
 .hama-card-v { background: #EEFFD3; border: none; border-radius: var(--radius-md); padding: 14px 16px 16px; display: flex; flex-direction: row; align-items: flex-start; gap: 12px; box-shadow: var(--shadow-sm); }
 .hama-card-v .hama-nama { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; color: #20965F; font-size: 0.92rem; }
-.hama-img-wrap { width: 110px; min-width: 110px; aspect-ratio: 1/1; border-radius: var(--radius-sm); overflow: hidden; border: none; flex-shrink: 0; }
-.hama-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.hama-img-ph { width: 110px; min-width: 110px; aspect-ratio: 1/1; border-radius: var(--radius-sm); border: 1.5px dashed #20965F; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #20965F; text-align: center; padding: 8px; flex-shrink: 0; }
+.hama-img-wrap { width: 100%; aspect-ratio: 4/3; border-radius: var(--radius-sm); overflow: hidden; border: none; cursor: zoom-in; }
+.hama-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.2s; }
+.hama-img-wrap img:hover { transform: scale(1.04); }
+.hama-img-ph { width: 100%; aspect-ratio: 4/3; border-radius: var(--radius-sm); border: 1.5px dashed #20965F; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: #20965F; text-align: center; padding: 10px; }
+.lb-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.82); z-index:9999; align-items:center; justify-content:center; cursor:zoom-out; }
+.lb-overlay.aktif { display:flex; }
+.lb-overlay img { max-width:92vw; max-height:88vh; border-radius:12px; object-fit:contain; box-shadow:0 8px 40px rgba(0,0,0,0.5); }
+.lb-overlay .lb-tutup { position:absolute; top:18px; right:22px; color:#fff; font-size:2rem; font-weight:700; cursor:pointer; line-height:1; background:rgba(0,0,0,0.4); border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; }
+.lb-overlay .lb-nama { position:absolute; bottom:24px; left:0; right:0; text-align:center; color:#fff; font-size:0.95rem; font-weight:600; text-shadow:0 2px 8px rgba(0,0,0,0.7); }
 .hama-img-ph-path { font-family: monospace; font-size: 0.65rem; opacity: 0.7; word-break: break-all; color: #669B49; }
 .sec-title { font-size: 1.05rem; font-weight: 700; color: #669B49; margin: 18px 0 10px; display: flex; align-items: center; gap: 8px; padding-bottom: 6px; border-bottom: 1px solid rgba(102,155,73,0.12); }
 .divider { border: none; border-top: 1.5px solid #669B49; opacity: 0.2; margin: 16px 0; }
@@ -1158,7 +1164,14 @@ def gambar_hama_html(filename, alt=""):
         ext  = path.suffix.lstrip(".").lower()
         mime = "jpeg" if ext == "jpg" else ext
         b64  = base64.b64encode(path.read_bytes()).decode()
-        return f'<div class="hama-img-wrap"><img src="data:image/{mime};base64,{b64}" alt="{alt}"/></div>'
+        src  = f"data:image/{mime};base64,{b64}"
+        return (
+            f'<div class="hama-img-wrap" onclick="'
+            f'document.getElementById(\'lb\').className=\'lb-overlay aktif\';'
+            f'document.getElementById(\'lb-img\').src=\'{src}\';'
+            f'document.getElementById(\'lb-nama\').innerText=\'{alt}\';">'
+            f'<img src="{src}" alt="{alt}"/></div>'
+        )
     return (
         f'<div class="hama-img-ph">{ico("image", "1.6rem")}'
         f'<span>Foto referensi belum tersedia</span>'
@@ -1167,15 +1180,20 @@ def gambar_hama_html(filename, alt=""):
 
 
 def render_hama_grid(items):
-    st.markdown('<div class="hama-grid">', unsafe_allow_html=True)
+    st.markdown("""
+    <div id="lb" class="lb-overlay" onclick="this.className='lb-overlay'">
+      <span class="lb-tutup">&#x2715;</span>
+      <img id="lb-img" src="" alt=""/>
+      <div id="lb-nama" class="lb-nama"></div>
+    </div>
+    <div class="hama-grid">
+    """, unsafe_allow_html=True)
     for img_file, ikon, nama, ciri in items:
         st.markdown(f"""
         <div class="hama-card-v">
+          <div class="hama-nama">{ico(ikon, '1.3rem')} {nama}</div>
           {gambar_hama_html(img_file, nama)}
-          <div style="flex:1;min-width:0;">
-            <div class="hama-nama">{ico(ikon, '1.1rem')} {nama}</div>
-            <div class="hama-ciri">{ciri}</div>
-          </div>
+          <div class="hama-ciri">{ciri}</div>
         </div>
         """, unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
@@ -1193,10 +1211,10 @@ HAMA = [
 ]
 
 HAMA_CS = [
-    ("penggerek_batang_sundep.jpg", "bug", "Penggerek Batang — Sundep",
+    ("penggerek_batang_sundep.jpg", "bug", "Penggerek Batang Sundep",
      "Pucuk daun tengah (titik tumbuh) mengering, menguning, dan mudah tercabut pada fase vegetatif. "
      "Disebabkan larva penggerek batang (Scirpophaga spp.) yang menggerek titik tumbuh dari dalam batang."),
-    ("penggerek_batang_beluk.jpg", "bug", "Penggerek Batang — Beluk",
+    ("penggerek_batang_beluk.jpg", "bug", "Penggerek Batang Beluk",
      "Malai berwarna putih dan hampa, mudah tercabut pada fase generatif (berbunga/bermalai). Disebabkan "
      "larva penggerek batang yang merusak pangkal malai sehingga bulir tidak terbentuk."),
     ("tikus_sawah.jpg", "bug", "Tikus Sawah",
