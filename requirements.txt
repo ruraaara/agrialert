@@ -8,6 +8,7 @@ requests>=2.32.0
 Pillow>=10.3.0
 streamlit-geolocation>=0.0.9
 numpy<2,>=1.24.0
-tensorflow==2.14.0
 keras==2.14.0
 joblib
+tensorflow==2.20.0
+tensorflow-cpu==2.20.0
