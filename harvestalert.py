@@ -2714,7 +2714,7 @@ with tab2:
             <div class="mc-val">{ndvi_skor:.2f}</div>
             <div class="mc-sub">
               NDVI: {ndvi_val:.3f}<br>
-              Tekanan: <b>{_label_skor(ndvi_skor)}</b> - bobot 45%
+              Tekanan: <b>{_label_skor(ndvi_skor)}</b> - bobot 49%
             </div>
           </div>
 
@@ -2723,7 +2723,7 @@ with tab2:
             <div class="mc-val">{sar_skor:.2f}</div>
             <div class="mc-sub">
               SAR VH: {sar_val:.1f} dB<br>
-              Tekanan: <b>{_label_skor(sar_skor)}</b> - bobot 30%
+              Tekanan: <b>{_label_skor(sar_skor)}</b> - bobot 31.2%
             </div>
           </div>
 
@@ -2732,7 +2732,7 @@ with tab2:
             <div class="mc-val">{enso_skor:.2f}</div>
             <div class="mc-sub">
               ONI: {oni_val:+.2f}°C<br>
-              Tekanan: <b>{_label_skor(enso_skor)}</b> - bobot 25%
+              Tekanan: <b>{_label_skor(enso_skor)}</b> - bobot 19.8%
             </div>
           </div>
 
@@ -2749,9 +2749,9 @@ with tab2:
             <b>Waspada</b> (0.35–0.55): mulai ada tanda stres, pantau lahan lebih sering.<br>
             <b>Bahaya</b> (di atas 0.55): tekanan lahan tinggi, segera periksa irigasi dan kondisi tanaman.<br><br>
             Angka ini digabung dari tiga sumber data satelit:
-            kesehatan tanaman via NDVI Sentinel-2 (bobot 45%),
-            kadar air tanah via SAR Sentinel-1 (bobot 30%),
-            dan kondisi iklim global via indeks ENSO-ONI NOAA (bobot 25%).
+            kesehatan tanaman via NDVI Sentinel-2 (bobot 49%),
+            kadar air tanah via SAR Sentinel-1 (bobot 31.2%),
+            dan kondisi iklim global via indeks ENSO-ONI NOAA (bobot 19.8%).
             Perhitungannya menggunakan z-score rolling 4 bulan supaya perubahan musiman 
             tidak dianggap sebagai ancaman, karena yang dilihat adalah tren jangka panjangnya.
           </div>
