@@ -463,8 +463,8 @@ html, body, [class*="css"] {
 .hama-icon { font-size: 1.8rem; line-height: 1; flex-shrink: 0; margin-top: 2px; color: #669B49; }
 .hama-nama { font-size: 0.98rem; font-weight: 700; color: #669B49; margin-bottom: 4px; }
 .hama-ciri { font-size: 0.85rem; color: #669B49; line-height: 1.55; }
-.hama-card-v { background: #EEFFD3; border: none; border-radius: var(--radius-md); padding: 14px 16px 16px; display: flex; flex-direction: row; align-items: flex-start; gap: 12px; box-shadow: var(--shadow-sm); }
-.hama-card-v .hama-nama { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; color: #20965F; font-size: 0.92rem; }
+.hama-card-v { background: #EEFFD3; border: none; border-radius: var(--radius-md); padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 10px; box-shadow: var(--shadow-sm); }
+.hama-card-v .hama-nama { display: flex; align-items: center; gap: 8px; margin-bottom: 0; color: #20965F; }
 .hama-img-wrap { width: 100%; aspect-ratio: 4/3; border-radius: var(--radius-sm); overflow: hidden; border: none; }
 .hama-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .hama-img-ph { width: 100%; aspect-ratio: 4/3; border-radius: var(--radius-sm); border: 1.5px dashed #20965F; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: #20965F; text-align: center; padding: 10px; }
