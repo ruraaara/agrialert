@@ -5,7 +5,7 @@ import os
 import uuid
 import requests
 import streamlit as st
-import streamlit.components.v1 as _stcv1
+import streamlit.components.v1 as _components_v1
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
@@ -1843,9 +1843,17 @@ def load_oni_artifacts():
     if not (model_path.exists() and scaler_path.exists()):
         return None, None, None
 
-    from tensorflow import keras
-    model  = keras.models.load_model(model_path)
-    scaler = joblib.load(scaler_path)
+    try:
+        from tensorflow import keras
+        model  = keras.models.load_model(model_path)
+        scaler = joblib.load(scaler_path)
+    except Exception as e:
+        import logging
+        logging.getLogger("agrialert").warning(
+            f"Gagal load oni_lstm.keras (kemungkinan versi Keras tidak cocok): {e}. "
+            "Fallback ke prediksi_oni_lstm() (retrain in-session)."
+        )
+        return None, None, None
 
     metrics = {"method": "LSTM (artifact)"}
     if metrics_path.exists():
@@ -2000,7 +2008,7 @@ with st.sidebar:
     st.markdown(f'<h3 style="display:flex;align-items:center;gap:8px;color:var(--c-accent-text);">{ico("map")} Provinsi</h3>', unsafe_allow_html=True)
     daftar   = list(PROVINSI.keys())
     default  = prov_terdekat(lat, lon)
-    provinsi = st.selectbox("", daftar, index=daftar.index(default))
+    provinsi = st.selectbox("Pilih provinsi", daftar, index=daftar.index(default), label_visibility="collapsed")
 
     st.markdown("---")
     st.markdown(f'<h3 style="display:flex;align-items:center;gap:8px;color:var(--c-accent-text);">{ico("chart")} Status Data</h3>', unsafe_allow_html=True)
@@ -2093,7 +2101,7 @@ div:has(> [data-testid="stCustomComponentV1"]) {{
 }}
 </style>""", unsafe_allow_html=True)
     hasil_gps = streamlit_geolocation()
-    _stcv1.html("""<script>
+    _components_v1.html("""<script>
 (function(){
   function fix(){
     try{
