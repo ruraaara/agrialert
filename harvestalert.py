@@ -471,6 +471,16 @@ html, body, [class*="css"] {
 .hama-img-ph-path { font-family: monospace; font-size: 0.65rem; opacity: 0.7; word-break: break-all; color: #669B49; }
 .sec-title { font-size: 1.05rem; font-weight: 700; color: #669B49; margin: 18px 0 10px; display: flex; align-items: center; gap: 8px; padding-bottom: 6px; border-bottom: 1px solid rgba(102,155,73,0.12); }
 .divider { border: none; border-top: 1.5px solid #669B49; opacity: 0.2; margin: 16px 0; }
+/* Tabel HTML manual — paksa warna light */
+table { border-collapse: collapse; width: 100%; }
+table td, table th {
+    padding: 9px 12px;
+    text-align: left;
+    color: #1c2620;
+    border-bottom: 1px solid #e8f5e9;
+    background: #ffffff;
+}
+table tr:hover td { background: #f4fdf6 !important; }
 .status-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
 .chip { border-radius: 30px; padding: 7px 14px; font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; border: 1.5px solid #d4edda; background: #EEFFD3; color: #669B49; }
 .chip.aman, .chip.waspada, .chip.bahaya, .chip.info { background: #EEFFD3; border: 1.5px solid #d4edda; color: #669B49; }
@@ -561,6 +571,7 @@ button[data-baseweb="tab"]:hover:not([aria-selected="true"]) { background: rgba(
     .status-row { grid-template-columns: 1fr !important; gap: 6px !important; }
     .chip { width: 100% !important; justify-content: center !important; font-size: 0.75rem !important; padding: 6px 10px !important; }
     .divider { margin: 10px 0 !important; }
+    
     .sec-title { margin: 12px 0 8px !important; }
 }
 .tbot-chat {
@@ -2977,22 +2988,53 @@ with tab2:
                 return "background-color:#fefce8;color:#92400e;font-weight:700"
             return "background-color:#f0fdf4;color:#15803d;font-weight:700"
 
-        st.markdown('<div style="background:#ffffff;border-radius:12px;overflow:hidden;padding:2px;">', unsafe_allow_html=True)
-        st.dataframe(
-            top5.style
-                .format({
-                    "NDVI":        "{:.3f}",
-                    "SAR VH (dB)": "{:.1f}",
-                    "ONI":         "{:+.2f}",
-                    "Skor ILSK":   "{:.3f}"
-                })
-                .map(_style_status, subset=["Status"])
-                .set_properties(**{"font-size": "0.88rem", "background-color": "#ffffff", "color": "#1c2620"}),
-            use_container_width=True,
-            hide_index=True
-        )
-        st.markdown('</div>', unsafe_allow_html=True)
+        # Render sebagai HTML table — tidak pakai canvas, warna bisa dikontrol penuh
+        def _warna_status_html(val):
+            if val == "Bahaya":
+                return "background:#fef2f2;color:#b91c1c;font-weight:700"
+            elif val == "Waspada":
+                return "background:#fefce8;color:#92400e;font-weight:700"
+            return "background:#f0fdf4;color:#15803d;font-weight:700"
 
+        rows_html = ""
+        for _, row in top5.iterrows():
+            status_style = _warna_status_html(row["Status"])
+            rows_html += f"""
+            <tr>
+              <td>{row['Tanggal Observasi']}</td>
+              <td>{float(row['NDVI']):.3f}</td>
+              <td>{float(row['SAR VH (dB)']):.1f}</td>
+              <td>{float(row['ONI']):+.2f}</td>
+              <td>{float(row['Skor ILSK']):.3f}</td>
+              <td style="{status_style}">{row['Status']}</td>
+            </tr>"""
+
+        st.markdown(f"""
+        <div style="overflow-x:auto;margin-bottom:16px;">
+          <table style="width:100%;border-collapse:collapse;font-family:'Poppins',sans-serif;
+                        font-size:0.85rem;background:#ffffff;border-radius:12px;overflow:hidden;">
+            <thead>
+              <tr style="background:#f0faf3;">
+                <th style="padding:10px 12px;text-align:left;color:#20965F;font-weight:700;
+                           border-bottom:2px solid #d4edda;">Tanggal</th>
+                <th style="padding:10px 12px;text-align:left;color:#20965F;font-weight:700;
+                           border-bottom:2px solid #d4edda;">NDVI</th>
+                <th style="padding:10px 12px;text-align:left;color:#20965F;font-weight:700;
+                           border-bottom:2px solid #d4edda;">SAR VH (dB)</th>
+                <th style="padding:10px 12px;text-align:left;color:#20965F;font-weight:700;
+                           border-bottom:2px solid #d4edda;">ONI</th>
+                <th style="padding:10px 12px;text-align:left;color:#20965F;font-weight:700;
+                           border-bottom:2px solid #d4edda;">Skor ILSK</th>
+                <th style="padding:10px 12px;text-align:left;color:#20965F;font-weight:700;
+                           border-bottom:2px solid #d4edda;">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows_html}
+            </tbody>
+          </table>
+        </div>
+        """, unsafe_allow_html=True)
     # ================================================================
     #  SECTION 4 — DATA MENTAH (di dalam expander)
     # ================================================================
