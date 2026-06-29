@@ -3005,10 +3005,23 @@ with tab2:
             x=df_ilsk["Tanggal"], y=df_ilsk["sar_stress"],
             name="Skor Anomali SAR",
             marker_color=sar_bar_colors,
+            showlegend=False,
             hovertemplate="<b>%{x|%d %b %Y}</b><br>Skor: %{y:.3f}<extra></extra>"
         ))
+        # Dummy trace untuk legend warna SAR
+        for _warna, _nama in [
+            ("#ef4444", "Bahaya (>0.55)"),
+            ("#eab308", "Waspada (0.35–0.55)"),
+            ("#60a5fa", "Aman (<0.35)"),
+        ]:
+            fig_b.add_trace(go.Bar(
+                x=[None], y=[None],
+                name=_nama,
+                marker_color=_warna,
+                showlegend=True,
+            ))
         fig_b.update_layout(
-            **_decomp_style, height=250,
+            **_decomp_style, height=260,
             title=dict(text="Komponen B — Anomali Kelembapan Tanah (SAR Sentinel-1 VH)",
                        font=dict(size=13, color="#669B49"), x=0, xanchor="left"),
             yaxis=dict(range=[0, 1], title_text="Skor [0-1]"),
