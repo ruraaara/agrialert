@@ -770,13 +770,6 @@ details > summary {
 /* Seluruh area Tab content — paksa background putih/light */
 [data-testid="stTabContent"] { background: transparent !important; }
 
-/* Markdown container umum — pastikan teks selalu gelap */
-[data-testid="stMarkdownContainer"] p,
-[data-testid="stMarkdownContainer"] li,
-[data-testid="stMarkdownContainer"] span:not([class*="chip"]):not([class*="bc-"]) {
-    color: #1c2620 !important;
-}
-
 /* Number input */
 [data-testid="stNumberInput"] input {
     background-color: #ffffff !important;
