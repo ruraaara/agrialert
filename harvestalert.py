@@ -674,6 +674,138 @@ div[data-baseweb="popover"] li {
 [data-testid="stExpander"] { border: 1.5px solid #e8f5e9 !important; border-radius: var(--radius-md) !important; overflow: hidden; }
 [data-testid="stExpanderDetails"] { background: #FAFFFE !important; padding: 12px 16px !important; }
 
+/* ── PAKSA LIGHT — elemen yang masih gelap di dark mode browser ── */
+
+/* Expander header (judul "Lihat Data Mentah Satelit" dll) */
+[data-testid="stExpander"] summary,
+[data-testid="stExpanderToggleIcon"],
+details > summary {
+    background-color: #f4fdf6 !important;
+    color: #1c2620 !important;
+}
+[data-testid="stExpander"] summary:hover { background-color: #eefff3 !important; }
+[data-testid="stExpander"] summary * { color: #20965F !important; }
+[data-testid="stExpander"] summary svg path { stroke: #20965F !important; }
+
+/* DataFrame / st.dataframe — tabel 5 Periode Risiko Tertinggi */
+[data-testid="stDataFrame"] { background: #ffffff !important; border-radius: var(--radius-md) !important; overflow: hidden; }
+[data-testid="stDataFrame"] > div { background: #ffffff !important; }
+/* Grid header */
+[data-testid="stDataFrame"] [role="columnheader"],
+[data-testid="stDataFrame"] [role="columnheader"] * {
+    background-color: #f0faf3 !important;
+    color: #20965F !important;
+}
+/* Grid cells */
+[data-testid="stDataFrame"] [role="gridcell"],
+[data-testid="stDataFrame"] [role="gridcell"] * {
+    background-color: #ffffff !important;
+    color: #1c2620 !important;
+}
+/* Canvas fallback (GlideDataEditor pakai canvas, susah di-override CSS —
+   ini hanya untuk wrapper-nya agar tidak hitam) */
+[data-testid="stDataFrame"] canvas { filter: none !important; }
+[data-testid="stDataFrame"] .dvn-scroller,
+[data-testid="stDataFrame"] .dvn-stack { background: #ffffff !important; }
+
+/* File uploader — seluruh area termasuk background wrapper */
+[data-testid="stFileUploader"] > div,
+[data-testid="stFileUploader"] > div > div {
+    background-color: #EEFFD3 !important;
+}
+[data-testid="stFileUploader"] section {
+    background-color: #EEFFD3 !important;
+    border: none !important;
+    border-radius: var(--radius-md) !important;
+}
+[data-testid="stFileUploaderDropzone"] {
+    background-color: #EEFFD3 !important;
+    border: none !important;
+}
+[data-testid="stFileUploaderDropzone"] * { color: #20965F !important; }
+[data-testid="stFileUploaderDropzone"] button {
+    background: #20965F !important;
+    color: #ffffff !important;
+    border: none !important;
+}
+[data-testid="stFileUploaderDropzone"] button * { color: #ffffff !important; }
+
+/* Checkbox — kotak centang (SVG box) dan label */
+[data-testid="stCheckbox"] { color: #1c2620 !important; }
+[data-testid="stCheckbox"] span,
+[data-testid="stCheckbox"] p,
+[data-testid="stCheckbox"] label { color: #1c2620 !important; }
+/* Box checkbox itu sendiri (input[type=checkbox] di-style via BaseWeb) */
+[data-testid="stCheckbox"] [data-baseweb="checkbox"] > div:first-child {
+    background-color: #ffffff !important;
+    border-color: #20965F !important;
+}
+[data-testid="stCheckbox"] input:checked + div,
+[data-testid="stCheckbox"] [aria-checked="true"] > div:first-child {
+    background-color: #20965F !important;
+    border-color: #20965F !important;
+}
+
+/* Radio button — tombol offline/online di Tab Cek Hama */
+[data-testid="stRadio"] { color: #1c2620 !important; }
+[data-testid="stRadio"] label { color: #1c2620 !important; }
+[data-testid="stRadio"] label p,
+[data-testid="stRadio"] label div p,
+[data-testid="stRadio"] span { color: #1c2620 !important; }
+[data-testid="stRadio"] [data-baseweb="radio"] > div:first-child {
+    background-color: #ffffff !important;
+    border-color: #20965F !important;
+}
+[data-testid="stRadio"] [aria-checked="true"] > div:first-child {
+    background-color: #20965F !important;
+    border-color: #20965F !important;
+}
+
+/* Selectbox / dropdown container */
+[data-testid="stSelectbox"] > div { background-color: #ffffff !important; }
+[data-testid="stSelectbox"] label,
+[data-testid="stSelectbox"] label * { color: #1c2620 !important; }
+
+/* Seluruh area Tab content — paksa background putih/light */
+[data-testid="stTabContent"] { background: transparent !important; }
+
+/* Markdown container umum — pastikan teks selalu gelap */
+[data-testid="stMarkdownContainer"] p,
+[data-testid="stMarkdownContainer"] li,
+[data-testid="stMarkdownContainer"] span:not([class*="chip"]):not([class*="bc-"]) {
+    color: #1c2620 !important;
+}
+
+/* Number input */
+[data-testid="stNumberInput"] input {
+    background-color: #ffffff !important;
+    color: #1c2620 !important;
+}
+
+/* Text area */
+.stTextArea textarea {
+    background-color: #ffffff !important;
+    color: #1c2620 !important;
+}
+
+/* BaseWeb tooltip / popover yang muncul di dark mode */
+div[data-baseweb="tooltip"] *,
+div[data-baseweb="popover"] {
+    background-color: #ffffff !important;
+    color: #1c2620 !important;
+}
+
+/* Spinner / loading text */
+[data-testid="stSpinner"] p { color: #20965F !important; }
+
+/* Warning / info / error / success boxes — paksa teks gelap */
+[data-testid="stAlert"] {
+    color: #1c2620 !important;
+}
+[data-testid="stAlert"] p,
+[data-testid="stAlert"] li,
+[data-testid="stAlert"] span { color: #1c2620 !important; }
+
 /* ── GPS button — container jadi tombol hijau, iframe di dalamnya jadi click target ── */
 div:has(> [data-testid="stCustomComponentV1"]) {
     background-color: #669B49 !important;
@@ -2845,6 +2977,7 @@ with tab2:
                 return "background-color:#fefce8;color:#92400e;font-weight:700"
             return "background-color:#f0fdf4;color:#15803d;font-weight:700"
 
+        st.markdown('<div style="background:#ffffff;border-radius:12px;overflow:hidden;padding:2px;">', unsafe_allow_html=True)
         st.dataframe(
             top5.style
                 .format({
@@ -2854,10 +2987,11 @@ with tab2:
                     "Skor ILSK":   "{:.3f}"
                 })
                 .map(_style_status, subset=["Status"])
-                .set_properties(**{"font-size": "0.88rem"}),
+                .set_properties(**{"font-size": "0.88rem", "background-color": "#ffffff", "color": "#1c2620"}),
             use_container_width=True,
             hide_index=True
         )
+        st.markdown('</div>', unsafe_allow_html=True)
 
     # ================================================================
     #  SECTION 4 — DATA MENTAH (di dalam expander)
