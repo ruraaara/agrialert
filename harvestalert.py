@@ -2214,9 +2214,9 @@ with tab2:
         Indeks Lahan Stres Komposit (ILSK) skala 0-1.
 
         Metode: Rolling Z-score Anomaly Detection + Weighted Fusion
-          Komponen A (bobot 45%) : NDVI Deficiency  — anomali vegetasi vs. baseline 4-bulan
-          Komponen B (bobot 30%) : SAR Dryness      — anomali kelembapan tanah vs. baseline
-          Komponen C (bobot 25%) : ENSO Pressure    — tekanan iklim makro dari ONI
+          Komponen A (bobot 49%) : NDVI Deficiency  — anomali vegetasi vs. baseline 4-bulan
+          Komponen B (bobot 31.2%) : SAR Dryness      — anomali kelembapan tanah vs. baseline
+          Komponen C (bobot 19.8%) : ENSO Pressure    — tekanan iklim makro dari ONI
 
         NDVI & SAR disinkronkan dulu ke timeline bulanan bersama lewat
         _sinkronkan_satelit() (lihat fungsi di atas), baru komponen ENSO
