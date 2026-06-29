@@ -1987,7 +1987,7 @@ div:has(> [data-testid="stCustomComponentV1"]) {{
     """, unsafe_allow_html=True)
 
 
-    st.markdown(f'<p class="sec-title">{ico("lightbulb")} Yang Harus Dilakukan</p>', unsafe_allow_html=True)
+    st.markdown(f'<p class="sec-title"> Yang Harus Dilakukan</p>', unsafe_allow_html=True)
 
     st.markdown(f"""
     <div class="two-col">
