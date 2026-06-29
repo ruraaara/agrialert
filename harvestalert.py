@@ -2199,7 +2199,7 @@ with tab2:
     #  SECTION 1 — HEADER + LOKASI + CUACA BMKG
     # ================================================================
     st.markdown(
-        f'<p class="sec-title">{ico("cloud-sun")} Cuaca Detail - {provinsi}</p>',
+        f'<p class="sec-title">Cuaca Detail - {provinsi}</p>',
         unsafe_allow_html=True
     )
 
@@ -2289,7 +2289,7 @@ with tab2:
         <div class="bc-sub" style="margin-top:8px">{enso_cur["pesan"]}</div>
       </div>
       <div class="big-card {enso_pred['kelas']}">
-        <div class="bc-label">{ico("chart")} Prediksi LSTM — {pred["date"].strftime("%B %Y")}</div>
+        <div class="bc-label"> Prediksi LSTM {pred["date"].strftime("%B %Y")}</div>
         <div class="bc-row">
           <span class="bc-icon">{ico(enso_pred["ikon"], "2.2rem")}</span>
           <div>
@@ -2329,7 +2329,7 @@ with tab2:
     st.markdown(
         f'<div style="margin:8px 0 4px;font-size:0.78rem;font-weight:700;'
         f'color:#669B49;text-transform:uppercase;letter-spacing:0.8px;">'
-        f'{ico("chart")} Proyeksi LSTM 3 Bulan ke Depan</div>'
+        f' Proyeksi LSTM 3 Bulan ke Depan</div>'
         f'<div class="metric-grid" style="grid-template-columns:repeat(3,1fr);'
         f'margin-bottom:10px;">{pred_cols_html}</div>',
         unsafe_allow_html=True
@@ -2342,24 +2342,24 @@ with tab2:
     )
     st.markdown(f"""
     <div class="rekom" style="margin-bottom:12px;">
-      <div class="rk-title">{ico('ruler')} Metrik Akurasi Model {_method_label}</div>
+      <div class="rk-title"> Metrik Akurasi Model {_method_label}</div>
       <div class="rk-text" style="display:flex;flex-wrap:wrap;gap:16px 28px;margin-top:6px;">
         <span style="font-size:0.92rem;">
           <b>RMSE</b> = {_rmse_str} °C
           <span style="font-size:0.78rem;color:#57685d;margin-left:6px;">
-            (Root Mean Squared Error — makin kecil makin akurat)
+            (Root Mean Squared Error, makin kecil makin akurat)
           </span>
         </span>
         <span style="font-size:0.92rem;">
           <b>MAE</b> = {_mae_str} °C
           <span style="font-size:0.78rem;color:#57685d;margin-left:6px;">
-            (Mean Absolute Error — rata-rata selisih prediksi)
+            (Mean Absolute Error, rata-rata selisih prediksi)
           </span>
         </span>
         <span style="font-size:0.92rem;">
           {_r2_badge}
           <span style="font-size:0.78rem;color:#57685d;margin-left:6px;">
-            (Koefisien Determinasi — mendekati 1.0 = sangat akurat)
+            (Koefisien Determinasi, mendekati 1.0 = sangat akurat)
           </span>
         </span>
       </div>
@@ -2602,7 +2602,7 @@ with tab2:
         <div class="rekom" style="margin-top:10px">
           <div class="rk-title">{ico("info-circle")} Cara Membaca ILSK</div>
           <div class="rk-text">
-            ILSK adalah angka antara 0 sampai 1 — semakin tinggi, semakin besar tekanan
+            ILSK adalah angka antara 0 sampai 1 di mana semakin tinggi nilainya, semakin besar pula tekanan 
             yang sedang dialami lahan sawah Anda.<br><br>
             <b>Aman</b> (di bawah 0.35): kondisi lahan normal, tidak ada indikasi gangguan berarti.<br>
             <b>Waspada</b> (0.35–0.55): mulai ada tanda stres, pantau lahan lebih sering.<br>
@@ -2611,8 +2611,8 @@ with tab2:
             kesehatan tanaman via NDVI Sentinel-2 (bobot 45%),
             kadar air tanah via SAR Sentinel-1 (bobot 30%),
             dan kondisi iklim global via indeks ENSO-ONI NOAA (bobot 25%).
-            Perhitungannya pakai z-score rolling 4 bulan supaya perubahan musiman
-            tidak dianggap sebagai ancaman — yang dilihat adalah tren jangka panjangnya.
+            Perhitungannya menggunakan z-score rolling 4 bulan supaya perubahan musiman 
+            tidak dianggap sebagai ancaman, karena yang dilihat adalah tren jangka panjangnya.
           </div>
         </div>
         """, unsafe_allow_html=True)
@@ -2620,7 +2620,7 @@ with tab2:
         # ── GRAFIK 1: ILSK Timeline ─────────────────────────────
         st.markdown(
             f'<p class="sec-title" style="margin-top:20px">'
-            f'{ico("chart")} Tren ILSK — Seluruh Periode Data</p>',
+            f' Tren ILSK Seluruh Periode Data</p>',
             unsafe_allow_html=True
         )
 
@@ -2713,7 +2713,7 @@ with tab2:
         # ── GRAFIK 2: Dekomposisi 3 Komponen ───────────────────
         st.markdown(
             f'<p class="sec-title">'
-            f'{ico("chart")} Dekomposisi Tiga Komponen ILSK</p>',
+            f' Dekomposisi Tiga Komponen ILSK</p>',
             unsafe_allow_html=True
         )
 
@@ -2793,7 +2793,7 @@ with tab2:
         # ── GRAFIK 3: Distribusi Status ─────────────────────────
         st.markdown(
             f'<p class="sec-title">'
-            f'{ico("flag")} Distribusi Status Lahan — Seluruh Periode</p>',
+            f' Distribusi Status Lahan Seluruh Periode</p>',
             unsafe_allow_html=True
         )
 
@@ -2820,7 +2820,7 @@ with tab2:
         # ── Tabel Top-5 Periode Risiko Tertinggi ───────────────
         st.markdown(
             f'<p class="sec-title">'
-            f'{ico("alert-triangle")} 5 Periode Risiko Tertinggi</p>',
+            f' 5 Periode Risiko Tertinggi</p>',
             unsafe_allow_html=True
         )
 
@@ -2908,12 +2908,12 @@ with tab2:
 #  TAB 3 — KENALI HAMA & PENYAKIT
 # ════════════════════════════════════════════════════
 with tab3:
-    st.markdown(f'<p class="sec-title">{ico("bug")} Kenali Penyakit Padi yang Umum</p>',
+    st.markdown(f'<p class="sec-title"> Kenali Penyakit Padi yang Umum</p>',
                 unsafe_allow_html=True)
     render_hama_grid(HAMA)
 
     st.markdown('<hr class="divider">', unsafe_allow_html=True)
-    st.markdown(f'<p class="sec-title">{ico("camera")} Hama yang Butuh Bantuan Foto Anda</p>',
+    st.markdown(f'<p class="sec-title"> Hama yang Butuh Bantuan Foto Anda</p>',
                 unsafe_allow_html=True)
     st.markdown(f"""
     <div class="rekom biru">
@@ -2933,7 +2933,7 @@ with tab3:
 #  TAB 4 — CEK HAMA
 # ════════════════════════════════════════════════════
 with tab4:
-    st.markdown(f'<p class="sec-title">{ico("microscope")} Cek Hama Padi — Foto Tanaman Anda</p>',
+    st.markdown(f'<p class="sec-title">Cek Hama Padi Melalui Foto Tanaman Anda</p>',
                 unsafe_allow_html=True)
 
     if model_cnn is None:
@@ -3261,7 +3261,7 @@ with tab5:
         menggabungkan data cuaca real-time BMKG, kondisi iklim global (ENSO),
         data satelit Sentinel-1/2, dan kecerdasan buatan untuk deteksi penyakit.<br><br>
         <b>Sumber data:</b> BMKG · NOAA/CPC · Sentinel-1 SAR · Sentinel-2 NDVI · BBPOPT<br>
-        <b>Model AI:</b> CNN AgriAlert — 98% akurasi, 9 kelas penyakit daun padi<br>
+        <b>Model AI:</b> Model AI CNN AgriAlert memiliki akurasi 98% untuk mendeteksi 6 kelas penyakit daun padii<br>
         <b>Regulasi:</b> Permentan No. 39/2018 · UU PDP No. 27/2022<br>
         <b>Versi:</b> 1.0 · Satria Data 2026
       </div>
@@ -3269,7 +3269,7 @@ with tab5:
     """, unsafe_allow_html=True)
 
     st.markdown('<hr class="divider">', unsafe_allow_html=True)
-    st.markdown(f'<p class="sec-title">{ico("chart")} Status Sistem</p>', unsafe_allow_html=True)
+    st.markdown(f'<p class="sec-title">Status Sistem</p>', unsafe_allow_html=True)
 
     st.markdown(f"""
     <div class="metric-grid">
@@ -3293,7 +3293,7 @@ with tab5:
     """, unsafe_allow_html=True)
 
     st.markdown('<hr class="divider">', unsafe_allow_html=True)
-    st.markdown(f'<p class="sec-title">{ico("alert-triangle")} Panduan Warna Peringatan</p>', unsafe_allow_html=True)
+    st.markdown(f'<p class="sec-title"> Panduan Warna Peringatan</p>', unsafe_allow_html=True)
 
     for ikon_key, warna, kls, arti, aksi in [
         ("check-circle", "Hijau",  "",       "Kondisi aman",  "Lanjutkan aktivitas normal"),
@@ -3303,13 +3303,13 @@ with tab5:
         st.markdown(f"""
         <div class="rekom {kls}">
           <div class="rk-title">{ico(ikon_key)} {warna}</div>
-          <div class="rk-text"><b>{arti}</b> — {aksi}</div>
+          <div class="rk-text"><b>{arti}</b> : {aksi}</div>
         </div>
         """, unsafe_allow_html=True)
 
     # ── Kotak Pengaduan — laporkan kesalahan deteksi AI ──
     st.markdown('<hr class="divider">', unsafe_allow_html=True)
-    st.markdown(f'<p class="sec-title">{ico("flag")} Laporkan Kesalahan Deteksi</p>', unsafe_allow_html=True)
+    st.markdown(f'<p class="sec-title"> Laporkan Kesalahan Deteksi</p>', unsafe_allow_html=True)
     st.markdown(f"""
     <div class="rekom kuning">
       <div class="rk-title">{ico('alert-triangle')} Hasil Deteksi AI Tidak Sesuai?</div>
@@ -3344,7 +3344,7 @@ with tab5:
 
     # ── Crowdsourcing foto hama (consent-based) ──
     st.markdown('<hr class="divider">', unsafe_allow_html=True)
-    st.markdown(f'<p class="sec-title">{ico("camera")} Bantu Kumpulkan Foto Hama</p>', unsafe_allow_html=True)
+    st.markdown(f'<p class="sec-title"> Bantu Kumpulkan Foto Hama</p>', unsafe_allow_html=True)
     st.markdown(f"""
     <div class="rekom biru">
       <div class="rk-title">{ico('shield-check')} Kenapa Foto Anda Penting?</div>
@@ -3361,10 +3361,10 @@ with tab5:
         jenis_hama_cs = st.selectbox(
             "Jenis hama pada foto:",
             [
-                "Penggerek Batang — Sundep (pucuk kering, fase vegetatif)",
-                "Penggerek Batang — Beluk (malai putih hampa, fase generatif)",
-                "Tikus — kerusakan tanaman",
-                "Wereng Batang Coklat — serangan pada batang/rumpun",
+                "Penggerek Batang Sundep (pucuk kering, fase vegetatif)",
+                "Penggerek Batang Beluk (malai putih hampa, fase generatif)",
+                "Tikus",
+                "Wereng Batang Coklat - serangan pada batang/rumpun",
                 "Lainnya",
             ],
         )
