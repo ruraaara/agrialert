@@ -753,13 +753,15 @@ details > summary {
 [data-testid="stRadio"] label p,
 [data-testid="stRadio"] label div p,
 [data-testid="stRadio"] span { color: #1c2620 !important; }
-[data-testid="stRadio"] [data-baseweb="radio"] > div:first-child {
-    background-color: #ffffff !important;
+[data-testid="stRadio"] [data-baseweb="radio"] div[class] {
     border-color: #DF8107 !important;
 }
-[data-testid="stRadio"] [aria-checked="true"] > div:first-child {
+[data-testid="stRadio"] [aria-checked="true"] div[class] {
     background-color: #DF8107 !important;
     border-color: #DF8107 !important;
+}
+[data-testid="stRadio"] [aria-checked="true"] div[class] div {
+    background-color: #ffffff !important;
 }
 
 /* Selectbox / dropdown container */
