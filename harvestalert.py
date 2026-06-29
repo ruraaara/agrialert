@@ -2224,9 +2224,9 @@ with tab2:
         timestamp yang berbeda-beda.
         """
         WINDOW = 4        # bulanan x4 ~ 4 bulan rolling baseline
-        W_NDVI = 0.45
-        W_SAR  = 0.30
-        W_ENSO = 0.25
+        W_NDVI = 0.49
+        W_SAR  = 0.312
+        W_ENSO = 0.198
 
         # ── Sinkronisasi NDVI + SAR ke timeline bulanan bersama ─────
         df_sync = _sinkronkan_satelit(df_ndvi_in, df_sar_in, freq="MS")
