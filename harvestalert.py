@@ -2964,8 +2964,8 @@ with tab2:
                 font=dict(size=11),
                 bgcolor="rgba(0,0,0,0)",
             ),
-            margin=dict(t=40, b=90, l=44, r=20),
         )
+        _decomp_style["margin"] = dict(t=40, b=90, l=44, r=20)
 
         # Panel A: NDVI
         fig_a = go.Figure()
