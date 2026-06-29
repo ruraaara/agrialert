@@ -2920,16 +2920,24 @@ with tab2:
         ), row=3, col=1)
 
         fig_decomp.update_layout(
-            **PLOT_STYLE, height=600,
+            **PLOT_STYLE, height=750,
             showlegend=True, barmode="overlay",
-            legend=dict(orientation="h", yanchor="bottom", y=1.01,
-                        xanchor="right", x=1, font=dict(size=11))
+            margin=dict(t=80, b=40, l=50, r=20),
+            legend=dict(
+                orientation="h",
+                yanchor="top",
+                y=-0.06,        # legend di bawah grafik, tidak menabrak subplot title
+                xanchor="center",
+                x=0.5,
+                font=dict(size=10),
+                tracegroupgap=4,
+            )
         )
         for r in [1, 2, 3]:
             fig_decomp.update_yaxes(range=[0, 1], title_text="Skor [0-1]",
                                     row=r, col=1)
-
-        st.plotly_chart(fig_decomp, use_container_width=True, theme=None)
+        # Beri jarak lebih antara subplot title dan area grafik
+        fig_decomp.update_annotations(font_size=11, yshift=8)
 
         # ── GRAFIK 3: Distribusi Status ─────────────────────────
         st.markdown(
