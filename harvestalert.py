@@ -2954,78 +2954,88 @@ with tab2:
             unsafe_allow_html=True
         )
 
-        fig_decomp = make_subplots(
-            rows=3, cols=1,
-            shared_xaxes=True,
-            vertical_spacing=0.12,
-            subplot_titles=[
-                "Komponen A : Skor Stres Vegetasi (NDVI Sentinel-2)",
-                "Komponen B : Skor Anomali Kelembapan Tanah (SAR Sentinel-1 VH)",
-                "Komponen C : Skor Tekanan Iklim Makro (ENSO-ONI NOAA)"
-            ]
+        # Render 3 subplot terpisah supaya tidak tumpang tindih di mobile
+        _decomp_style = dict(
+            **PLOT_STYLE,
+            showlegend=True,
+            legend=dict(
+                orientation="h", yanchor="top", y=-0.22,
+                xanchor="center", x=0.5,
+                font=dict(size=11),
+                bgcolor="rgba(0,0,0,0)",
+            ),
+            margin=dict(t=40, b=90, l=44, r=20),
         )
 
-        # Panel A: NDVI Stress Score + baseline
-        fig_decomp.add_trace(go.Scatter(
+        # Panel A: NDVI
+        fig_a = go.Figure()
+        fig_a.add_trace(go.Scatter(
             x=df_ilsk["Tanggal"], y=df_ilsk["ndvi_stress"],
             mode="lines+markers", name="Skor Stres NDVI",
-            line=dict(color="#4ade80", width=2),
-            marker=dict(size=4),
+            line=dict(color="#4ade80", width=2), marker=dict(size=4),
             hovertemplate="<b>%{x|%d %b %Y}</b><br>Skor: %{y:.3f}<extra></extra>"
-        ), row=1, col=1)
-
-        fig_decomp.add_trace(go.Scatter(
+        ))
+        fig_a.add_trace(go.Scatter(
             x=df_ilsk["Tanggal"], y=df_ilsk["NDVI"],
             mode="lines", name="NDVI (nilai asli)",
             line=dict(color="#86efac", width=1.2, dash="dot"),
             hovertemplate="<b>%{x|%d %b %Y}</b><br>NDVI: %{y:.3f}<extra></extra>"
-        ), row=1, col=1)
-
-        fig_decomp.add_trace(go.Scatter(
+        ))
+        fig_a.add_trace(go.Scatter(
             x=df_ilsk["Tanggal"], y=df_ilsk["ndvi_baseline"],
-            mode="lines", name="Baseline NDVI (rolling 4-bulan)",
+            mode="lines", name="Baseline NDVI (rolling 4-bln)",
             line=dict(color="#16a34a", width=1, dash="longdash"),
             hovertemplate="<b>%{x|%d %b %Y}</b><br>Baseline: %{y:.3f}<extra></extra>"
-        ), row=1, col=1)
+        ))
+        fig_a.update_layout(
+            **_decomp_style, height=280,
+            title=dict(text="Komponen A — Stres Vegetasi (NDVI Sentinel-2)",
+                       font=dict(size=13, color="#669B49"), x=0, xanchor="left"),
+            yaxis=dict(range=[0, 1], title_text="Skor [0-1]"),
+        )
+        st.plotly_chart(fig_a, use_container_width=True, theme=None)
 
-        # Panel B: SAR Stress Score (bar)
+        # Panel B: SAR
         sar_bar_colors = [
             "#ef4444" if s > 0.55 else ("#eab308" if s > 0.35 else "#60a5fa")
             for s in df_ilsk["sar_stress"]
         ]
-        fig_decomp.add_trace(go.Bar(
+        fig_b = go.Figure()
+        fig_b.add_trace(go.Bar(
             x=df_ilsk["Tanggal"], y=df_ilsk["sar_stress"],
             name="Skor Anomali SAR",
             marker_color=sar_bar_colors,
             hovertemplate="<b>%{x|%d %b %Y}</b><br>Skor: %{y:.3f}<extra></extra>"
-        ), row=2, col=1)
+        ))
+        fig_b.update_layout(
+            **_decomp_style, height=250,
+            title=dict(text="Komponen B — Anomali Kelembapan Tanah (SAR Sentinel-1 VH)",
+                       font=dict(size=13, color="#669B49"), x=0, xanchor="left"),
+            yaxis=dict(range=[0, 1], title_text="Skor [0-1]"),
+        )
+        st.plotly_chart(fig_b, use_container_width=True, theme=None)
 
-        # Panel C: ENSO breakdown — drought vs flood
-        fig_decomp.add_trace(go.Bar(
+        # Panel C: ENSO
+        fig_c = go.Figure()
+        fig_c.add_trace(go.Bar(
             x=df_ilsk["Tanggal"], y=df_ilsk["oni_drought"],
-            name="Tekanan Kekeringan (El Nino)",
+            name="Tekanan Kekeringan (El Niño)",
             marker_color="rgba(239,68,68,0.65)",
             hovertemplate="<b>%{x|%d %b %Y}</b><br>Drought: %{y:.3f}<extra></extra>"
-        ), row=3, col=1)
-
-        fig_decomp.add_trace(go.Bar(
+        ))
+        fig_c.add_trace(go.Bar(
             x=df_ilsk["Tanggal"], y=df_ilsk["oni_flood"],
-            name="Tekanan Banjir (La Nina)",
+            name="Tekanan Banjir (La Niña)",
             marker_color="rgba(59,130,246,0.65)",
             hovertemplate="<b>%{x|%d %b %Y}</b><br>Flood: %{y:.3f}<extra></extra>"
-        ), row=3, col=1)
-
-        fig_decomp.update_layout(
-            **PLOT_STYLE, height=600,
-            showlegend=True, barmode="overlay",
-            legend=dict(orientation="h", yanchor="bottom", y=1.01,
-                        xanchor="right", x=1, font=dict(size=11))
+        ))
+        fig_c.update_layout(
+            **_decomp_style, height=270, barmode="overlay",
+            title=dict(text="Komponen C — Tekanan Iklim Makro (ENSO-ONI NOAA)",
+                       font=dict(size=13, color="#669B49"), x=0, xanchor="left"),
+            yaxis=dict(range=[0, 1], title_text="Skor [0-1]"),
         )
-        for r in [1, 2, 3]:
-            fig_decomp.update_yaxes(range=[0, 1], title_text="Skor [0-1]",
-                                    row=r, col=1)
-
-        st.plotly_chart(fig_decomp, use_container_width=True, theme=None)
+        st.plotly_chart(fig_c, use_container_width=True, theme=None)
 
         # ── GRAFIK 3: Distribusi Status ─────────────────────────
         st.markdown(
