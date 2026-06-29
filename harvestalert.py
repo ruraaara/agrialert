@@ -474,8 +474,7 @@ html, body, [class*="css"] {
 .status-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
 .chip { border-radius: 30px; padding: 7px 14px; font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; border: 1.5px solid #d4edda; background: #EEFFD3; color: #669B49; }
 .chip.aman, .chip.waspada, .chip.bahaya, .chip.info { background: #EEFFD3; border: 1.5px solid #d4edda; color: #669B49; }
-/* ── TAB NAVIGATION — bg putih dengan outline hijau ── */
-div[data-baseweb="tab-list"] { background: #FFFFFF !important; border: 2px solid #DF8107 !important; border-radius: var(--radius-md) !important; padding: 5px !important; gap: 4px !important; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(102,155,73,0.10); display: flex !important; width: 100% !important; }
+/* ── TAB NAVIGATION — bg putih dengan outline hijau ── */div[data-baseweb="tab-list"] { background: #FFFFFF !important; border: 2px solid #669B49 !important;div[data-baseweb="tab-list"] { background: #FFFFFF !important; border: 2px solid #DF8107 !important; border-radius: var(--radius-md) !important; padding: 5px !important; gap: 4px !important; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(102,155,73,0.10); display: flex !important; width: 100% !important; }
 button[data-baseweb="tab"] { font-family: 'Poppins', sans-serif !important; font-size: 0.9rem !important; font-weight: 600 !important; border-radius: var(--radius-sm) !important; padding: 10px 14px !important; color: #669B49 !important; border: 1.5px solid transparent !important; transition: all 0.2s ease; flex: 1 !important; text-align: center !important; }
 button[data-baseweb="tab"] p { color: #669B49 !important; font-family: 'Poppins', sans-serif !important; font-weight: 600 !important; }
 button[data-baseweb="tab"][aria-selected="true"] { background: #FFE0AD !important; border-color: #DF8107 !important; border-bottom: 3px solid #DF8107 !important; }
