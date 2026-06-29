@@ -3538,7 +3538,7 @@ with tab5:
         menggabungkan data cuaca real-time BMKG, kondisi iklim global (ENSO),
         data satelit Sentinel-1/2, dan kecerdasan buatan untuk deteksi penyakit.<br><br>
         <b>Sumber data:</b> BMKG · NOAA/CPC · Sentinel-1 SAR · Sentinel-2 NDVI · BBPOPT<br>
-        <b>Model AI:</b> Model AI CNN AgriAlert memiliki akurasi 98% untuk mendeteksi 6 kelas penyakit daun padii<br>
+        <b>Model AI:</b> Model AI CNN AgriAlert memiliki akurasi 93% untuk mendeteksi 6 kelas penyakit daun padi<br>
         <b>Regulasi:</b> Permentan No. 39/2018 · UU PDP No. 27/2022<br>
         <b>Versi:</b> 1.0 · Satria Data 2026
       </div>
